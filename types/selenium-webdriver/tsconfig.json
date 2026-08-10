@@ -1,42 +1,41 @@
 {
+    "$schema": "https://www.schemastore.org/tsconfig",
     "compilerOptions": {
-        "module": "node16",
-        "target": "es6",
+        /* Language and Environment */
+        "target": "ES2022",                                  /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
         "lib": [
-            "es6"
+            "ES2022"
         ],
-        "noImplicitAny": true,
-        "noImplicitThis": false,
-        "strictNullChecks": true,
-        "strictFunctionTypes": true,
-        "types": [],
-        "noEmit": true,
-        "forceConsistentCasingInFileNames": true
+        
+        /* Modules */
+        "module": "NodeNext",                                /* Specify what module code is generated. */
+        "types": [                                           /* Specify type package names to be included without being referenced in a source file. */
+            "node"
+        ],
+
+        /* Emit */
+        "noEmit": true,                                      /* Disable emitting files from a compilation. */
+
+        /* Interop Constraints */
+        "forceConsistentCasingInFileNames": true,            /* Ensure that casing is correct in imports. */
+
+        /* Type Checking */
+        "strict": true,                                      /* Enable all strict type-checking options. */
+        "noImplicitAny": true,                               /* Enable error reporting for expressions and declarations with an implied 'any' type. */
+        "noImplicitThis": true,                              /* Enable error reporting when 'this' is given the type 'any'. */
+        "strictFunctionTypes": true,                         /* When assigning functions, check to ensure parameters and the return values are subtype-compatible. */
+        "strictNullChecks": true                             /* When type checking, take into account 'null' and 'undefined'. */
     },
-    "files": [
-        "index.d.ts",
-        "test/bidi/browsingContextTypes.ts",
-        "test/bidi/clientWindowInfo.ts",
-        "test/bidi/filterBy.ts",
-        "test/bidi/logEntries.ts",
-        "test/bidi/logInspector.ts",
-        "test/bidi/networkTypes.ts",
-        "test/ie.ts",
-        "test/index.ts",
-        "test/chrome.ts",
-        "test/chromium.ts",
-        "test/edge.ts",
-        "test/firefox.ts",
-        "test/remote.ts",
-        "test/logging.ts",
-        "test/select.ts",
-        "test/session.ts",
-        "test/virtual_authenticator.ts",
-        "test/util.ts",
-        "test/error.ts",
-        "test/bidi/urlPattern.ts",
-        "test/bidi/addInterceptParameters.ts",
-        "test/bidi/scriptTypes.ts",
-        "test/bidi/remoteValue.ts"
+    "include": [
+        "*.ts",
+        "bidi/**/*.ts",
+        "common/**/*.ts",
+        "devtools/**/*.ts",
+        "http/**/*.ts",
+        "io/**/*.ts",
+        "lib/**/*.ts",
+        "net/**/*.ts",
+        "remote/**/*.ts",
+        "test/**/*.ts"
     ]
 }
