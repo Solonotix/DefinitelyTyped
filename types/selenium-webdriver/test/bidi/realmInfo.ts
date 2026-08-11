@@ -1,6 +1,6 @@
-import { RealmInfo, RealmType } from "selenium-webdriver/bidi/realmInfo";
+import { RealmInfo, RealmType, WindowRealmInfo } from "selenium-webdriver/bidi/realmInfo";
 
-function assert(condition, message) {
+function assert(condition: unknown, message?: string): asserts condition {
     if (!condition) {
         throw new Error(message || "Test failed");
     }

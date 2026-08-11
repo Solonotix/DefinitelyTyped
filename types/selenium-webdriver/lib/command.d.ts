@@ -1,3 +1,10 @@
+import type { SuggestedString } from "../_internal";
+
+// TODO: The staged declaration gives every Name property its exact runtime
+// literal. The existing ICommandName uses broad strings and includes legacy
+// names, so CommandName remains open until those sets are reconciled.
+export type CommandName = SuggestedString<ICommandName[keyof ICommandName]>;
+
 /**
  * An enumeration of valid command string.
  */
@@ -195,10 +202,16 @@ export class Command {
      */
     getParameter(key: string): any;
 
+    /** Typed overload for callers that know the command parameter shape. */
+    getParameter<T>(key: string): T | undefined;
+
     /**
      * @return {!Object.<*>} The parameters to send with this command.
      */
     getParameters(): any;
+
+    /** Typed overload for callers that know the complete parameter shape. */
+    getParameters<T extends Record<string, unknown>>(): T;
 
     // endregion
 }
@@ -219,4 +232,7 @@ export class Executor {
      *     result.
      */
     execute(command: Command): Promise<any>;
+
+    /** Typed overload for callers that know the command result shape. */
+    execute<T>(command: Command): Promise<T>;
 }

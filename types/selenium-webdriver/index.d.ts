@@ -1,5 +1,10 @@
+/// <reference types="node" />
+
 import LogInspector = require("./bidi/logInspector");
 import BrowsingContext = require("./bidi/browsingContext");
+import BrowsingContextInspector = require("./bidi/browsingContextInspector");
+import NetworkInspector = require("./bidi/networkInspector");
+import ScriptManager = require("./bidi/scriptManager");
 import * as chrome from "./chrome";
 import * as edge from "./edge";
 import * as firefox from "./firefox";
@@ -13,11 +18,15 @@ import * as until from "./lib/until";
 import { ShadowRootPromise, WebDriver } from "./lib/webdriver";
 import * as safari from "./safari";
 
+// TODO: The staged root declaration adds synthetic `Selenium` and `WebSocket` exports, but neither is an enumerable
+// export of selenium-webdriver@4.46.0. Keep them out of the runtime-facing root contract.
 export * as chromium from "./chromium";
 export * from "./lib/by";
 export { Browser, Capabilities, Capability, ITimeouts } from "./lib/capabilities";
+export { Color, Colors } from "./lib/color";
 export { Actions, Button, FileDetector, Key, Origin } from "./lib/input";
 export { promise } from "./lib/promise";
+export { Select } from "./lib/select";
 export {
     Alert,
     Condition,
@@ -28,7 +37,10 @@ export {
     WebDriver,
     WebElementCondition,
 } from "./lib/webdriver";
-export { BrowsingContext, logging, LogInspector, until };
+export { BrowsingContext, BrowsingContextInspector, logging, LogInspector, NetworkInspector, ScriptManager, until };
+
+/** The selenium-webdriver package version. */
+export const version: string;
 
 /**
  * Typings for lib/error

@@ -1,4 +1,17 @@
-interface IRealmType {
+import type { SuggestedString } from "../_internal";
+
+export type RealmType = SuggestedString<
+    | "audio-worklet"
+    | "dedicated-worker"
+    | "paint-worklet"
+    | "service-worker"
+    | "shared-worker"
+    | "window"
+    | "worker"
+    | "worklet"
+>;
+
+export interface IRealmType {
     AUDIO_WORKLET: "audio-worklet";
     DEDICATED_WORKER: "dedicated-worker";
     PAINT_WORKLET: "paint-worklet";
@@ -8,28 +21,38 @@ interface IRealmType {
     WORKER: "worker";
     WORKLET: "worklet";
 
-    findByName(name):
-        | "audio-worklet"
-        | "dedicated-worker"
-        | "paint-worklet"
-        | "service-worker"
-        | "shared-worker"
-        | "window"
-        | "worker"
-        | "worklet"
-        | null;
+    findByName(name: string): RealmType | null;
 }
 
-const RealmType: IRealmType;
+export const RealmType: IRealmType;
 
-declare class RealmInfo {
-    constructor(realmId: string, origin: string, realmType: RealmType);
-
-    static fromJson(input: any): RealmInfo;
+export interface IRealmInfo<T extends RealmType = RealmType> {
+    readonly browsingContext?: string;
+    readonly origin: string;
+    readonly realmId: string;
+    readonly realmType: T;
+    readonly sandbox?: string | null;
 }
 
-declare class WindowRealmInfo extends RealmInfo {
-    constructor(realmId: string, origin: string, realmType: RealmType, browsingContext: any, sandbox: boolean);
+export class RealmInfo<T extends RealmType = RealmType> implements IRealmInfo<T> {
+    readonly origin: string;
+    readonly realmId: string;
+    readonly realmType: T;
+
+    constructor(realmId: string, origin: string, realmType: T);
+
+    static fromJson<T extends RealmType>(input: object): RealmInfo<T> | WindowRealmInfo;
 }
 
-export { RealmInfo, RealmType };
+export class WindowRealmInfo extends RealmInfo<"window"> {
+    readonly browsingContext: string;
+    readonly sandbox: string | null;
+
+    constructor(
+        realmId: string,
+        origin: string,
+        realmType: "window",
+        browsingContext: string,
+        sandbox?: string | null,
+    );
+}

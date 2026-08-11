@@ -3,6 +3,10 @@ import * as chromium from "selenium-webdriver/chromium";
 
 async function TestChromoiumDriver() {
     let driver: chromium.ChromiumWebDriver = chromium.ChromiumWebDriver.createSession();
+    const runtimeDriver: chromium.Driver = chromium.Driver.createSession();
+
+    await runtimeDriver.sendDevToolsCommand("Page.enable");
+    await runtimeDriver.setNetworkConditions({ latency: 5 });
 
     let baseDriver: webdriver.WebDriver = driver;
     await driver.setDownloadPath("/path/to/dir");

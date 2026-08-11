@@ -17,6 +17,10 @@ import { Command, Executor } from "./command";
 import { FileDetector } from "./input";
 export {};
 
+// TODO: The staged declaration moves Logs, IWebDriver, WebElement, WebElementPromise, and Window into this runtime
+// module. The existing package still defines several of them in the root declaration and imports them back here;
+// reconcile that circular compatibility layout before promoting the staged ownership wholesale.
+
 type ConditionFn<T> = (webdriver: WebDriver) => T | null | Promise<T | null>;
 
 export interface IWebDriverOptionsCookie {

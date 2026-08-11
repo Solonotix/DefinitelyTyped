@@ -7,7 +7,7 @@ import {
 } from "selenium-webdriver/bidi/protocolValue";
 
 function TestLocalValue() {
-    const local = new LocalValue(1);
+    const local = new LocalValue("number", 1);
     const localValue = local.toJson();
     const localValueMatch = localValue.value === 1;
     if (!localValueMatch) {
@@ -34,16 +34,16 @@ function TestReferenceValue() {
 }
 
 function TestRemoteReferenceType() {
-    const remoteReferenceTypeMatch = RemoteReferenceType.findByName("node") !== null;
+    const remoteReferenceTypeMatch = RemoteReferenceType.SHARED_ID === "sharedId";
     if (!remoteReferenceTypeMatch) {
         throw new Error("RemoteReferenceType.findByName failure");
     }
 }
 
 function TestRegExpValue() {
-    const regExp = new RegExpValue(/pattern/, "flags");
+    const regExp = new RegExpValue("pattern", "flags");
     const regExpValue = regExp.pattern;
-    const regExpValueMatch = regExpValue.source === "pattern";
+    const regExpValueMatch = regExpValue === "pattern";
     if (!regExpValueMatch) {
         throw new Error("RegExpValue.pattern failure");
     }

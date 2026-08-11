@@ -3,20 +3,20 @@ import type { FileOptionsDiscardFd } from 'tmp';
 
 import type { TypedFunction } from '../_internal.js';
 
-interface IWalkItem {
+export {};
+
+export interface IWalkItem {
   dir: boolean;
   path: string;
 }
 
-function checkedCall<T>(fn: TypedFunction<void, [TypedFunction<void, [unknown, T]>]>): Promise<T>;
+export type CheckedCallFunctionArg<T> = (callback: TypedFunction<void, [unknown, T]>) => void;
+declare function checkedCall<T>(fn: CheckedCallFunctionArg<T>): Promise<T>;
 
 export function copy(src: string, dst: string): Promise<string>;
 
-export function copyDir(
-  src: string,
-  dst: string,
-  opt_exclude?: RegExp | TypedFunction<boolean, [string]>
-): Promise<string>;
+// eslint-disable-next-line @definitelytyped/no-single-element-tuple-type
+export function copyDir(src: string, dst: string, opt_exclude?: RegExp | TypedFunction<boolean, [string]>): Promise<string>;
 
 export function exists(aPath: string): Promise<boolean>;
 

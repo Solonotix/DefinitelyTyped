@@ -11,6 +11,12 @@ export class Session {
      */
     constructor(id: string, capabilities: Capabilities);
 
+    /** The runtime also accepts raw capability maps and objects. */
+    constructor(
+        id: string,
+        capabilities: Map<string, unknown> | Record<string, unknown>,
+    );
+
     /**
      * @return {string} This session's ID.
      */
@@ -27,6 +33,10 @@ export class Session {
      * @return {*} The capability value.
      */
     getCapability(key: string): any;
+
+    // TODO: The staged declaration makes Session and Capabilities generic so
+    // this result is keyed to the capability name. The existing Capabilities
+    // declaration is not generic, so retain its compatibility return for now.
 
     /**
      * Returns the JSON representation of this object, which is just the string

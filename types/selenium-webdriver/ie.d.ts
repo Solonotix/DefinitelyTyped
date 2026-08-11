@@ -1,10 +1,77 @@
+import type { SuggestedNumber, SuggestedString } from "./_internal";
 import * as webdriver from "./index";
 import * as remote from "./remote";
+
+export type Behavior = SuggestedNumber<0 | 1>;
+
+export const Behavior: {
+    readonly BOTTOM: 1;
+    readonly TOP: 0;
+};
 
 /**
  * IEDriverServer logging levels.
  */
-export type Level = "FATAL" | "ERROR" | "WARN" | "INFO" | "DEBUG" | "TRACE";
+export type Level = SuggestedString<"FATAL" | "ERROR" | "WARN" | "INFO" | "DEBUG" | "TRACE">;
+
+export const Level: {
+    readonly FATAL: "FATAL";
+    readonly ERROR: "ERROR";
+    readonly WARN: "WARN";
+    readonly INFO: "INFO";
+    readonly DEBUG: "DEBUG";
+    readonly TRACE: "TRACE";
+};
+
+export type Key = SuggestedString<
+    | "ignoreProtectedModeSettings"
+    | "ignoreZoomSetting"
+    | "initialBrowserUrl"
+    | "enablePersistentHover"
+    | "enableElementCacheCleanup"
+    | "elementScrollBehavior"
+    | "requireWindowFocus"
+    | "browserAttachTimeout"
+    | "ie.forceCreateProcessApi"
+    | "ie.browserCommandLineSwitches"
+    | "ie.usePerProcessProxy"
+    | "ie.ensureCleanSession"
+    | "logFile"
+    | "logLevel"
+    | "host"
+    | "extractPath"
+    | "silent"
+    | "ie.fileUploadDialogTimeout"
+    | "ie.edgechromium"
+    | "ie.edgepath"
+    | "ie.ignoreprocessmatch"
+>;
+
+export const Key: {
+    readonly IGNORE_PROTECTED_MODE_SETTINGS: "ignoreProtectedModeSettings";
+    readonly IGNORE_ZOOM_SETTING: "ignoreZoomSetting";
+    readonly INITIAL_BROWSER_URL: "initialBrowserUrl";
+    readonly ENABLE_PERSISTENT_HOVER: "enablePersistentHover";
+    readonly ENABLE_ELEMENT_CACHE_CLEANUP: "enableElementCacheCleanup";
+    readonly ELEMENT_SCROLL_BEHAVIOR: "elementScrollBehavior";
+    readonly REQUIRE_WINDOW_FOCUS: "requireWindowFocus";
+    readonly BROWSER_ATTACH_TIMEOUT: "browserAttachTimeout";
+    readonly FORCE_CREATE_PROCESS: "ie.forceCreateProcessApi";
+    readonly BROWSER_COMMAND_LINE_SWITCHES: "ie.browserCommandLineSwitches";
+    readonly USE_PER_PROCESS_PROXY: "ie.usePerProcessProxy";
+    readonly ENSURE_CLEAN_SESSION: "ie.ensureCleanSession";
+    readonly LOG_FILE: "logFile";
+    readonly LOG_LEVEL: "logLevel";
+    readonly HOST: "host";
+    readonly EXTRACT_PATH: "extractPath";
+    readonly SILENT: "silent";
+    readonly FILE_UPLOAD_DIALOG_TIMEOUT: "ie.fileUploadDialogTimeout";
+    readonly ATTACH_TO_EDGE_CHROMIUM: "ie.edgechromium";
+    readonly EDGE_EXECUTABLE_PATH: "ie.edgepath";
+    readonly IGNORE_PROCESS_MATCH: "ie.ignoreprocessmatch";
+};
+
+export const VENDOR_COMMAND_PREFIX: "se:ieOptions";
 
 /**
  * A WebDriver client for Microsoft's Internet Explorer.
@@ -134,6 +201,12 @@ export class Options extends webdriver.Capabilities {
     /**
      * Specifies command-line switches to use when launching Internet Explorer.
      * This is only valid when used with {@link #forceCreateProcessApi}.
+     */
+    addBrowserCommandSwitches(...args: string[]): Options;
+
+    /**
+     * Specifies command-line switches to use when launching Internet Explorer.
+     * This is only valid when used with {@link #forceCreateProcessApi}.
      *
      * @param {...(string|!Array.<string>)} args The arguments to add.
      * @deprecated Use {@link #addBrowserCommandSwitches} instead.
@@ -225,7 +298,7 @@ export class Options extends webdriver.Capabilities {
      *     the top of the viewport or 1 to align with the bottom.
      * @return {!Options} A self reference.
      */
-    setScrollBehavior(behavior: number): Options;
+    setScrollBehavior(behavior: Behavior): Options;
 }
 
 /**

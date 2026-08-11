@@ -1,90 +1,133 @@
-interface IPrimitiveType {
-    UNDEFINED: "undefined";
-    NULL: "null";
-    STRING: "string";
-    NUMBER: "number";
-    SPECIAL_NUMBER: "number";
-    BOOLEAN: "boolean";
-    BIGINT: "bigint";
+import type { SuggestedString } from '../_internal.js';
 
-    findByName(name: string):
-        | "undefined"
-        | "null"
-        | "string"
-        | "number"
-        | "number"
-        | "boolean"
-        | "bigint"
-        | null;
+export type PrimitiveUndefinedType = 'undefined';
+export type PrimitiveNullType = 'null';
+export type PrimitiveStringType = 'string';
+export type PrimitiveNumberType = 'number';
+export type PrimitiveSpecialNumberType = 'number';
+export type PrimitiveBooleanType = 'boolean';
+export type PrimitiveBigIntType = 'bigint';
+export type NonPrimitiveArrayType = 'array';
+export type NonPrimitiveDateType = 'date';
+export type NonPrimitiveMapType = 'map';
+export type NonPrimitiveObjectType = 'object';
+export type NonPrimitiveRegularExpressionType = 'regexp';
+export type NonPrimitiveSetType = 'set';
+export type NonPrimitiveChannelType = 'channel';
+export type RemoteSymbolType = 'symbol';
+export type RemoteFunctionType = 'function';
+export type RemoteWeakMapType = 'weakmap';
+export type RemoteWeakSetType = 'weakset';
+export type RemoteIteratorType = 'iterator';
+export type RemoteGeneratorType = 'generator';
+export type RemoteErrorType = 'error';
+export type RemoteProxyType = 'proxy';
+export type RemotePromiseType = 'promise';
+export type RemoteTypedArrayType = 'typedarray';
+export type RemoteArrayBufferType = 'arraybuffer';
+export type RemoteNodeListType = 'nodelist';
+export type RemoteHtmlCollectionType = 'htmlcollection';
+export type RemoteNodeType = 'node';
+export type RemoteWindowType = 'window';
+export type SpecialNumberNanType = 'NaN';
+export type SpecialNumberMinusZeroType = '-0';
+export type SpecialNumberInfinityType = 'Infinity';
+export type SpecialNumberMinusInfinityType = '-Infinity';
+
+export interface IPrimitiveType {
+  UNDEFINED: PrimitiveUndefinedType;
+  NULL: PrimitiveNullType;
+  STRING: PrimitiveStringType;
+  NUMBER: PrimitiveNumberType;
+  SPECIAL_NUMBER: PrimitiveSpecialNumberType;
+  BOOLEAN: PrimitiveBooleanType;
+  BIGINT: PrimitiveBigIntType;
+
+  findByName(name: string): PrimitiveType | null;
 }
 
-const PrimitiveType: IPrimitiveType;
+export interface INonPrimitiveType {
+  ARRAY: NonPrimitiveArrayType;
+  DATE: NonPrimitiveDateType;
+  MAP: NonPrimitiveMapType;
+  OBJECT: NonPrimitiveObjectType;
+  REGEXP: NonPrimitiveRegularExpressionType;
+  SET: NonPrimitiveSetType;
+  CHANNEL: NonPrimitiveChannelType;
 
-interface INonPrimitiveType {
-    ARRAY: "array";
-    DATE: "date";
-    MAP: "map";
-    OBJECT: "object";
-    REGULAR_EXPRESSION: "regexp";
-    SET: "set";
-
-    findByName(name):
-        | "array"
-        | "date"
-        | "map"
-        | "object"
-        | "regexp"
-        | "set"
-        | null;
+  findByName(name: string): NonPrimitiveType | null;
 }
 
-const NonPrimitiveType: INonPrimitiveType;
+export interface IRemoteType {
+  SYMBOL: RemoteSymbolType;
+  FUNCTION: RemoteFunctionType;
+  WEAK_MAP: RemoteWeakMapType;
+  WEAK_SET: RemoteWeakSetType;
+  ITERATOR: RemoteIteratorType;
+  GENERATOR: RemoteGeneratorType;
+  ERROR: RemoteErrorType;
+  PROXY: RemoteProxyType;
+  PROMISE: RemotePromiseType;
+  TYPED_ARRAY: RemoteTypedArrayType;
+  ARRAY_BUFFER: RemoteArrayBufferType;
+  NODE_LIST: RemoteNodeListType;
+  HTML_COLLECTION: RemoteHtmlCollectionType;
+  NODE: RemoteNodeType;
+  WINDOW: RemoteWindowType;
 
-interface IRemoteType {
-    SYMBOL: "symbol";
-    FUNCTION: "function";
-    WEAK_MAP: "weakmap";
-    WEAK_SET: "weakset";
-    ITERATOR: "iterator";
-    GENERATOR: "generator";
-    ERROR: "error";
-    PROXY: "proxy";
-    PROMISE: "promise";
-    TYPED_ARRAY: "typedarray";
-    ARRAY_BUFFER: "arraybuffer";
-    NODE_LIST: "nodelist";
-    HTML_COLLECTION: "htmlcollection";
-    NODE: "node";
-    WINDOW: "window";
-
-    findByName(name: string):
-        | "symbol"
-        | "function"
-        | "weakmap"
-        | "weakset"
-        | "iterator"
-        | "generator"
-        | "error"
-        | "proxy"
-        | "promise"
-        | "typedarray"
-        | "arraybuffer"
-        | "nodelist"
-        | "htmlcollection"
-        | "node"
-        | "window"
-        | null;
+  findByName(name: string): RemoteType | null;
 }
 
-const RemoteType: IRemoteType;
+export interface ISpecialNumberType {
+  NAN: SpecialNumberNanType;
+  MINUS_ZERO: SpecialNumberMinusZeroType;
+  INFINITY: SpecialNumberInfinityType;
+  MINUS_INFINITY: SpecialNumberMinusInfinityType;
 
-interface ISpecialNumberType {
-    NAN: "NaN";
-    MINUS_ZERO: "-0";
-    INFINITY: "Infinity";
-    MINUS_INFINITY: "-Infinity";
+  findByName(name: string): SpecialNumberType | null;
 }
 
-const SpecialNumberType: ISpecialNumberType;
+export type PrimitiveType = SuggestedString<PrimitiveUndefinedType
+  | PrimitiveNullType
+  | PrimitiveStringType
+  | PrimitiveNumberType
+  | PrimitiveSpecialNumberType
+  | PrimitiveBooleanType
+  | PrimitiveBigIntType>;
 
-export { NonPrimitiveType, PrimitiveType, RemoteType, SpecialNumberType };
+export type NonPrimitiveType = SuggestedString<NonPrimitiveArrayType
+  | NonPrimitiveDateType
+  | NonPrimitiveMapType
+  | NonPrimitiveObjectType
+  | NonPrimitiveRegularExpressionType
+  | NonPrimitiveSetType
+  | NonPrimitiveChannelType>;
+
+export type RemoteType = SuggestedString<RemoteSymbolType
+  | RemoteFunctionType
+  | RemoteWeakMapType
+  | RemoteWeakSetType
+  | RemoteIteratorType
+  | RemoteGeneratorType
+  | RemoteErrorType
+  | RemoteProxyType
+  | RemotePromiseType
+  | RemoteTypedArrayType
+  | RemoteArrayBufferType
+  | RemoteNodeListType
+  | RemoteHtmlCollectionType
+  | RemoteNodeType
+  | RemoteWindowType>;
+
+export type SpecialNumberType = SuggestedString<
+  | SpecialNumberNanType
+  | SpecialNumberMinusZeroType
+  | SpecialNumberInfinityType
+  | SpecialNumberMinusInfinityType>;
+
+export type ProtocolType = SuggestedString<PrimitiveType | NonPrimitiveType | RemoteType | SpecialNumberType>;
+
+export const PrimitiveType: IPrimitiveType;
+export const NonPrimitiveType: INonPrimitiveType;
+export const RemoteType: IRemoteType;
+export const SpecialNumberType: ISpecialNumberType;

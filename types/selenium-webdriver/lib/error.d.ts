@@ -35,79 +35,79 @@ export type ErrorCodeElementClickIntercepted = 64;
 export type ErrorCodeDetachedShadowRoot = 65;
 export type ErrorCodeMethodNotAllowed = 405;
 export type ErrorCode =
-  | ErrorCodeSuccess
-  | ErrorCodeNoSuchSession
-  | ErrorCodeNoSuchElement
-  | ErrorCodeNoSuchFrame
-  | ErrorCodeUnknownCommand
-  | ErrorCodeUnsupportedOperation
-  | ErrorCodeStaleElementReference
-  | ErrorCodeElementNotVisible
-  | ErrorCodeInvalidElementState
-  | ErrorCodeUnknownError
-  | ErrorCodeElementNotSelectable
-  | ErrorCodeJavaScriptError
-  | ErrorCodeXPathLookupError
-  | ErrorCodeTimeout
-  | ErrorCodeNoSuchWindow
-  | ErrorCodeInvalidCookieDomain
-  | ErrorCodeUnableToSetCookie
-  | ErrorCodeUnexpectedAlertOpen
-  | ErrorCodeNoSuchAlert
-  | ErrorCodeScriptTimeout
-  | ErrorCodeInvalidElementCoordinates
-  | ErrorCodeImeNotAvailable
-  | ErrorCodeImeEngineActivationFailed
-  | ErrorCodeInvalidSelector
-  | ErrorCodeSessionNotCreated
-  | ErrorCodeMoveTargetOutOfBounds
-  | ErrorCodeSqlDatabaseError
-  | ErrorCodeInvalidXpathSelector
-  | ErrorCodeInvalidXpathSelectorReturnType
-  | ErrorCodeElementNotInteractable
-  | ErrorCodeInvalidArgument
-  | ErrorCodeNoSuchCookie
-  | ErrorCodeUnableToCaptureScreen
-  | ErrorCodeElementClickIntercepted
-  | ErrorCodeDetachedShadowRoot
-  | ErrorCodeMethodNotAllowed;
+    | ErrorCodeSuccess
+    | ErrorCodeNoSuchSession
+    | ErrorCodeNoSuchElement
+    | ErrorCodeNoSuchFrame
+    | ErrorCodeUnknownCommand
+    | ErrorCodeUnsupportedOperation
+    | ErrorCodeStaleElementReference
+    | ErrorCodeElementNotVisible
+    | ErrorCodeInvalidElementState
+    | ErrorCodeUnknownError
+    | ErrorCodeElementNotSelectable
+    | ErrorCodeJavaScriptError
+    | ErrorCodeXPathLookupError
+    | ErrorCodeTimeout
+    | ErrorCodeNoSuchWindow
+    | ErrorCodeInvalidCookieDomain
+    | ErrorCodeUnableToSetCookie
+    | ErrorCodeUnexpectedAlertOpen
+    | ErrorCodeNoSuchAlert
+    | ErrorCodeScriptTimeout
+    | ErrorCodeInvalidElementCoordinates
+    | ErrorCodeImeNotAvailable
+    | ErrorCodeImeEngineActivationFailed
+    | ErrorCodeInvalidSelector
+    | ErrorCodeSessionNotCreated
+    | ErrorCodeMoveTargetOutOfBounds
+    | ErrorCodeSqlDatabaseError
+    | ErrorCodeInvalidXpathSelector
+    | ErrorCodeInvalidXpathSelectorReturnType
+    | ErrorCodeElementNotInteractable
+    | ErrorCodeInvalidArgument
+    | ErrorCodeNoSuchCookie
+    | ErrorCodeUnableToCaptureScreen
+    | ErrorCodeElementClickIntercepted
+    | ErrorCodeDetachedShadowRoot
+    | ErrorCodeMethodNotAllowed;
 export interface IErrorCode {
-  SUCCESS: ErrorCodeSuccess;
-  NO_SUCH_SESSION: ErrorCodeNoSuchSession;
-  NO_SUCH_ELEMENT: ErrorCodeNoSuchElement;
-  NO_SUCH_FRAME: ErrorCodeNoSuchFrame;
-  UNKNOWN_COMMAND: ErrorCodeUnknownCommand;
-  UNSUPPORTED_OPERATION: ErrorCodeUnsupportedOperation;
-  STALE_ELEMENT_REFERENCE: ErrorCodeStaleElementReference;
-  ELEMENT_NOT_VISIBLE: ErrorCodeElementNotVisible;
-  INVALID_ELEMENT_STATE: ErrorCodeInvalidElementState;
-  UNKNOWN_ERROR: ErrorCodeUnknownError;
-  ELEMENT_NOT_SELECTABLE: ErrorCodeElementNotSelectable;
-  JAVASCRIPT_ERROR: ErrorCodeJavaScriptError;
-  XPATH_LOOKUP_ERROR: ErrorCodeXPathLookupError;
-  TIMEOUT: ErrorCodeTimeout;
-  NO_SUCH_WINDOW: ErrorCodeNoSuchWindow;
-  INVALID_COOKIE_DOMAIN: ErrorCodeInvalidCookieDomain;
-  UNABLE_TO_SET_COOKIE: ErrorCodeUnableToSetCookie;
-  UNEXPECTED_ALERT_OPEN: ErrorCodeUnexpectedAlertOpen;
-  NO_SUCH_ALERT: ErrorCodeNoSuchAlert;
-  SCRIPT_TIMEOUT: ErrorCodeScriptTimeout;
-  INVALID_ELEMENT_COORDINATES: ErrorCodeInvalidElementCoordinates;
-  IME_NOT_AVAILABLE: ErrorCodeImeNotAvailable;
-  IME_ENGINE_ACTIVATION_FAILED: ErrorCodeImeEngineActivationFailed;
-  INVALID_SELECTOR_ERROR: ErrorCodeInvalidSelector;
-  SESSION_NOT_CREATED: ErrorCodeSessionNotCreated;
-  MOVE_TARGET_OUT_OF_BOUNDS: ErrorCodeMoveTargetOutOfBounds;
-  SQL_DATABASE_ERROR: ErrorCodeSqlDatabaseError;
-  INVALID_XPATH_SELECTOR: ErrorCodeInvalidXpathSelector;
-  INVALID_XPATH_SELECTOR_RETURN_TYPE: ErrorCodeInvalidXpathSelectorReturnType;
-  ELEMENT_NOT_INTERACTABLE: ErrorCodeElementNotInteractable;
-  INVALID_ARGUMENT: ErrorCodeInvalidArgument;
-  NO_SUCH_COOKIE: ErrorCodeNoSuchCookie;
-  UNABLE_TO_CAPTURE_SCREEN: ErrorCodeUnableToCaptureScreen;
-  ELEMENT_CLICK_INTERCEPTED: ErrorCodeElementClickIntercepted;
-  DETACHED_SHADOW_ROOT: ErrorCodeDetachedShadowRoot;
-  METHOD_NOT_ALLOWED: ErrorCodeMethodNotAllowed;
+    SUCCESS: ErrorCodeSuccess;
+    NO_SUCH_SESSION: ErrorCodeNoSuchSession;
+    NO_SUCH_ELEMENT: ErrorCodeNoSuchElement;
+    NO_SUCH_FRAME: ErrorCodeNoSuchFrame;
+    UNKNOWN_COMMAND: ErrorCodeUnknownCommand;
+    UNSUPPORTED_OPERATION: ErrorCodeUnsupportedOperation;
+    STALE_ELEMENT_REFERENCE: ErrorCodeStaleElementReference;
+    ELEMENT_NOT_VISIBLE: ErrorCodeElementNotVisible;
+    INVALID_ELEMENT_STATE: ErrorCodeInvalidElementState;
+    UNKNOWN_ERROR: ErrorCodeUnknownError;
+    ELEMENT_NOT_SELECTABLE: ErrorCodeElementNotSelectable;
+    JAVASCRIPT_ERROR: ErrorCodeJavaScriptError;
+    XPATH_LOOKUP_ERROR: ErrorCodeXPathLookupError;
+    TIMEOUT: ErrorCodeTimeout;
+    NO_SUCH_WINDOW: ErrorCodeNoSuchWindow;
+    INVALID_COOKIE_DOMAIN: ErrorCodeInvalidCookieDomain;
+    UNABLE_TO_SET_COOKIE: ErrorCodeUnableToSetCookie;
+    UNEXPECTED_ALERT_OPEN: ErrorCodeUnexpectedAlertOpen;
+    NO_SUCH_ALERT: ErrorCodeNoSuchAlert;
+    SCRIPT_TIMEOUT: ErrorCodeScriptTimeout;
+    INVALID_ELEMENT_COORDINATES: ErrorCodeInvalidElementCoordinates;
+    IME_NOT_AVAILABLE: ErrorCodeImeNotAvailable;
+    IME_ENGINE_ACTIVATION_FAILED: ErrorCodeImeEngineActivationFailed;
+    INVALID_SELECTOR_ERROR: ErrorCodeInvalidSelector;
+    SESSION_NOT_CREATED: ErrorCodeSessionNotCreated;
+    MOVE_TARGET_OUT_OF_BOUNDS: ErrorCodeMoveTargetOutOfBounds;
+    SQL_DATABASE_ERROR: ErrorCodeSqlDatabaseError;
+    INVALID_XPATH_SELECTOR: ErrorCodeInvalidXpathSelector;
+    INVALID_XPATH_SELECTOR_RETURN_TYPE: ErrorCodeInvalidXpathSelectorReturnType;
+    ELEMENT_NOT_INTERACTABLE: ErrorCodeElementNotInteractable;
+    INVALID_ARGUMENT: ErrorCodeInvalidArgument;
+    NO_SUCH_COOKIE: ErrorCodeNoSuchCookie;
+    UNABLE_TO_CAPTURE_SCREEN: ErrorCodeUnableToCaptureScreen;
+    ELEMENT_CLICK_INTERCEPTED: ErrorCodeElementClickIntercepted;
+    DETACHED_SHADOW_ROOT: ErrorCodeDetachedShadowRoot;
+    METHOD_NOT_ALLOWED: ErrorCodeMethodNotAllowed;
 }
 
 /**
@@ -117,12 +117,14 @@ export interface IErrorCode {
  * @deprecated
  */
 export const ErrorCode: IErrorCode;
+// TODO: The staged declaration reused the legacy numeric ErrorCode union here, but the 4.46.0 W3C encoder and
+// decoder use string error names.
 export interface IEncodedError {
-  error: ErrorCode;
-  message: string;
+    error: string;
+    message: string;
 }
 export interface IErrorResponse {
-  error: string;
+    error: string;
 }
 
 /**
@@ -161,25 +163,25 @@ export function throwDecodedError(data: IEncodedError): void;
  * more appropriate category is not defined for the offending error.
  * @param opt_error the error message, if any.
  */
-export class WebDriverError<T extends string = 'WebDriverError'> extends Error {
-  readonly name: T;
-  readonly remoteStacktrace: string;
+export class WebDriverError<T extends string = "WebDriverError"> extends Error {
+    readonly name: T;
+    readonly remoteStacktrace: string;
 
-  constructor(opt_error?: string);
+    constructor(opt_error?: string);
 }
 
 /**
  * Indicates the shadow root is no longer attached to the DOM
  *  @param opt_error the error message, if any.
  */
-export class DetachedShadowRootError extends WebDriverError<'DetachedShadowRootError'> {}
+export class DetachedShadowRootError extends WebDriverError<"DetachedShadowRootError"> {}
 /**
  * Indicates a {@linkplain ./webdriver.WebElement#click click command} could not
  * completed because the click target is obscured by other elements on the
  * page.
  * @param opt_error the error message, if any.
  */
-export class ElementClickInterceptedError extends WebDriverError<'ElementClickInterceptedError'> {}
+export class ElementClickInterceptedError extends WebDriverError<"ElementClickInterceptedError"> {}
 /**
  * Indicates a command could not be completed because the target element is
  * not pointer or keyboard interactable. This will often occur if an element
@@ -187,133 +189,133 @@ export class ElementClickInterceptedError extends WebDriverError<'ElementClickIn
  * "display: none").
  * @param opt_error the error message, if any.
  */
-export class ElementNotInteractableError extends WebDriverError<'ElementNotInteractableError'> {}
+export class ElementNotInteractableError extends WebDriverError<"ElementNotInteractableError"> {}
 /**
  * An attempt was made to select an element that cannot be selected.
  * @param opt_error the error message, if any.
  */
-export class ElementNotSelectableError extends WebDriverError<'ElementNotSelectableError'> {}
+export class ElementNotSelectableError extends WebDriverError<"ElementNotSelectableError"> {}
 /**
  * Indicates a navigation event caused the browser to generate a certificate
  * warning. This is usually caused by an expired or invalid TLS certificate.
  * @param opt_error the error message, if any.
  */
-export class InsecureCertificateError extends WebDriverError<'InsecureCertificateError'> {}
+export class InsecureCertificateError extends WebDriverError<"InsecureCertificateError"> {}
 /**
  * The arguments passed to a command are either invalid or malformed.
  * @param opt_error the error message, if any.
  */
-export class InvalidArgumentError extends WebDriverError<'InvalidArgumentError'> {}
+export class InvalidArgumentError extends WebDriverError<"InvalidArgumentError"> {}
 /**
  * An illegal attempt was made to set a cookie under a different domain than
  * the current page.
  * @param opt_error the error message, if any.
  */
-export class InvalidCookieDomainError extends WebDriverError<'InvalidCookieDomainError'> {}
+export class InvalidCookieDomainError extends WebDriverError<"InvalidCookieDomainError"> {}
 /**
  * The coordinates provided to an interactions operation are invalid.
  * @param opt_error the error message, if any.
  */
-export class InvalidCoordinatesError extends WebDriverError<'InvalidCoordinatesError'> {}
+export class InvalidCoordinatesError extends WebDriverError<"InvalidCoordinatesError"> {}
 /**
  * An element command could not be completed because the element is in an
  * invalid state, e.g. attempting to click an element that is no longer attached
  * to the document.
  * @param opt_error the error message, if any.
  */
-export class InvalidElementStateError extends WebDriverError<'InvalidElementStateError'> {}
+export class InvalidElementStateError extends WebDriverError<"InvalidElementStateError"> {}
 /**
  * Argument was an invalid selector.
  * @param opt_error the error message, if any.
  */
-export class InvalidSelectorError extends WebDriverError<'InvalidSelectorError'> {}
+export class InvalidSelectorError extends WebDriverError<"InvalidSelectorError"> {}
 /**
  * An error occurred while executing JavaScript supplied by the user.
  * @param opt_error the error message, if any.
  */
-export class JavascriptError extends WebDriverError<'JavascriptError'> {}
+export class JavascriptError extends WebDriverError<"JavascriptError"> {}
 /**
  * The target for mouse interaction is not in the browser’s viewport and cannot
  * be brought into that viewport.
  * @param opt_error the error message, if any.
  */
-export class MoveTargetOutOfBoundsError extends WebDriverError<'MoveTargetOutOfBoundsError'> {}
+export class MoveTargetOutOfBoundsError extends WebDriverError<"MoveTargetOutOfBoundsError"> {}
 /**
  * An attempt was made to operate on a modal dialog when one was not open.
  * @param opt_error the error message, if any.
  */
-export class NoSuchAlertError extends WebDriverError<'NoSuchAlertError'> {}
+export class NoSuchAlertError extends WebDriverError<"NoSuchAlertError"> {}
 /**
  * Indicates a named cookie could not be found in the cookie jar for the
  * currently selected document.
  * @param opt_error the error message, if any.
  */
-export class NoSuchCookieError extends WebDriverError<'NoSuchCookieError'> {}
+export class NoSuchCookieError extends WebDriverError<"NoSuchCookieError"> {}
 /**
  * An element could not be located on the page using the given search
  * parameters.
  * @param opt_error the error message, if any.
  */
-export class NoSuchElementError extends WebDriverError<'NoSuchElementError'> {}
+export class NoSuchElementError extends WebDriverError<"NoSuchElementError"> {}
 /**
  * A request to switch to a frame could not be satisfied because the frame
  * could not be found.
  * @param opt_error the error message, if any.
  */
-export class NoSuchFrameError extends WebDriverError<'NoSuchFrameError'> {}
+export class NoSuchFrameError extends WebDriverError<"NoSuchFrameError"> {}
 /**
  * A ShadowRoot could not be located on the element
  * @param opt_error the error message, if any.
  */
-export class NoSuchShadowRootError extends WebDriverError<'NoSuchShadowRootError'> {}
+export class NoSuchShadowRootError extends WebDriverError<"NoSuchShadowRootError"> {}
 /**
  * Occurs when a command is directed to a session that does not exist.
  * @param opt_error the error message, if any.
  */
-export class NoSuchSessionError extends WebDriverError<'NoSuchSessionError'> {}
+export class NoSuchSessionError extends WebDriverError<"NoSuchSessionError"> {}
 /**
  * A request to switch to a window could not be satisfied because the window
  * could not be found.
  * @param opt_error the error message, if any.
  */
-export class NoSuchWindowError extends WebDriverError<'NoSuchWindowError'> {}
+export class NoSuchWindowError extends WebDriverError<"NoSuchWindowError"> {}
 /**
  * A script did not complete before its timeout expired.
  * @param opt_error the error message, if any.
  */
-export class ScriptTimeoutError extends WebDriverError<'ScriptTimeoutError'> {}
+export class ScriptTimeoutError extends WebDriverError<"ScriptTimeoutError"> {}
 /**
  * A new session could not be created.
  * @param opt_error the error message, if any.
  */
-export class SessionNotCreatedError extends WebDriverError<'SessionNotCreatedError'> {}
+export class SessionNotCreatedError extends WebDriverError<"SessionNotCreatedError"> {}
 /**
  * An element command failed because the referenced element is no longer
  * attached to the DOM.
  * @param opt_error the error message, if any.
  */
-export class StaleElementReferenceError extends WebDriverError<'StaleElementReferenceError'> {}
+export class StaleElementReferenceError extends WebDriverError<"StaleElementReferenceError"> {}
 /**
  * An operation did not complete before its timeout expired.
  * @param opt_error the error message, if any.
  */
-export class TimeoutError extends WebDriverError<'TimeoutError'> {}
+export class TimeoutError extends WebDriverError<"TimeoutError"> {}
 /**
  * A screen capture operation was not possible.
  * @param opt_error the error message, if any.
  */
-export class UnableToCaptureScreenError extends WebDriverError<'UnableToCaptureScreenError'> {}
+export class UnableToCaptureScreenError extends WebDriverError<"UnableToCaptureScreenError"> {}
 /**
  * A request to set a cookie’s value could not be satisfied.
  * @param opt_error the error message, if any.
  */
-export class UnableToSetCookieError extends WebDriverError<'UnableToSetCookieError'> {}
+export class UnableToSetCookieError extends WebDriverError<"UnableToSetCookieError"> {}
 /**
  * A modal dialog was open, blocking this operation.
  * @param opt_error the error message, if any.
  * @param opt_text the text of the open dialog, if available.
  */
-export class UnexpectedAlertOpenError extends WebDriverError<'UnexpectedAlertOpenError'> {
+export class UnexpectedAlertOpenError extends WebDriverError<"UnexpectedAlertOpenError"> {
     readonly text_: string | undefined;
 
     constructor(opt_error?: string, opt_text?: string);
@@ -324,15 +326,15 @@ export class UnexpectedAlertOpenError extends WebDriverError<'UnexpectedAlertOpe
  * A command could not be executed because the remote end is not aware of it.
  * @param opt_error the error message, if any.
  */
-export class UnknownCommandError extends WebDriverError<'UnknownCommandError'> {}
+export class UnknownCommandError extends WebDriverError<"UnknownCommandError"> {}
 /**
  * The requested command matched a known URL but did not match an method for
  * that URL.
  * @param opt_error the error message, if any.
  */
-export class UnknownMethodError extends WebDriverError<'UnknownMethodError'> {}
+export class UnknownMethodError extends WebDriverError<"UnknownMethodError"> {}
 /**
  * Reports an unsupported operation.
  * @param opt_error the error message, if any.
  */
-export class UnsupportedOperationError extends WebDriverError<'UnsupportedOperationError'> {}
+export class UnsupportedOperationError extends WebDriverError<"UnsupportedOperationError"> {}

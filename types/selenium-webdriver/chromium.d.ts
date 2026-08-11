@@ -2,6 +2,19 @@ import { Executor } from "./http";
 import * as webdriver from "./index";
 import * as remote from "./remote";
 
+export type PermissionState = "granted" | "denied" | "prompt" | (string & {});
+
+export interface INetworkConditionsSpec {
+    download_throughput?: number;
+    latency: number;
+    offline?: boolean;
+    upload_throughput?: number;
+}
+
+// TODO: The staged declaration exports Command, createExecutor, and configureExecutor, but chromium.js exports only
+// Driver, Options, and ServiceBuilder. Its detailed preference interfaces are type-only candidates that still need
+// validation against accepted Chromium preference data before replacing the existing object parameters.
+
 /**
  * Creates {@link selenium-webdriver/remote.DriverService} instances that manage
  * a WebDriver server in a child process.
@@ -376,14 +389,14 @@ export class ChromiumWebDriver extends webdriver.WebDriver {
      * @return {!Promise} A promise that will be resolved when network
      *     emulation settings are retrieved.
      */
-    getNetworkConditions(): Promise<any>;
+    getNetworkConditions(): Promise<INetworkConditionsSpec>;
 
     /**
      * Schedules a command to delete Chromium network emulation settings.
      * @return {!Promise} A promise that will be resolved when network
      *     emulation settings have been deleted.
      */
-    deleteNetworkConditions(): Promise<any>;
+    deleteNetworkConditions(): Promise<void>;
 
     /**
      * Schedules a command to set Chromium network emulation settings.
@@ -401,9 +414,7 @@ export class ChromiumWebDriver extends webdriver.WebDriver {
      * @return {!Promise<void>} A promise that will be resolved when network
      *     emulation settings are set.
      */
-    setNetworkConditions(
-        spec: { offline: boolean; latency: number; download_throughput: number; upload_throughput: number },
-    ): Promise<void>;
+    setNetworkConditions(spec: INetworkConditionsSpec): Promise<void>;
 
     /**
      * Sends an arbitrary devtools command to the browser.
@@ -414,7 +425,7 @@ export class ChromiumWebDriver extends webdriver.WebDriver {
      *     has finished.
      * @see <https://chromedevtools.github.io/devtools-protocol/>
      */
-    sendDevToolsCommand(cmd: string, params: object): Promise<void>;
+    sendDevToolsCommand<T = object>(cmd: string, params?: T): Promise<void>;
 
     /**
      * Sends an arbitrary devtools command to the browser and get the result.
@@ -425,7 +436,7 @@ export class ChromiumWebDriver extends webdriver.WebDriver {
      *     has finished.
      * @see <https://chromedevtools.github.io/devtools-protocol/>
      */
-    sendAndGetDevToolsCommand(cmd: string, params: object): Promise<string>;
+    sendAndGetDevToolsCommand<T = object>(cmd: string, params?: T): Promise<string>;
 
     /**
      * Set a permission state to the given value.
@@ -437,7 +448,7 @@ export class ChromiumWebDriver extends webdriver.WebDriver {
      * @see <https://w3c.github.io/permissions/#permission-registry> for valid
      *     names
      */
-    setPermission(name: string, state: "granted" | "denied" | "prompt"): Promise<object>;
+    setPermission(name: string, state: PermissionState): Promise<object>;
 
     /**
      * Sends a DevTools command to change the browser's download directory.
@@ -499,4 +510,15 @@ export class ChromiumWebDriver extends webdriver.WebDriver {
      *     when the stop command has been issued to the device.
      */
     stopCasting(deviceName: string): Promise<void>;
+}
+
+// TODO: The 4.46.0 runtime exports this constructor as `Driver`; the existing declaration instead exposed the
+// non-runtime `ChromiumWebDriver` name. Keep the compatibility class above until consumers can migrate.
+export class Driver extends ChromiumWebDriver {
+    static createSession(
+        caps?: webdriver.Capabilities | Options,
+        opt_serviceExecutor?: remote.DriverService | Executor,
+        vendorPrefix?: string,
+        vendorCapabilityKey?: string,
+    ): Driver;
 }

@@ -1,81 +1,83 @@
 import { Session } from "../lib/session";
+import type { WebDriver } from "../lib/webdriver";
 import { EvaluateResultException, EvaluateResultSuccess } from "./evaluateResult";
-import { ReferenceValue, RemoteValue } from "./protocolValue";
+import { LocalValue, RemoteValue, ResultOwnership } from "./protocolValue";
 import { RealmInfo } from "./realmInfo";
 
-type AnyFunction = (...args: any[]) => any;
-type ReferenceValueJSON = ReturnType<ReferenceValue["asMap"]>;
+type LocalValueJSON = ReturnType<LocalValue["asMap"]>;
 
 declare class ScriptManager {
-    constructor(driver: Session);
-    _driver: Session;
+    constructor(driver: WebDriver);
+    _driver: WebDriver;
 
     init(browsingContextId: string): Promise<void>;
 
     disownRealmScript(realmId: string, handles: string[]): Promise<void>;
 
+    // TODO: The staged declaration uses boolean sandbox values in several ScriptManager methods, while the
+    // 4.46.0 implementation treats sandbox as a string name. Keep the runtime-backed string contract here.
     disownBrowsingContextScript(
         browsingContextId: string,
         handles: string[],
-        sandbox?: boolean | null,
+        sandbox?: string | null,
     ): Promise<void>;
 
-    callFunctionInRealm<FUNC extends AnyFunction>(
+    callFunctionInRealm(
         realmId: string,
-        functionDeclaration: FUNC,
+        functionDeclaration: string,
         awaitPromise: boolean,
-        argumentValueList?: ReferenceValue[] | null,
+        argumentValueList?: LocalValue[] | null,
         thisParameter?: any,
-        resultOwnership?: any,
-    ): Promise<EvaluateResultSuccess<RemoteValue<Awaited<ReturnType<FUNC>>>> | EvaluateResultException>;
+        resultOwnership?: ResultOwnership | null,
+    ): Promise<EvaluateResultSuccess<RemoteValue<unknown>> | EvaluateResultException>;
 
-    callFunctionInBrowsingContext<FUNC extends AnyFunction>(
+    callFunctionInBrowsingContext(
         browsingContextId: string,
-        functionDeclaration: FUNC,
+        functionDeclaration: string,
         awaitPromise: boolean,
-        argumentValueList?: ReferenceValue[] | null,
+        argumentValueList?: LocalValue[] | null,
         thisParameter?: any,
-        resultOwnership?: any,
-        sandbox?: boolean | null,
-    ): Promise<EvaluateResultSuccess<RemoteValue<Awaited<ReturnType<FUNC>>>> | EvaluateResultException>;
+        resultOwnership?: ResultOwnership | null,
+        sandbox?: string | null,
+    ): Promise<EvaluateResultSuccess<RemoteValue<unknown>> | EvaluateResultException>;
 
-    evaluateFunctionInRealm<FUNC extends AnyFunction>(
+    evaluateFunctionInRealm(
         realmId: string,
         expression: string,
         awaitPromise: boolean,
-        resultOwnership?: any,
-    ): Promise<EvaluateResultSuccess<RemoteValue<Awaited<ReturnType<FUNC>>>> | EvaluateResultException>;
+        resultOwnership?: ResultOwnership | null,
+    ): Promise<EvaluateResultSuccess<RemoteValue<unknown>> | EvaluateResultException>;
 
-    evaluateFunctionInBrowsingContext<FUNC extends AnyFunction>(
+    evaluateFunctionInBrowsingContext(
         browsingContextId: string,
         expression: string,
         awaitPromise: boolean,
-        resultOwnership?: any,
-        sandbox?: boolean | null,
-    ): Promise<EvaluateResultSuccess<RemoteValue<Awaited<ReturnType<FUNC>>>> | EvaluateResultException>;
+        resultOwnership?: ResultOwnership | null,
+        sandbox?: string | null,
+    ): Promise<EvaluateResultSuccess<RemoteValue<unknown>> | EvaluateResultException>;
 
     addPreloadScript(
-        functionDeclaration: (...args: any) => any,
-        argumentValueList?: ReferenceValue[] | null,
-        sandbox?: boolean | null,
-    ): Promise<any>;
+        functionDeclaration: string,
+        argumentValueList?: LocalValue[] | null,
+        sandbox?: string | null,
+    ): Promise<string>;
 
     removePreloadScript(script: string): Promise<any>;
 
-    getCallFunctionParams<FUNC extends AnyFunction>(
+    getCallFunctionParams(
         targetType: string,
         id: string,
-        sandbox: boolean | null,
-        functionDeclaration: FUNC,
+        sandbox: string | null,
+        functionDeclaration: string,
         awaitPromise: boolean,
-        argumentValueList?: ReferenceValue[] | null,
+        argumentValueList?: LocalValue[] | null,
         thisParameter?: any,
-        resultOwnership?: any,
+        resultOwnership?: ResultOwnership | null,
     ): {
-        target: { context?: string; realm?: string; sandbox?: boolean };
-        functionDeclaration: FUNC;
+        target: { context?: string; realm?: string; sandbox?: string };
+        functionDeclaration: string;
         awaitPromise: boolean;
-        arguments: ReferenceValueJSON[];
+        arguments: LocalValueJSON[];
         this: any;
         resultOwnership: any;
     };
@@ -83,7 +85,7 @@ declare class ScriptManager {
     getEvaluateParams(
         targetType: string,
         id: string,
-        sandbox: boolean | null,
+        sandbox: string | null,
         expression: string,
         awaitPromise: boolean,
         resultOwnership?: any,
@@ -91,7 +93,7 @@ declare class ScriptManager {
         target: {
             context?: string;
             realm?: string;
-            sandbox?: boolean;
+            sandbox?: string;
         };
         expression: string;
         awaitPromise: boolean;
@@ -106,13 +108,20 @@ declare class ScriptManager {
 
     getAllRealms(): Promise<RealmInfo[]>;
 
-    getRealmsByType(type: string): RealmInfo[];
+    getRealmsByType(type: string): Promise<RealmInfo[]>;
 
     getRealmsInBrowsingContext(browsingContext: any): Promise<RealmInfo[]>;
 
     getRealmsInBrowsingContextByType(browsingContext: any, type: string): Promise<RealmInfo[]>;
 }
 
+// TODO: The existing declaration models the driver as Session and the factory
+// as synchronous. The staged declaration and 4.46.0 runtime accept WebDriver
+// and return a promise after asynchronous initialization.
+declare function getScriptManagerInstance(
+    browsingContextId: string | string[],
+    driver: WebDriver,
+): Promise<ScriptManager>;
 declare function getScriptManagerInstance(browsingContextId: string, driver: Session): ScriptManager;
 
 export = getScriptManagerInstance;

@@ -133,7 +133,7 @@ function TestCapability() {
     capability = webdriver.Capability.UNHANDLED_PROMPT_BEHAVIOR;
 }
 
-function TestEventEmitter() {
+function TestEventEmitter(this: object) {
     let emitter: webdriver.EventEmitter = new webdriver.EventEmitter();
 
     let callback = (a: number, b: number, c: number) => {};

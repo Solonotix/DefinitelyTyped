@@ -19,6 +19,8 @@ export enum Button {
     LEFT = 0,
     MIDDLE = 1,
     RIGHT = 2,
+    BACK = 3,
+    FORWARD = 4,
 }
 
 export interface IKey {
@@ -148,6 +150,42 @@ export class FileDetector {
      */
     handleFile(driver: WebDriver, path: string): Promise<string>;
 }
+
+export type ActionType =
+    | "keyDown"
+    | "keyUp"
+    | "pause"
+    | "pointerDown"
+    | "pointerUp"
+    | "pointerMove"
+    | "pointerCancel"
+    | "scroll";
+
+export interface IActionType {
+    readonly KEY_DOWN: "keyDown";
+    readonly KEY_UP: "keyUp";
+    readonly PAUSE: "pause";
+    readonly POINTER_DOWN: "pointerDown";
+    readonly POINTER_UP: "pointerUp";
+    readonly POINTER_MOVE: "pointerMove";
+    readonly POINTER_CANCEL: "pointerCancel";
+    readonly SCROLL: "scroll";
+}
+
+/** A single low-level action exported by the 4.46.0 runtime. */
+export class Action {
+    static readonly Type: IActionType;
+
+    type?: ActionType;
+    duration?: number;
+    value?: string;
+    button?: Button;
+    x?: number;
+    y?: number;
+}
+
+// TODO: The staged declaration models Button, Origin, and other runtime constant objects with literal-valued
+// interfaces, while the existing package exposes TypeScript enums. Reconcile those shapes package-wide.
 
 export class Device {
     constructor(type: string, id: string);
