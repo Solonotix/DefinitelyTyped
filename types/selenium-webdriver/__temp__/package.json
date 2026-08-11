@@ -1,0 +1,29 @@
+{
+  "name": "@types/selenium-webdriver",
+  "version": "4.1.28",
+  "description": "TypeScript declarations for the Selenium WebDriver library",
+  "keywords": [
+    "selenium",
+    "webdriver",
+    "types",
+    "typescript"
+  ],
+  "license": "MIT",
+  "author": "Adam Tillis <Adam.Tillis@availity.com>",
+  "type": "commonjs",
+  "scripts": {
+    "build": "echo No build step for type declarations",
+    "lint": "biome check --fix",
+    "lock": "npm install --package-lock-only",
+    "test": "echo No test step for type declarations"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.2.3",
+    "@types/node": "^24.3.0",
+    "@types/tmp": "^0.2.6",
+    "@types/ws": "^8.18.1",
+    "jszip": "^3.10.1",
+    "tslib": "^2.8.1",
+    "typescript": "^7.0.2"
+  }
+}

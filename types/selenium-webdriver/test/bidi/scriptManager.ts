@@ -1,14 +1,15 @@
-const getScriptManagerInstance = require("./scriptManager");
-const { WebDriver } = require("selenium-webdriver");
+import { WebDriver } from "selenium-webdriver";
+import getScriptManagerInstance = require("selenium-webdriver/bidi/scriptManager");
+import { EvaluateResultSuccess } from "selenium-webdriver/bidi/evaluateResult";
 
-function assert(condition, message) {
+function assert(condition: unknown, message?: string): asserts condition {
     if (!condition) {
         throw new Error(message || "Test failed");
     }
 }
 
 async function TestScriptManager() {
-    const driver = new WebDriver();
+    const driver = null as unknown as WebDriver;
     const scriptManager = await getScriptManagerInstance("browsingContextId", driver);
 
     try {
@@ -17,19 +18,19 @@ async function TestScriptManager() {
         console.log("init method passed");
 
         // Test disownRealmScript method
-        await scriptManager.disownRealmScript("realmId", "handles");
+        await scriptManager.disownRealmScript("realmId", ["handle"]);
         console.log("disownRealmScript method passed");
 
         // Test disownBrowsingContextScript method
-        await scriptManager.disownBrowsingContextScript("browsingContextId", "handles", "sandbox");
+        await scriptManager.disownBrowsingContextScript("browsingContextId", ["handle"], "sandbox");
         console.log("disownBrowsingContextScript method passed");
 
         // Test callFunctionInRealm method
         await scriptManager.callFunctionInRealm(
             "realmId",
             "functionDeclaration",
-            "awaitPromise",
-            "argumentValueList",
+            true,
+            null,
             "thisParameter",
             "resultOwnership",
         );
@@ -39,30 +40,30 @@ async function TestScriptManager() {
         await scriptManager.callFunctionInBrowsingContext(
             "browsingContextId",
             "functionDeclaration",
-            "awaitPromise",
-            "argumentValueList",
+            true,
+            null,
             "thisParameter",
-            "resultOwnership",
+            "root",
             "sandbox",
         );
         console.log("callFunctionInBrowsingContext method passed");
 
         // Test evaluateFunctionInRealm method
-        await scriptManager.evaluateFunctionInRealm("realmId", "expression", "awaitPromise", "resultOwnership");
+        await scriptManager.evaluateFunctionInRealm("realmId", "expression", true, "root");
         console.log("evaluateFunctionInRealm method passed");
 
         // Test evaluateFunctionInBrowsingContext method
         await scriptManager.evaluateFunctionInBrowsingContext(
             "browsingContextId",
             "expression",
-            "awaitPromise",
-            "resultOwnership",
+            true,
+            "root",
             "sandbox",
         );
         console.log("evaluateFunctionInBrowsingContext method passed");
 
         // Test addPreloadScript method
-        await scriptManager.addPreloadScript("functionDeclaration", "argumentValueList", "sandbox");
+        await scriptManager.addPreloadScript("functionDeclaration", [], "sandbox");
         console.log("addPreloadScript method passed");
 
         // Test removePreloadScript method
@@ -75,19 +76,19 @@ async function TestScriptManager() {
             "id",
             "sandbox",
             "functionDeclaration",
-            "awaitPromise",
-            "argumentValueList",
+            true,
+            null,
             "thisParameter",
             "resultOwnership",
         );
         console.log("getCallFunctionParams method passed");
 
         // Test getEvaluateParams method
-        scriptManager.getEvaluateParams("targetType", "id", "sandbox", "expression", "awaitPromise", "resultOwnership");
+        scriptManager.getEvaluateParams("targetType", "id", "sandbox", "expression", true, "root");
         console.log("getEvaluateParams method passed");
 
         // Test createEvaluateResult method
-        scriptManager.createEvaluateResult({ result: { type: "SUCCESS", realm: "realmId", result: {} } });
+        scriptManager.createEvaluateResult({ result: new EvaluateResultSuccess("realmId", {}) });
         console.log("createEvaluateResult method passed");
 
         // Test realmInfoMapper method
@@ -110,7 +111,7 @@ async function TestScriptManager() {
         await scriptManager.getRealmsInBrowsingContextByType("browsingContext", "type");
         console.log("getRealmsInBrowsingContextByType method passed");
     } catch (err) {
-        assert(false, err.message);
+        assert(false, err instanceof Error ? err.message : String(err));
     }
 }
 

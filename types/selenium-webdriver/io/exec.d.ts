@@ -3,6 +3,7 @@ import type { StdioOptions } from 'node:child_process';
 import type { TypedFunction } from '../_internal.js';
 
 export class Command {
+// eslint-disable-next-line @definitelytyped/no-single-element-tuple-type
   constructor(result: Promise<Result>, onKill: TypedFunction<void, [string]>);
 
   /**

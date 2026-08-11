@@ -1,3 +1,37 @@
+// TODO: The staged declaration models Protocol and Transport as frozen
+// CommonJS objects plus open string types, while the existing declaration uses
+// TypeScript enums. Preserve the enums until compatibility can be evaluated.
+
+export interface IProtocol {
+    CTAP2: "ctap2";
+    U2F: "ctap1/u2f";
+}
+
+export interface ITransport {
+    BLE: "ble";
+    USB: "usb";
+    NFC: "nfc";
+    INTERNAL: "internal";
+}
+
+export interface IVirtualAuthenticatorOptions {
+    readonly protocol: Protocol;
+    readonly transport: Transport;
+    readonly hasResidentKey: boolean;
+    readonly hasUserVerification: boolean;
+    readonly isUserConsenting: boolean;
+    readonly isUserVerified: boolean;
+}
+
+export interface ICredentialDictionary {
+    credentialId: string;
+    isResidentCredential: boolean;
+    rpId: string;
+    privateKey: string;
+    signCount: number;
+    userHandle?: string;
+}
+
 /**
  * Protocol for virtual authenticators
  */
@@ -47,7 +81,7 @@ export class VirtualAuthenticatorOptions {
 
     setIsUserVerified(value: boolean): void;
 
-    toDict(): Object;
+    toDict(): IVirtualAuthenticatorOptions;
 }
 
 /**
@@ -103,7 +137,7 @@ export class Credential {
      */
     static createNonResidentCredential(id: Uint8Array, rpId: string, privateKey: string, signCount: number): Credential;
 
-    toDict(): Object;
+    toDict(): ICredentialDictionary;
 
-    fromDict(data: Object): Credential;
+    fromDict(data: ICredentialDictionary): Credential;
 }

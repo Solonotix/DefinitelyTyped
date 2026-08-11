@@ -16,6 +16,8 @@ declare class Profile {
     [Symbols.serialize](): Promise<string>;
 }
 
+// TODO: The staged declaration models this runtime object with a suggested-string type and interface. Keep the
+// existing enum until the package-wide enum-to-object migration can be evaluated consistently.
 export enum Context {
     CONTENT = "content",
     CHROME = "chrome",

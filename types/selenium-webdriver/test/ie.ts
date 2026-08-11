@@ -2,6 +2,12 @@ import * as webdriver from "selenium-webdriver";
 import ie from "selenium-webdriver/ie";
 import * as remote from "selenium-webdriver/remote";
 
+const scrollBottom: 1 = ie.Behavior.BOTTOM;
+const scrollTop: 0 = ie.Behavior.TOP;
+const fatalLevel: "FATAL" = ie.Level.FATAL;
+const edgePathKey: "ie.edgepath" = ie.Key.EDGE_EXECUTABLE_PATH;
+const vendorPrefix: "se:ieOptions" = ie.VENDOR_COMMAND_PREFIX;
+
 function TestIeDriver() {
     let driver: ie.Driver;
     driver = ie.Driver.createSession();
@@ -24,6 +30,7 @@ function TestIeOptions() {
     options = options.requireWindowFocus(true);
     options = options.browserAttachTimeout(10);
     options = options.forceCreateProcessApi(true);
+    options = options.addBrowserCommandSwitches("-private", "-k");
     options = options.addArguments("a", "b");
     options = options.usePerProcessProxy(true);
     options = options.ensureCleanSession(true);
@@ -33,6 +40,8 @@ function TestIeOptions() {
     options = options.setExtractPath("path");
     options = options.silent(true);
     options = options.setEdgeChromium(false);
+    options = options.setScrollBehavior(scrollTop);
+    options = options.setScrollBehavior(scrollBottom);
 }
 
 function TestIeServiceBuilder() {

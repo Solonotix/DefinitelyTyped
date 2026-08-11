@@ -1,16 +1,41 @@
 import { logging, ProxyConfig } from "../";
+import type { SuggestedString } from "../_internal";
 import Symbols from "./symbols";
+
+export type Browser = SuggestedString<"chrome" | "firefox" | "internet explorer" | "MicrosoftEdge" | "safari">;
+export type Platform = SuggestedString<"linux" | "mac" | "windows">;
+export type PageLoadStrategy = SuggestedString<"eager" | "none" | "normal">;
+export type UserPromptHandler = SuggestedString<
+    "accept" | "accept and notify" | "dismiss" | "dismiss and notify" | "ignore"
+>;
+export type Capability = SuggestedString<
+    | "acceptInsecureCerts"
+    | "browserName"
+    | "browserVersion"
+    | "goog:loggingPrefs"
+    | "pageLoadStrategy"
+    | "platformName"
+    | "proxy"
+    | "se:downloadsEnabled"
+    | "setWindowRect"
+    | "strictFileInteractability"
+    | "timeouts"
+    | "unhandledPromptBehavior"
+>;
 
 /**
  * Recognized browser names.
  */
 export interface IBrowser {
-    CHROME: "chrome";
-    EDGE: "MicrosoftEdge";
-    FIREFOX: "firefox";
-    INTERNET_EXPLORER: "internet explorer";
-    SAFARI: "safari";
+    CHROME: Extract<Browser, "chrome">;
+    EDGE: Extract<Browser, "MicrosoftEdge">;
+    FIREFOX: Extract<Browser, "firefox">;
+    INTERNET_EXPLORER: Extract<Browser, "internet explorer">;
+    SAFARI: Extract<Browser, "safari">;
 }
+
+// TODO: The staged IBrowser uses an `IE` property, but the 4.46.0 runtime
+// exports `INTERNET_EXPLORER`; keep the runtime property name here.
 
 /**
  * Instace of
@@ -24,9 +49,9 @@ export const Browser: IBrowser;
  * @see <https://w3c.github.io/webdriver/webdriver-spec.html>
  */
 export interface IPlatform {
-    LINUX: string;
-    MAC: string;
-    WINDOWS: string;
+    LINUX: Extract<Platform, "linux">;
+    MAC: Extract<Platform, "mac">;
+    WINDOWS: Extract<Platform, "windows">;
 }
 
 export const Platform: IPlatform;
@@ -41,19 +66,19 @@ export interface IPageLoadStrategy {
      * Indicates WebDriver should not wait on the document readiness state after a
      * navigation event.
      */
-    NONE: string;
+    NONE: Extract<PageLoadStrategy, "none">;
 
     /**
      * Indicates WebDriver should wait for the document readiness state to
      * become "interactive" after navigation.
      */
-    EAGER: string;
+    EAGER: Extract<PageLoadStrategy, "eager">;
 
     /**
      * Indicates WebDriver should wait for the document readiness state to
      * be "complete" after navigation. This is the default page loading strategy.
      */
-    NORMAL: string;
+    NORMAL: Extract<PageLoadStrategy, "normal">;
 }
 
 export const PageLoadStrategy: IPageLoadStrategy;
@@ -65,21 +90,21 @@ export const PageLoadStrategy: IPageLoadStrategy;
  */
 export interface IUserPromptHandler {
     /** All prompts should be silently accepted. */
-    ACCEPT: string;
+    ACCEPT: Extract<UserPromptHandler, "accept">;
     /** All prompts should be silently dismissed. */
-    DISMISS: string;
+    DISMISS: Extract<UserPromptHandler, "dismiss">;
     /**
      * All prompts should be automatically accepted, but an error should be
      * returned to the next (or currently executing) WebDriver command.
      */
-    ACCEPT_AND_NOTIFY: string;
+    ACCEPT_AND_NOTIFY: Extract<UserPromptHandler, "accept and notify">;
     /**
      * All prompts should be automatically dismissed, but an error should be
      * returned to the next (or currently executing) WebDriver command.
      */
-    DISMISS_AND_NOTIFY: string;
+    DISMISS_AND_NOTIFY: Extract<UserPromptHandler, "dismiss and notify">;
     /** All prompts should be left unhandled. */
-    IGNORE: string;
+    IGNORE: Extract<UserPromptHandler, "ignore">;
 }
 
 export const UserPromptHandler: IUserPromptHandler;
@@ -92,39 +117,42 @@ export interface ICapability {
      * Indicates whether a WebDriver session implicitly trusts otherwise untrusted
      * and self-signed TLS certificates during navigation.
      */
-    ACCEPT_INSECURE_TLS_CERTS: string;
+    ACCEPT_INSECURE_TLS_CERTS: Extract<Capability, "acceptInsecureCerts">;
 
     /**
      * The browser name. Common browser names are defined in the
      * {@link ./capabilities.Browser Browser} enum.
      */
-    BROWSER_NAME: string;
+    BROWSER_NAME: Extract<Capability, "browserName">;
 
     /** Identifies the browser version. */
-    BROWSER_VERSION: string;
+    BROWSER_VERSION: Extract<Capability, "browserVersion">;
+
+    /** Enables managed downloads for the session. */
+    ENABLE_DOWNLOADS: Extract<Capability, "se:downloadsEnabled">;
 
     /**
      * Key for the logging driver logging preferences.
      */
-    LOGGING_PREFS: string;
+    LOGGING_PREFS: Extract<Capability, "goog:loggingPrefs">;
 
     /**
      * Defines the session's
      * {@linkplain ./capabilities.PageLoadStrategy page loading strategy}.
      */
-    PAGE_LOAD_STRATEGY: string;
+    PAGE_LOAD_STRATEGY: Extract<Capability, "pageLoadStrategy">;
 
     /**
      * Identifies the operating system of the endpoint node. Common values
      * recognized by the most WebDriver server implementations are predefined in
      * the {@link ./capabilities.Platform Platform} enum.
      */
-    PLATFORM_NAME: string;
+    PLATFORM_NAME: Extract<Capability, "platformName">;
 
     /**
      * Describes the proxy configuration to use for a new WebDriver session.
      */
-    PROXY: string;
+    PROXY: Extract<Capability, "proxy">;
 
     /**
      * Indicates whether the remote end supports all of the window resizing and
@@ -136,20 +164,23 @@ export interface ICapability {
      * -  {@linkplain ./webdriver.Window#minimize Window.minimize()}
      * -  {@linkplain ./webdriver.Window#fullscreen Window.fullscreen()}
      */
-    SET_WINDOW_RECT: string;
+    SET_WINDOW_RECT: Extract<Capability, "setWindowRect">;
+
+    /** Controls strict file interactability checks. */
+    STRICT_FILE_INTERACTABILITY: Extract<Capability, "strictFileInteractability">;
 
     /**
      * Describes the {@linkplain ./capabilities.Timeouts timeouts} imposed on
      * certain session operations.
      */
-    TIMEOUTS: string;
+    TIMEOUTS: Extract<Capability, "timeouts">;
 
     /**
      * Defines how a WebDriver session should
      * {@linkplain ./capabilities.UserPromptHandler respond} to unhandled user
      * prompts.
      */
-    UNHANDLED_PROMPT_BEHAVIOR: string;
+    UNHANDLED_PROMPT_BEHAVIOR: Extract<Capability, "unhandledPromptBehavior">;
 }
 
 /**
@@ -386,4 +417,45 @@ export interface ITimeouts {
      * current page.
      */
     implicit?: number | undefined;
+}
+
+/** Runtime-exported timeout record constructor. */
+export class Timeouts implements ITimeouts {
+    script?: number | undefined;
+    pageLoad?: number | undefined;
+    implicit?: number | undefined;
+}
+
+/** Type-only aliases for standard capability attribute names. */
+export namespace Attributes {
+    type AcceptInsecureCerts = Extract<Capability, "acceptInsecureCerts">;
+    type BrowserName = Extract<Capability, "browserName">;
+    type BrowserVersion = Extract<Capability, "browserVersion">;
+    type DownloadsEnabled = Extract<Capability, "se:downloadsEnabled">;
+    type GoogleLoggingPreferences = Extract<Capability, "goog:loggingPrefs">;
+    type PageLoadStrategy = Extract<Capability, "pageLoadStrategy">;
+    type PlatformName = Extract<Capability, "platformName">;
+    type Proxy = Extract<Capability, "proxy">;
+    type SetWindowRect = Extract<Capability, "setWindowRect">;
+    type StrictFileInteractability = Extract<Capability, "strictFileInteractability">;
+    type Timeouts = Extract<Capability, "timeouts">;
+    type UnhandledPromptBehavior = Extract<Capability, "unhandledPromptBehavior">;
+}
+
+/** Type-only aliases for recognized browser names. */
+export namespace Browsers {
+    type Chrome = Extract<Browser, "chrome">;
+    type Edge = Extract<Browser, "MicrosoftEdge">;
+    type Firefox = Extract<Browser, "firefox">;
+    type InternetExplorer = Extract<Browser, "internet explorer">;
+    type Safari = Extract<Browser, "safari">;
+}
+
+/** Type-only aliases for unhandled-prompt behavior values. */
+export namespace PromptBehavior {
+    type Accept = Extract<UserPromptHandler, "accept">;
+    type AcceptAndNotify = Extract<UserPromptHandler, "accept and notify">;
+    type Dismiss = Extract<UserPromptHandler, "dismiss">;
+    type DismissAndNotify = Extract<UserPromptHandler, "dismiss and notify">;
+    type Ignore = Extract<UserPromptHandler, "ignore">;
 }

@@ -1,6 +1,6 @@
 import type { default as JSZip, JSZipObjectOptions } from 'jszip';
 
-type Compression = JSZipObjectOptions['compression'];
+export type Compression = JSZipObjectOptions['compression'];
 export function load(path: string): Promise<Zip>;
 
 export function unzip(src: string, dst: string): Promise<string>;

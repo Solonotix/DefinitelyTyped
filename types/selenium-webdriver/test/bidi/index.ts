@@ -1,4 +1,4 @@
-import { Index, StatusResult } from "../../bidi"; // Adjust path as needed
+import { Index, StatusResult } from "selenium-webdriver/bidi";
 
 function testStatusMethod() {
     const mockStatusResult: StatusResult = {

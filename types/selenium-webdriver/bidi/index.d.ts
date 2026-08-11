@@ -1,5 +1,8 @@
 /// <reference types="node" />
 
+// TODO: Reconcile this named `Index` export with the staged BiDi declaration and the
+// selenium-webdriver 4.46.0 runtime, which assigns the class directly to `module.exports`.
+
 import { EventEmitter } from "events";
 
 export interface BuildInfo {

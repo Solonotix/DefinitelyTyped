@@ -1,3 +1,9 @@
+import type { SuggestedString } from "../_internal";
+
+export type EntryHandler = (entry: Entry) => void;
+export type Loggable = string | (() => string);
+export type Type = SuggestedString<"browser" | "client" | "driver" | "performance" | "server">;
+
 /**
  * Defines a message level that may be used to control logging output.
  *
@@ -173,7 +179,7 @@ export class Logger {
      *
      * @param {function(!Entry)} handler the handler to add.
      */
-    addHandler(handler: any): void;
+    addHandler(handler: EntryHandler): void;
 
     /**
      * Removes a handler from this logger.
@@ -181,7 +187,7 @@ export class Logger {
      * @param {function(!Entry)} handler the handler to remove.
      * @return {boolean} whether a handler was successfully removed.
      */
-    removeHandler(handler: any): void;
+    removeHandler(handler: EntryHandler): boolean;
 
     /**
      * Logs a message at the given level. The message may be defined as a string
@@ -194,56 +200,56 @@ export class Logger {
      * @param {(string|function(): string)} loggable the message to log, or a
      *     function that will return the message.
      */
-    log(level: Level, loggable: string | Function): void;
+    log(level: Level, loggable: Loggable): void;
 
     /**
      * Logs a message at the {@link Level.SEVERE} log level.
      * @param {(string|function(): string)} loggable the message to log, or a
      *     function that will return the message.
      */
-    severe(loggable: string | Function): void;
+    severe(loggable: Loggable): void;
 
     /**
      * Logs a message at the {@link Level.WARNING} log level.
      * @param {(string|function(): string)} loggable the message to log, or a
      *     function that will return the message.
      */
-    warning(loggable: string | Function): void;
+    warning(loggable: Loggable): void;
 
     /**
      * Logs a message at the {@link Level.INFO} log level.
      * @param {(string|function(): string)} loggable the message to log, or a
      *     function that will return the message.
      */
-    info(loggable: string | Function): void;
+    info(loggable: Loggable): void;
 
     /**
      * Logs a message at the {@link Level.DEBUG} log level.
      * @param {(string|function(): string)} loggable the message to log, or a
      *     function that will return the message.
      */
-    debug(loggable: string | Function): void;
+    debug(loggable: Loggable): void;
 
     /**
      * Logs a message at the {@link Level.FINE} log level.
      * @param {(string|function(): string)} loggable the message to log, or a
      *     function that will return the message.
      */
-    fine(loggable: string | Function): void;
+    fine(loggable: Loggable): void;
 
     /**
      * Logs a message at the {@link Level.FINER} log level.
      * @param {(string|function(): string)} loggable the message to log, or a
      *     function that will return the message.
      */
-    finer(loggable: string | Function): void;
+    finer(loggable: Loggable): void;
 
     /**
      * Logs a message at the {@link Level.FINEST} log level.
      * @param {(string|function(): string)} loggable the message to log, or a
      *     function that will return the message.
      */
-    finest(loggable: string | Function): void;
+    finest(loggable: Loggable): void;
 }
 
 /**
@@ -307,15 +313,15 @@ export function installConsoleHandler(): void;
 
 export interface IType {
     /** Logs originating from the browser. */
-    BROWSER: string;
+    BROWSER: Extract<Type, "browser">;
     /** Logs from a WebDriver client. */
-    CLIENT: string;
+    CLIENT: Extract<Type, "client">;
     /** Logs from a WebDriver implementation. */
-    DRIVER: string;
+    DRIVER: Extract<Type, "driver">;
     /** Logs related to performance. */
-    PERFORMANCE: string;
+    PERFORMANCE: Extract<Type, "performance">;
     /** Logs from the remote server. */
-    SERVER: string;
+    SERVER: Extract<Type, "server">;
 }
 
 /**
@@ -337,12 +343,14 @@ export class Preferences {
      * @param {(!Level|string|number)} level The desired log level.
      * @throws {TypeError} if `type` is not a `string`.
      */
-    setLevel(type: string | IType, level: Level): void;
+    // TODO: The existing declaration accepted the entire IType object as the
+    // first argument; the staged declaration and runtime accept a log-type string.
+    setLevel(type: Type, level: Level | string | number): void;
 
     /**
      * Converts this instance to its JSON representation.
      * @return {!Object<string, string>} The JSON representation of this set of
      *     preferences.
      */
-    toJSON(): { [key: string]: string };
+    toJSON(): Record<string, string>;
 }

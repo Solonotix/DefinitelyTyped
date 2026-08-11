@@ -1,6 +1,22 @@
 import { WebElement } from "../";
 
-export class Select {
+export function escapeQuotes(toEscape: string): string;
+
+export interface ISelect {
+    selectByIndex(index: number): Promise<void>;
+    selectByValue(value: string): Promise<void>;
+    selectByVisibleText(text: string): Promise<void>;
+    getOptions(): Promise<WebElement[]>;
+    isMultiple(): Promise<boolean>;
+    getAllSelectedOptions(): Promise<WebElement[]>;
+    getFirstSelectedOption(): Promise<WebElement | undefined>;
+    deselectAll(): Promise<void>;
+    deselectByVisibleText(text: string): Promise<void>;
+    deselectByIndex(index: number): Promise<void>;
+    deselectByValue(value: string): Promise<void>;
+}
+
+export class Select implements ISelect {
     /**
      * Create an Select Element
      * @param {WebElement} element Select WebElement.
@@ -8,6 +24,13 @@ export class Select {
     constructor(element: WebElement);
 
     element: WebElement;
+
+    /** Set asynchronously by the constructor after inspecting the element. */
+    multiple?: boolean;
+
+    // TODO: The staged declaration narrows visible-text methods to string and
+    // models getFirstSelectedOption as always present. Existing declarations
+    // accept numbers, while the runtime can return undefined when none are selected.
 
     /**
      * Select the option at the given index. This is done by examining the "index" attribute of an
