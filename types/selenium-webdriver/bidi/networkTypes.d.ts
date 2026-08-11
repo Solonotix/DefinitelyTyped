@@ -12,9 +12,8 @@ export interface NavigationParameters {
 
 /**
  * Represents the possible values for the SameSite attribute of a cookie.
- * @enum {string}
  */
-export declare const SameSite: {
+export const SameSite: {
     readonly STRICT: "strict";
     readonly LAX: "lax";
     readonly NONE: "none";
@@ -31,7 +30,7 @@ export declare const SameSite: {
  * Represents a BytesValue object.
  * Described in https://w3c.github.io/webdriver-bidi/#type-network-BytesValue.
  */
-export declare class BytesValue {
+export class BytesValue {
     static readonly Type: {
         readonly STRING: "string";
         readonly BASE64: "base64";
@@ -66,7 +65,7 @@ export declare class BytesValue {
  * Represents a header with a name and value.
  * Described in https://w3c.github.io/webdriver-bidi/#type-network-Header.
  */
-export declare class Header {
+export class Header {
     /**
      * Creates a new Header instance.
      * @param {string} name - The name of the header.
@@ -92,7 +91,7 @@ export declare class Header {
  * Represents a cookie.
  * Described in https://w3c.github.io/webdriver-bidi/#type-network-Cookie.
  */
-export declare class Cookie {
+export class Cookie {
     constructor(
         name: string,
         value: BytesValue,
@@ -220,17 +219,25 @@ export interface RequestData {
  * Represents the base parameters for a network request.
  * Described in https://w3c.github.io/webdriver-bidi/#type-network-BaseParameters.
  */
-export interface BaseParameters {
+export class BaseParameters {
     /** The browsing context ID of the network request. */
-    id: string;
+    readonly id: string;
     /** The navigation information associated with the network request, or null if not available. */
-    navigation: NavigationInfo | null;
+    readonly navigation: NavigationInfo | null;
     /** The number of redirects that occurred during the network request. */
-    redirectCount: number;
+    readonly redirectCount: number;
     /** The request data for the network request. */
-    request: RequestData;
+    readonly request: RequestData;
     /** The timestamp of the network request. */
-    timestamp: number;
+    readonly timestamp: number;
+
+    constructor(
+        id: string,
+        navigation: NavigationParameters | null,
+        redirectCount: number,
+        request: RequestData,
+        timestamp: number,
+    );
 }
 
 /**
@@ -254,7 +261,7 @@ export interface Initiator {
  * Represents the BeforeRequestSent event parameters.
  * Described in https://w3c.github.io/webdriver-bidi/#event-network-beforeSendRequest.
  */
-export declare class BeforeRequestSent implements BaseParameters {
+export class BeforeRequestSent extends BaseParameters {
     /** The browsing context ID of the network request. */
     id: string;
     /** The navigation information associated with the network request, or null if not available. */
@@ -286,36 +293,11 @@ export declare class BeforeRequestSent implements BaseParameters {
  * Represents the response data received from a network request.
  * Described in https://w3c.github.io/webdriver-bidi/#type-network-ResponseData.
  */
-export interface ResponseData {
-    /** The URL. */
-    url: string;
-    /** The protocol. */
-    protocol: string;
-    /** The HTTP status. */
-    status: number;
-    /** The status text. */
-    statusText: string;
-    /** The value indicating whether the data is retrieved from cache. */
-    fromCache: boolean;
-    /** The headers object. */
-    headers: Record<string, string>;
-    /** The MIME type of the network resource. */
-    mimeType: string;
-    /** The number of bytes received. */
-    bytesReceived: number;
-    /** The size of the headers. */
-    headerSize: number;
-    /** The size of the body. */
-    bodySize: number;
-    /** The content. */
-    content: unknown;
-}
-
 /**
  * Represents the response data received from a network request.
  * Described in https://w3c.github.io/webdriver-bidi/#type-network-ResponseData.
  */
-declare class ResponseData {
+export class ResponseData {
     constructor(
         url: string,
         protocol: string,
@@ -401,7 +383,7 @@ declare class ResponseData {
  * Represents the ResponseStarted event parameters.
  * Described in https://w3c.github.io/webdriver-bidi/#event-network-responseStarted.
  */
-export declare class ResponseStarted extends BaseParameters {
+export class ResponseStarted extends BaseParameters {
     constructor(
         id: string,
         navigation: NavigationParameters | null,
@@ -422,7 +404,7 @@ export declare class ResponseStarted extends BaseParameters {
  * Represents the FetchError event parameters.
  * Described https://w3c.github.io/webdriver-bidi/#event-network-fetchError
  */
-export declare class FetchError extends BaseParameters {
+export class FetchError extends BaseParameters {
     /**
      * Creates a new FetchError instance.
      * @param {string} id - The ID of the error.

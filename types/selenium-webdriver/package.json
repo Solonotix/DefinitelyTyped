@@ -1,13 +1,15 @@
 {
     "private": true,
     "name": "@types/selenium-webdriver",
-    "version": "4.35.9999",
+    "version": "4.46.9999",
     "projects": [
         "https://github.com/SeleniumHQ/selenium"
     ],
     "dependencies": {
+        "@types/node": "*",
+        "@types/tmp": "*",
         "@types/ws": "*",
-        "@types/node": "*"
+        "jszip": "*"
     },
     "devDependencies": {
         "@types/selenium-webdriver": "workspace:."
