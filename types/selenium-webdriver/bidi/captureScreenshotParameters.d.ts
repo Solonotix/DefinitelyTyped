@@ -1,18 +1,28 @@
-import { BoxClipRectangle, ElementClipRectangle } from "./clipRectangle";
+import type { MapOf } from '../_internal.js';
+import type { BoxClipRectangle, ElementClipRectangle } from './clipRectangle.js';
 
-export const Origin: {
-    VIEWPORT: "viewport";
-    DOCUMENT: "document";
-};
+export type Origin = 'document' | 'viewport';
+
+export interface IOrigin {
+    readonly DOCUMENT: 'document';
+    readonly VIEWPORT: 'viewport';
+}
+
+export const Origin: IOrigin;
+
+export interface ICaptureScreenshotParameters {
+    clip?: ReturnType<BoxClipRectangle['asMap']> | ReturnType<ElementClipRectangle['asMap']>;
+    origin?: Origin;
+    quality?: number;
+    type?: string;
+}
 
 export class CaptureScreenshotParameters {
-    #map: Map<string, any>;
+    origin(origin: Origin): this;
 
-    origin(origin: "viewport" | "document"): CaptureScreenshotParameters;
+    imageFormat(type: string, quality?: number): this;
 
-    imageFormat(type: string, quality?: number): CaptureScreenshotParameters;
+    clipRectangle(clipRectangle: BoxClipRectangle | ElementClipRectangle): this;
 
-    clipRectangle(clipRectangle: BoxClipRectangle | ElementClipRectangle): CaptureScreenshotParameters;
-
-    asMap(): Map<string, any>;
+    asMap(): MapOf<ICaptureScreenshotParameters>;
 }

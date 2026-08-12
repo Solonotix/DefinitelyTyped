@@ -1,8 +1,10 @@
-import * as http from "./http";
-import * as webdriver from "./index";
-import Symbols from "./lib/symbols";
-import * as remote from "./remote";
-export {};
+import type { SuggestedString } from './_internal.js';
+import * as http from './http/index.js';
+import { Capabilities } from './lib/capabilities.js';
+import * as Symbols from './lib/symbols.js';
+import { WebDriver } from './lib/webdriver.js';
+import * as remote from './remote/index.js';
+export { };
 
 declare class Profile {
     constructor();
@@ -16,22 +18,24 @@ declare class Profile {
     [Symbols.serialize](): Promise<string>;
 }
 
-// TODO: The staged declaration models this runtime object with a suggested-string type and interface. Keep the
-// existing enum until the package-wide enum-to-object migration can be evaluated consistently.
-export enum Context {
-    CONTENT = "content",
-    CHROME = "chrome",
+export type Context = SuggestedString<'chrome' | 'content'>;
+
+export interface IContext {
+    readonly CHROME: 'chrome';
+    readonly CONTENT: 'content';
 }
+
+export const Context: IContext;
 
 /**
  * Configuration options for the FirefoxDriver.
  */
-export class Options extends webdriver.Capabilities {
+export class Options extends Capabilities {
     /**
      * @param {(Capabilities|Map<string, ?>|Object)=} other Another set of
      *     capabilities to initialize this instance from.
      */
-    constructor(other?: webdriver.Capabilities | Map<string, any> | object);
+    constructor(other?: Capabilities | Map<string, unknown> | Record<string, unknown>);
 
     /**
      * @return {!Object}
@@ -46,7 +50,7 @@ export class Options extends webdriver.Capabilities {
      * @param {(string|!Profile)} profile The profile to use.
      * @return {!Options} A self reference.
      */
-    setProfile(profile: string | Profile): Options;
+    setProfile(profile: string | Profile): this;
 
     /**
      * @param {string} key the preference key.
@@ -54,7 +58,7 @@ export class Options extends webdriver.Capabilities {
      * @return {!Options} A self reference.
      * @throws {TypeError} if either the key or value has an invalid type.
      */
-    setPreference(key: string, value: string | number | boolean): Options;
+    setPreference(key: string, value: string | number | boolean): this;
 
     /**
      * Add extensions that should be installed when starting Firefox.
@@ -62,7 +66,7 @@ export class Options extends webdriver.Capabilities {
      * @param {...string} paths The paths to the extension XPI files to install.
      * @return {!Options} A self reference.
      */
-    addExtensions(...paths: string[]): Options;
+    addExtensions(...paths: string[]): this;
 
     /**
      * Sets the initial window size.
@@ -72,7 +76,7 @@ export class Options extends webdriver.Capabilities {
      * @throws {TypeError} if width or height is unspecified, not a number, or
      *     less than or equal to 0.
      */
-    windowSize(size: { width: number; height: number }): Options;
+    windowSize(size: { width: number; height: number }): this;
 
     /**
      * Specify additional command line arguments that should be used when starting
@@ -81,7 +85,7 @@ export class Options extends webdriver.Capabilities {
      * @param {...(string|!Array<string>)} args The arguments to include.
      * @return {!Options} A self reference.
      */
-    addArguments(...args: string[]): Options;
+    addArguments(...args: string[]): this;
 
     /**
      * Sets the binary to use. The binary may be specified as the path to a
@@ -91,7 +95,7 @@ export class Options extends webdriver.Capabilities {
      * @return {!Options} A self reference.
      * @throws {TypeError} If `binary` is an invalid type.
      */
-    setBinary(binary: string): Options;
+    setBinary(binary: string): this;
 
     /**
      * Enables Mobile start up features
@@ -99,7 +103,7 @@ export class Options extends webdriver.Capabilities {
      * @param {string} androidPackage The package to use
      * @return {!Options} A self reference
      */
-    enableMobile(androidPackage: string, androidActivity: string, deviceSerial: string): Options;
+    enableMobile(androidPackage: string, androidActivity: string, deviceSerial: string): this;
 
     /**
      * Enables moz:debuggerAddress for firefox cdp
@@ -110,13 +114,13 @@ export class Options extends webdriver.Capabilities {
      * Enable bidi connection
      * @returns {!Capabilities}
      */
-    enableBidi(): webdriver.Capabilities;
+    enableBidi(): Capabilities;
 }
 
 /**
  * A WebDriver client for Firefox.
  */
-export class Driver extends webdriver.WebDriver {
+export class Driver extends WebDriver {
     /**
      * Creates a new Firefox session.
      *
@@ -140,7 +144,7 @@ export class Driver extends webdriver.WebDriver {
      * @return {!Driver} A new driver instance.
      */
     static createSession(
-        opt_config?: Options | webdriver.Capabilities | Object,
+        opt_config?: Options | Capabilities | Record<string, unknown>,
         opt_executor?: http.Executor | remote.DriverService,
     ): Driver;
 
@@ -227,7 +231,7 @@ export class ServiceBuilder extends remote.DriverService.Builder {
      *     default, only debug logging is enabled.
      * @return {!ServiceBuilder} A self reference.
      */
-    enableVerboseLogging(opt_trace?: boolean): ServiceBuilder;
+    enableVerboseLogging(opt_trace?: boolean): this;
 }
 
 /**
@@ -240,6 +244,18 @@ export class ServiceBuilder extends remote.DriverService.Builder {
  * @final
  */
 export class Channel {
+    /** Firefox's developer edition release channel. */
+    static readonly DEV: Channel;
+
+    /** Firefox's beta release channel. */
+    static readonly BETA: Channel;
+
+    /** Firefox's stable release channel. */
+    static readonly RELEASE: Channel;
+
+    /** Firefox's nightly release channel. */
+    static readonly NIGHTLY: Channel;
+
     /**
      * @param {string} darwin The path to check when running on MacOS.
      * @param {string} win32 The path to check when running on Windows.

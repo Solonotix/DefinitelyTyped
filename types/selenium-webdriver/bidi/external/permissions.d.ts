@@ -1,9 +1,9 @@
-import type { WebDriver } from "../../lib/webdriver";
+import type { WebDriver } from '../../lib/webdriver.js';
 
 export const PermissionState: {
-    readonly GRANTED: "granted";
-    readonly DENIED: "denied";
-    readonly PROMPT: "prompt";
+    readonly GRANTED: 'granted';
+    readonly DENIED: 'denied';
+    readonly PROMPT: 'prompt';
 };
 
 export type PermissionState = (typeof PermissionState)[keyof typeof PermissionState];

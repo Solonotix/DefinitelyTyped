@@ -1,14 +1,15 @@
 import {
     Browser,
+    Capabilities,
     Capability,
     PageLoadStrategy,
     Platform,
     Timeouts,
     UserPromptHandler,
 } from "selenium-webdriver/lib/capabilities";
-import { Command } from "selenium-webdriver/lib/command";
+import { Command, Name } from "selenium-webdriver/lib/command";
 import { buildPath, Client, Executor, Request, Response } from "selenium-webdriver/lib/http";
-import { Action, Button } from "selenium-webdriver/lib/input";
+import { Action, Actions, Button, Device, Keyboard, Origin, Pointer } from "selenium-webdriver/lib/input";
 import { Entry, getLogger, Level, Type } from "selenium-webdriver/lib/logging";
 import Network = require("selenium-webdriver/lib/network");
 import { PinnedScript } from "selenium-webdriver/lib/pinnedScript";
@@ -29,6 +30,17 @@ const responseText: string = response.toString();
 const action = new Action();
 action.type = Action.Type.POINTER_DOWN;
 action.button = Button.BACK;
+const backButton: 3 = Button.BACK;
+const auxiliaryButton: Button = 5;
+const pointerOrigin: "pointer" = Origin.POINTER;
+const noneDevice = new Device(Device.Type.NONE, "none");
+const noneDeviceType: "none" = noneDevice.toJSON().type;
+const keyboard = new Keyboard("keyboard");
+const keyDown = keyboard.keyDown("a");
+const pointer = new Pointer("pointer", Pointer.Type.PEN);
+const pointerDown = pointer.press(Button.LEFT);
+const pointerMove = pointer.move({ origin: Origin.VIEWPORT, pressure: 0.5 });
+const pointerUp = pointer.release(Button.LEFT);
 
 const logger = getLogger("test");
 const handler = (entry: Entry) => entry.toJSON();
@@ -43,7 +55,17 @@ const executor = new Executor(client);
 executor.defineCommand("custom", "POST", "/session/:sessionId/custom");
 const executed: Promise<unknown> = executor.execute(new Command("custom"));
 declare const commandExecutor: import("selenium-webdriver/lib/command").Executor;
+const actions = new Actions(commandExecutor);
+const wheel = actions.wheel();
+actions.insert(keyboard, keyDown).synchronize(keyboard, pointer);
+actions.scroll(0, 0, 0, 100, Origin.VIEWPORT, 100);
+const wheelAction = wheel.scroll(0, 0, 0, 100, Origin.VIEWPORT, 100);
+const actionSequences = actions.getSequences();
 const typedExecuted: Promise<{ value: string }> = commandExecutor.execute<{ value: string }>(new Command("custom"));
+const getCurrentUrl: "getCurrentUrl" = Name.GET_CURRENT_URL;
+const fedCmDialogType: "getFedCmDialogType" = Name.GET_FEDCM_DIALOG_TYPE;
+const command = new Command<{ sessionId: string }>(Name.GET_CURRENT_URL).setParameter("sessionId", "abc");
+const commandParameters: { sessionId: string } = command.getParameters();
 
 const delayed: Promise<void> = promise.delayed(10);
 const mapped: Promise<string[]> = promise.map([1, 2], async value => String(value));
@@ -52,6 +74,13 @@ const resolved: Promise<{ value: string }> = promise.fullyResolved({ value: Prom
 const finalized: Promise<string> = promise.finally(Promise.resolve("done"), () => undefined);
 
 const serializationSymbol: symbol = serialize;
+const capabilities = new Capabilities();
+const capabilityCount: number = capabilities.size;
+const mergedCapabilities: Capabilities = capabilities.merge({ browserName: Browser.CHROME });
+// $ExpectType void
+capabilities.delete(Capability.BROWSER_VERSION);
+const acceptInsecureCerts: boolean | undefined = capabilities.getAcceptInsecureCerts();
+capabilities.setStrictFileInteractability(true).enableDownloads();
 const escaped: string = escapeQuotes(`text with "quotes"`);
 const session = new Session("session-id", new Map([["browserName", "chrome"]]));
 
@@ -87,7 +116,9 @@ const handlerId: Promise<number> = network.addAuthenticationHandler("user", "pas
 const cleared: Promise<void> = network.clearAuthenticationHandlers();
 
 const script = new Script(driver);
-const result: Promise<string | undefined> = script.execute<string>("function () { return 'ok'; }");
+const result: Promise<import("selenium-webdriver/bidi/protocolValue").RemoteValue | undefined> = script.execute(
+    "function () { return 'ok'; }",
+);
 
 const encoded: unknown = { "element-6066-11e4-a52e-4f735466cecf": "element-id" };
 if (webElement.isId(encoded)) {

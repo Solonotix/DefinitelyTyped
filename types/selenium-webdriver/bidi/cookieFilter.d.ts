@@ -1,6 +1,6 @@
-import type { BytesValue } from "./networkTypes";
+import type { BytesValue } from './networkTypes.js';
 
-export type SameSiteValue = "strict" | "lax" | "none" | "default";
+export type SameSiteValue = 'strict' | 'lax' | 'none' | 'default';
 
 export class CookieFilter {
     name(name: string): this;

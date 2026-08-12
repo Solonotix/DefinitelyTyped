@@ -1,8 +1,8 @@
-import type { SuggestedString } from "../_internal";
+import type { SuggestedString } from '../_internal.js';
 
 export type EntryHandler = (entry: Entry) => void;
 export type Loggable = string | (() => string);
-export type Type = SuggestedString<"browser" | "client" | "driver" | "performance" | "server">;
+export type Type = SuggestedString<'browser' | 'client' | 'driver' | 'performance' | 'server'>;
 
 /**
  * Defines a message level that may be used to control logging output.
@@ -313,15 +313,15 @@ export function installConsoleHandler(): void;
 
 export interface IType {
     /** Logs originating from the browser. */
-    BROWSER: Extract<Type, "browser">;
+    BROWSER: Extract<Type, 'browser'>;
     /** Logs from a WebDriver client. */
-    CLIENT: Extract<Type, "client">;
+    CLIENT: Extract<Type, 'client'>;
     /** Logs from a WebDriver implementation. */
-    DRIVER: Extract<Type, "driver">;
+    DRIVER: Extract<Type, 'driver'>;
     /** Logs related to performance. */
-    PERFORMANCE: Extract<Type, "performance">;
+    PERFORMANCE: Extract<Type, 'performance'>;
     /** Logs from the remote server. */
-    SERVER: Extract<Type, "server">;
+    SERVER: Extract<Type, 'server'>;
 }
 
 /**
@@ -343,8 +343,6 @@ export class Preferences {
      * @param {(!Level|string|number)} level The desired log level.
      * @throws {TypeError} if `type` is not a `string`.
      */
-    // TODO: The existing declaration accepted the entire IType object as the
-    // first argument; the staged declaration and runtime accept a log-type string.
     setLevel(type: Type, level: Level | string | number): void;
 
     /**

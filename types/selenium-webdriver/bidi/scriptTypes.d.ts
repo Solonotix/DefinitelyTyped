@@ -1,4 +1,5 @@
-import { RemoteValue } from "./remoteValue";
+import type { ProtocolType } from './protocolType.js';
+import type { RemoteValue } from './protocolValue.js';
 
 export interface ScriptSource {
     realm: string;
@@ -9,9 +10,9 @@ export interface ScriptSource {
  * Represents a message received through a channel.
  * Described in https://w3c.github.io/webdriver-bidi/#event-script-message.
  */
-declare class Message {
+declare class Message<T extends ProtocolType = ProtocolType, V = unknown> {
     private _channel: string;
-    private _data: RemoteValue;
+    private _data: RemoteValue<T, V>;
     private _source: Source;
 
     /**
@@ -22,7 +23,7 @@ declare class Message {
      */
     constructor(
         channel: string,
-        data: RemoteValue,
+        data: RemoteValue<T, V>,
         source: Source,
     );
 
@@ -36,7 +37,7 @@ declare class Message {
      * Gets the data contained in the message.
      * @returns The data.
      */
-    get data(): RemoteValue;
+    get data(): RemoteValue<T, V>;
 
     /**
      * Gets the source of the message.

@@ -3,33 +3,33 @@ import type { StdioOptions } from 'node:child_process';
 import type { TypedFunction } from '../_internal.js';
 
 export class Command {
-// eslint-disable-next-line @definitelytyped/no-single-element-tuple-type
-  constructor(result: Promise<Result>, onKill: TypedFunction<void, [string]>);
+    // eslint-disable-next-line @definitelytyped/no-single-element-tuple-type
+    constructor(result: Promise<Result>, onKill: TypedFunction<void, [string]>);
 
-  /**
-   * @return {!Promise<!Result>} A promise for the result of this
-   *     command.
-   */
-  result(): Promise<Result>;
+    /**
+     * @return {!Promise<!Result>} A promise for the result of this
+     *     command.
+     */
+    result(): Promise<Result>;
 
-  kill(opt_signal?: string): void;
+    kill(opt_signal?: string): void;
 }
 
 export class Options {
-  readonly args?: Array<string>;
-  readonly env?: NodeJS.ProcessEnv;
-  readonly stdio?: StdioOptions;
+    readonly args?: Array<string>;
+    readonly env?: NodeJS.ProcessEnv;
+    readonly stdio?: StdioOptions;
 
-  constructor();
+    constructor();
 }
 
 export class Result {
-  readonly code?: number;
-  readonly signal?: string;
+    readonly code?: number;
+    readonly signal?: string;
 
-  constructor(code?: number, signal?: string);
+    constructor(code?: number, signal?: string);
 
-  toString(): string;
+    toString(): string;
 }
 
 export function exec(command: string, options?: Options): Promise<Result>;

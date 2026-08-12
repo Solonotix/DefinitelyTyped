@@ -20,4 +20,4 @@ const select = new Select(element);
 const contexts: Promise<BrowsingContextInspector.Instance> = BrowsingContextInspector(driver);
 const network: Promise<NetworkInspector.Instance> = NetworkInspector(driver);
 const scriptManagerFactory: typeof ScriptManager = ScriptManager;
-const scripts = ScriptManager([], driver);
+const scripts: Promise<ScriptManager.Instance> = ScriptManager([], driver);

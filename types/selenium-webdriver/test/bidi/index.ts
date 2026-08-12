@@ -1,7 +1,35 @@
-import { Index, StatusResult } from "selenium-webdriver/bidi";
+import Bidi = require("selenium-webdriver/bidi");
+import type { WebDriver } from "selenium-webdriver";
+
+declare const driver: WebDriver;
+const bidiFromDriver: Promise<Bidi> = driver.getBidi();
+
+declare const network: Bidi.Network.Instance;
+declare const beforeRequestSent: Bidi.Network.Types.BeforeRequestSent;
+
+const cacheBehavior: Bidi.Network.CacheBehavior = "bypass";
+const primitiveType: Bidi.ProtocolType.Primitive.String = "string";
+const ownership: Bidi.ProtocolValue.ResultOwnership.Root = "root";
+declare const generatedNetwork: Bidi.Generated.Network.Network;
+
+// @ts-expect-error ProtocolType is a type-only aggregate member, not a static property of the runtime class.
+Bidi.ProtocolType;
+
+// @ts-expect-error External is a type-only aggregate member, not a static property of the runtime class.
+Bidi.External;
+
+// @ts-expect-error Generated is a type-only aggregate member, not a static property of the runtime class.
+Bidi.Generated;
+network.beforeRequestSent(event => {
+    const requestId: string = event.request.request;
+});
+network.authRequired(event => {
+    const status: number = event.response.status;
+});
+const eventRequestId: string = beforeRequestSent.request.request;
 
 function testStatusMethod() {
-    const mockStatusResult: StatusResult = {
+    const mockStatusResult: Bidi.StatusResult = {
         id: 123,
         result: {
             build: { version: "1.0.0" },
@@ -12,17 +40,17 @@ function testStatusMethod() {
         type: "status",
     };
 
-    class MockIndex extends (Index as any) {
+    class MockBidi extends Bidi {
         constructor() {
             super("ws://mockurl");
         }
 
-        get status(): Promise<StatusResult> {
+        get status(): Promise<Bidi.StatusResult> {
             return Promise.resolve(mockStatusResult);
         }
     }
 
-    const mockInstance = new MockIndex();
+    const mockInstance = new MockBidi();
 
     mockInstance.status
         .then((result) => {

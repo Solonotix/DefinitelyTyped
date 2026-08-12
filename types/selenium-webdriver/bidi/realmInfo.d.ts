@@ -1,25 +1,25 @@
-import type { SuggestedString } from "../_internal";
+import type { SuggestedString } from '../_internal.js';
 
 export type RealmType = SuggestedString<
-    | "audio-worklet"
-    | "dedicated-worker"
-    | "paint-worklet"
-    | "service-worker"
-    | "shared-worker"
-    | "window"
-    | "worker"
-    | "worklet"
+    | 'audio-worklet'
+    | 'dedicated-worker'
+    | 'paint-worklet'
+    | 'service-worker'
+    | 'shared-worker'
+    | 'window'
+    | 'worker'
+    | 'worklet'
 >;
 
 export interface IRealmType {
-    AUDIO_WORKLET: "audio-worklet";
-    DEDICATED_WORKER: "dedicated-worker";
-    PAINT_WORKLET: "paint-worklet";
-    SERVICE_WORKED: "service-worker";
-    SHARED_WORKED: "shared-worker";
-    WINDOW: "window";
-    WORKER: "worker";
-    WORKLET: "worklet";
+    AUDIO_WORKLET: 'audio-worklet';
+    DEDICATED_WORKER: 'dedicated-worker';
+    PAINT_WORKLET: 'paint-worklet';
+    SERVICE_WORKED: 'service-worker';
+    SHARED_WORKED: 'shared-worker';
+    WINDOW: 'window';
+    WORKER: 'worker';
+    WORKLET: 'worklet';
 
     findByName(name: string): RealmType | null;
 }
@@ -44,14 +44,14 @@ export class RealmInfo<T extends RealmType = RealmType> implements IRealmInfo<T>
     static fromJson<T extends RealmType>(input: object): RealmInfo<T> | WindowRealmInfo;
 }
 
-export class WindowRealmInfo extends RealmInfo<"window"> {
+export class WindowRealmInfo extends RealmInfo<'window'> {
     readonly browsingContext: string;
     readonly sandbox: string | null;
 
     constructor(
         realmId: string,
         origin: string,
-        realmType: "window",
+        realmType: 'window',
         browsingContext: string,
         sandbox?: string | null,
     );

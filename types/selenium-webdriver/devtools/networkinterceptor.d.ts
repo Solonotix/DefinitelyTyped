@@ -4,20 +4,20 @@ declare class HttpResponse {
      * mock out network interceptions.
      * @param {*} urlToIntercept
      */
-    constructor(urlToIntercept?: any);
+    constructor(urlToIntercept?: string);
     returnBody: string;
-    returnHeaders: any[];
+    returnHeaders: Array<{ name: string; value: string }>;
     returnMethod: string;
     returnStatus: number;
-    urlToIntercept: any;
+    urlToIntercept: string;
     /**
      * Add headers that will be returned when we intercept
      * a HTTP Request
      * @param {*} header
      * @param {*} value
      */
-    addHeaders(header: string, value: any): void;
-    get headers(): Array<{ name: string; value: any }>;
+    addHeaders(header: string, value: string): void;
+    get headers(): Array<{ name: string; value: string }>;
     /**
      * Set the STATUS value of the returned HTTP Request
      * @param {*} value

@@ -6,7 +6,7 @@ export class FilterBy {
 }
 
 export type FilterByLevel =
-    | "debug"
-    | "error"
-    | "info"
-    | "warning";
+    | 'debug'
+    | 'error'
+    | 'info'
+    | 'warning';

@@ -1,4 +1,12 @@
-import { Locator, WebDriver, WebElement } from "../";
+import type { WebDriver, WebElement } from './webdriver.js';
+
+export type LocatorFunction = (
+    context: WebDriver | WebElement,
+) => Promise<WebElement | WebElement[]>;
+
+export type Locator = By | LocatorFunction | ByHash | RelativeBy;
+export type LocatorArgument = Locator;
+export type ScriptFunction<T, A extends unknown[]> = (...args: A) => T;
 
 /**
  * Typings for lib/by.js
@@ -63,7 +71,12 @@ export class By {
      * @return {function(!./WebDriver): !./Promise}
      *     A new JavaScript-based locator function.
      */
-    static js(script: string | Function, ...var_args: any[]): (webdriver: WebDriver) => Promise<any>;
+    static js<T, A extends unknown[]>(
+        script: ScriptFunction<T, A>,
+        ...var_args: A
+    ): (webdriver: WebDriver) => Promise<T>;
+    /** A string script has no statically knowable result type. */
+    static js(script: string, ...var_args: unknown[]): (webdriver: WebDriver) => Promise<any>;
 
     /**
      * Locates elements whose `name` attribute has the given value.
@@ -105,7 +118,7 @@ export class By {
      */
     static xpath(xpath: string): By;
 
-    toObject(): Object;
+    toObject(): Record<string, string>;
 
     /** @override */
     toString(): string;
@@ -121,7 +134,7 @@ export class RelativeBy {
      * @param {By} findDetails
      * @param {Array<Object>} filters
      */
-    constructor(findDetails: By, filters: Object[]);
+    constructor(findDetails: By, filters?: object[] | null);
 
     /**
      * Look for elements above the root element passed in
@@ -152,6 +165,34 @@ export class RelativeBy {
     toRightOf(locatorOrElement: Locator | WebElement): RelativeBy;
 
     /**
+     * Look for elements directly above the root element passed in.
+     * @param locatorOrElement The locator or element to compare against.
+     * @return A self reference.
+     */
+    straightAbove(locatorOrElement: Locator | WebElement): this;
+
+    /**
+     * Look for elements directly below the root element passed in.
+     * @param locatorOrElement The locator or element to compare against.
+     * @return A self reference.
+     */
+    straightBelow(locatorOrElement: Locator | WebElement): this;
+
+    /**
+     * Look for elements directly left of the root element passed in.
+     * @param locatorOrElement The locator or element to compare against.
+     * @return A self reference.
+     */
+    straightToLeftOf(locatorOrElement: Locator | WebElement): this;
+
+    /**
+     * Look for elements directly right of the root element passed in.
+     * @param locatorOrElement The locator or element to compare against.
+     * @return A self reference.
+     */
+    straightToRightOf(locatorOrElement: Locator | WebElement): this;
+
+    /**
      * Look for elements near the root element passed in
      * @param {Locator|WebElement} locatorOrElement
      * @return {!RelativeBy} Return this object
@@ -163,7 +204,12 @@ export class RelativeBy {
      * @return {!Object} Object representation of a {@link WebElement}
      *     that will be used in {@link #findElements}.
      */
-    marshall(): Object;
+    marshall(): {
+        relative: {
+            root: By;
+            filters: object[];
+        };
+    };
 
     /** @override */
     toString(): string;
@@ -198,7 +244,7 @@ export type ByHash =
  * @throws {TypeError} If the given value does not define a valid locator
  *     strategy.
  */
-export function checkedLocator(locator: Locator): By | Function;
+export function checkedLocator(locator: Locator): By | RelativeBy | LocatorFunction;
 
 /**
  * Start searching for relative objects using search criteria with By.

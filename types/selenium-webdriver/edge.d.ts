@@ -1,10 +1,11 @@
-import * as webdriver from "./index";
-import * as remote from "./remote";
+import * as chromium from './chromium.js';
+import type { Capabilities } from './lib/capabilities.js';
+import * as remote from './remote/index.js';
 
 /**
  * Creates a new WebDriver client for Microsoft's Edge.
  */
-export class Driver extends webdriver.chromium.ChromiumWebDriver {
+export class Driver extends chromium.Driver {
     /**
      * Creates a new browser session for Microsoft's Edge browser.
      *
@@ -14,7 +15,7 @@ export class Driver extends webdriver.chromium.ChromiumWebDriver {
      * @return {!Driver} A new driver instance.
      */
     static createSession(
-        opt_config?: webdriver.Capabilities | Options,
+        opt_config?: Capabilities | Options,
         opt_serviceExecutor?: remote.DriverService,
     ): Driver;
 
@@ -37,9 +38,9 @@ export interface IOptionsValues {
     binary?: string | undefined;
     detach: boolean;
     extensions: string[];
-    localState?: any;
+    localState?: Record<string, unknown>;
     logFile?: string | undefined;
-    prefs?: any;
+    prefs?: Record<string, unknown>;
 }
 
 export interface IPerfLoggingPrefs {
@@ -53,7 +54,7 @@ export interface IPerfLoggingPrefs {
 /**
  * Class for managing MicrosoftEdgeDriver specific options.
  */
-export class Options extends webdriver.chromium.Options {
+export class Options extends chromium.Options {
     /**
      * Sets the path to the edge binary to use
      *
@@ -62,11 +63,11 @@ export class Options extends webdriver.chromium.Options {
      * @param {string} path The path to the edgedriver binary to use.
      * @return {!Options} A self reference.
      */
-    setEdgeChromiumBinaryPath(path: string): Options;
+    setEdgeChromiumBinaryPath(path: string): this;
 
     /**
      * Changes the browser name to 'webview2' to enable
-     * <a href="https://learn.microsoft.com/en-us/microsoft-edge/webview2/how-to/webdriver">
+     * <a href='https://learn.microsoft.com/en-us/microsoft-edge/webview2/how-to/webdriver'>
      *   test automation of WebView2 apps with Microsoft Edge WebDriver
      * </a>
      *
@@ -80,7 +81,7 @@ export class Options extends webdriver.chromium.Options {
  * a [MSEdgeDriver](https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/)
  * server in a child process.
  */
-export class ServiceBuilder extends webdriver.chromium.ServiceBuilder {
+export class ServiceBuilder extends chromium.ServiceBuilder {
     /**
      * @param {string=} opt_exe Path to the server executable to use. If omitted,
      *   the builder will attempt to locate the MicrosoftEdgeDriver on the current

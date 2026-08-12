@@ -3,6 +3,8 @@ import firefox from "selenium-webdriver/firefox";
 import * as http from "selenium-webdriver/http";
 import * as remote from "selenium-webdriver/remote";
 
+const channel: firefox.Channel = firefox.Channel.NIGHTLY;
+
 async function TestFirefoxDriver() {
     let driver: firefox.Driver = firefox.Driver.createSession();
     driver = firefox.Driver.createSession(webdriver.Capabilities.firefox());
@@ -15,6 +17,7 @@ async function TestFirefoxDriver() {
     await driver.uninstallAddon("addon1");
     await driver.takeFullPageScreenshot();
     await driver.setContext(firefox.Context.CONTENT);
+    const chromeContext: "chrome" = firefox.Context.CHROME;
     await driver.getContext();
     let baseDriver: webdriver.WebDriver = driver;
 }
@@ -42,7 +45,7 @@ function TestServiceBuilder() {
     builder = builder.enableVerboseLogging();
     builder = builder.enableVerboseLogging(true);
     builder = builder.setPath("path");
-    builder = builder.setStdio("config");
-    builder = builder.setStdio(["A", "B"]);
+    builder = builder.setStdio("inherit");
+    builder = builder.setStdio(["ignore", "pipe", "pipe"]);
     builder = builder.setEnvironment({ A: "a", B: "b" });
 }

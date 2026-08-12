@@ -1,7 +1,7 @@
-import type { WebDriver } from "../webdriver";
-import Account = require("./account");
+import type { WebDriver } from '../webdriver.js';
+import Account = require('./account.js');
 
-type DialogType = "AutoReauthn" | "AccountChooser" | "ConfirmIdpLogin" | (string & {});
+type DialogType = 'AutoReauthn' | 'AccountChooser' | 'ConfirmIdpLogin' | (string & {});
 
 interface TitleResult {
     title: string;
@@ -18,6 +18,10 @@ declare class Dialog {
     selectAccount(index: number): Promise<void>;
     accept(): Promise<void>;
     dismiss(): Promise<void>;
+}
+
+declare namespace Dialog {
+    export { DialogType, TitleResult };
 }
 
 export = Dialog;

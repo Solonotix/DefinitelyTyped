@@ -1,225 +1,161 @@
-import type { SuggestedString } from "../_internal";
+import type { SuggestedString } from '../_internal.js';
 
-// TODO: The staged declaration gives every Name property its exact runtime
-// literal. The existing ICommandName uses broad strings and includes legacy
-// names, so CommandName remains open until those sets are reconciled.
-export type CommandName = SuggestedString<ICommandName[keyof ICommandName]>;
-
-/**
- * An enumeration of valid command string.
- */
-export interface ICommandName {
-    GET_SERVER_STATUS: string;
-
-    NEW_SESSION: string;
-    GET_SESSIONS: string;
-    DESCRIBE_SESSION: string;
-
-    CLOSE: string;
-    QUIT: string;
-
-    GET_CURRENT_URL: string;
-    GET: string;
-    GO_BACK: string;
-    GO_FORWARD: string;
-    REFRESH: string;
-
-    ADD_COOKIE: string;
-    GET_COOKIE: string;
-    GET_ALL_COOKIES: string;
-    DELETE_COOKIE: string;
-    DELETE_ALL_COOKIES: string;
-
-    GET_ACTIVE_ELEMENT: string;
-    FIND_ELEMENT: string;
-    FIND_ELEMENTS: string;
-    FIND_CHILD_ELEMENT: string;
-    FIND_CHILD_ELEMENTS: string;
-
-    CLEAR_ELEMENT: string;
-    CLICK_ELEMENT: string;
-    SEND_KEYS_TO_ELEMENT: string;
-    SUBMIT_ELEMENT: string;
-
-    GET_CURRENT_WINDOW_HANDLE: string;
-    GET_WINDOW_HANDLES: string;
-    GET_WINDOW_POSITION: string;
-    SET_WINDOW_POSITION: string;
-    GET_WINDOW_SIZE: string;
-    SET_WINDOW_SIZE: string;
-    MAXIMIZE_WINDOW: string;
-
-    SWITCH_TO_WINDOW: string;
-    SWITCH_TO_FRAME: string;
-    GET_PAGE_SOURCE: string;
-    GET_TITLE: string;
-
-    EXECUTE_SCRIPT: string;
-    EXECUTE_ASYNC_SCRIPT: string;
-
-    GET_ELEMENT_TEXT: string;
-    GET_ELEMENT_TAG_NAME: string;
-    IS_ELEMENT_SELECTED: string;
-    IS_ELEMENT_ENABLED: string;
-    IS_ELEMENT_DISPLAYED: string;
-    GET_ELEMENT_LOCATION: string;
-    GET_ELEMENT_LOCATION_IN_VIEW: string;
-    GET_ELEMENT_SIZE: string;
-    GET_ELEMENT_ATTRIBUTE: string;
-    GET_ELEMENT_VALUE_OF_CSS_PROPERTY: string;
-    ELEMENT_EQUALS: string;
-
-    SCREENSHOT: string;
-    IMPLICITLY_WAIT: string;
-    SET_SCRIPT_TIMEOUT: string;
-    SET_TIMEOUT: string;
-
-    ACCEPT_ALERT: string;
-    DISMISS_ALERT: string;
-    GET_ALERT_TEXT: string;
-    SET_ALERT_TEXT: string;
-
-    EXECUTE_SQL: string;
-    GET_LOCATION: string;
-    SET_LOCATION: string;
-    GET_APP_CACHE: string;
-    GET_APP_CACHE_STATUS: string;
-    CLEAR_APP_CACHE: string;
-    IS_BROWSER_ONLINE: string;
-    SET_BROWSER_ONLINE: string;
-
-    GET_LOCAL_STORAGE_ITEM: string;
-    GET_LOCAL_STORAGE_KEYS: string;
-    SET_LOCAL_STORAGE_ITEM: string;
-    REMOVE_LOCAL_STORAGE_ITEM: string;
-    CLEAR_LOCAL_STORAGE: string;
-    GET_LOCAL_STORAGE_SIZE: string;
-
-    GET_SESSION_STORAGE_ITEM: string;
-    GET_SESSION_STORAGE_KEYS: string;
-    SET_SESSION_STORAGE_ITEM: string;
-    REMOVE_SESSION_STORAGE_ITEM: string;
-    CLEAR_SESSION_STORAGE: string;
-    GET_SESSION_STORAGE_SIZE: string;
-
-    SET_SCREEN_ORIENTATION: string;
-    GET_SCREEN_ORIENTATION: string;
-
-    // These belong to the Advanced user interactions - an element is
-    // optional for these commands.
-    CLICK: string;
-    DOUBLE_CLICK: string;
-    MOUSE_DOWN: string;
-    MOUSE_UP: string;
-    MOVE_TO: string;
-    SEND_KEYS_TO_ACTIVE_ELEMENT: string;
-
-    // These belong to the Advanced Touch API
-    TOUCH_SINGLE_TAP: string;
-    TOUCH_DOWN: string;
-    TOUCH_UP: string;
-    TOUCH_MOVE: string;
-    TOUCH_SCROLL: string;
-    TOUCH_DOUBLE_TAP: string;
-    TOUCH_LONG_PRESS: string;
-    TOUCH_FLICK: string;
-
-    // Shadow DOM Commands
-    GET_SHADOW_ROOT: string;
-    FIND_ELEMENT_FROM_SHADOWROOT: string;
-    FIND_ELEMENTS_FROM_SHADOWROOT: string;
-
-    GET_AVAILABLE_LOG_TYPES: string;
-    GET_LOG: string;
-    GET_SESSION_LOGS: string;
-
-    UPLOAD_FILE: string;
-
-    ACTIONS: string;
-    CLEAR_ACTIONS: string;
-
-    LEGACY_ACTION_CLICK: string;
-    LEGACY_ACTION_DOUBLE_CLICK: string;
-    LEGACY_ACTION_MOUSE_DOWN: string;
-    LEGACY_ACTION_MOUSE_UP: string;
-    LEGACY_ACTION_MOUSE_MOVE: string;
-    LEGACY_ACTION_SEND_KEYS: string;
-    LEGACY_ACTION_TOUCH_DOWN: string;
-    LEGACY_ACTION_TOUCH_UP: string;
-    LEGACY_ACTION_TOUCH_MOVE: string;
-    LEGACY_ACTION_TOUCH_SCROLL: string;
-    LEGACY_ACTION_TOUCH_LONG_PRESS: string;
-    LEGACY_ACTION_TOUCH_FLICK: string;
-    LEGACY_ACTION_TOUCH_SINGLE_TAP: string;
-    LEGACY_ACTION_TOUCH_DOUBLE_TAP: string;
-}
-
-/**
- * The names of Command-s
- */
-export const Name: ICommandName;
-
-/**
- * Describes a command to be executed by the WebDriverJS framework.
- * @param {!CommandName} name The name of this command.
- */
-export class Command {
-    // region Constructors
-
+/** A command to execute through the WebDriver command executor. */
+export class Command<T extends Record<string, unknown> = Record<string, unknown>> {
     /**
      * @param {!CommandName} name The name of this command.
      */
-    constructor(name: string);
-
-    // endregion
-
-    // region Methods
+    constructor(name: CommandName);
 
     /**
      * @return {!CommandName} This command's name.
      */
-    getName(): string;
-
-    /**
-     * Sets a parameter to send with this command.
-     * @param {string} name The parameter name.
-     * @param {*} value The parameter value.
-     * @return {!Command} A self reference.
-     */
-    setParameter(name: string, value: any): Command;
-
-    /**
-     * Sets the parameters for this command.
-     * @param {!Object.<*>} parameters The command parameters.
-     * @return {!Command} A self reference.
-     */
-    setParameters(parameters: any): Command;
+    getName(): CommandName;
+    /** Typed overload for callers that know the command parameter shape. */
 
     /**
      * Returns a named command parameter.
      * @param {string} key The parameter key to look up.
      * @return {*} The parameter value, or undefined if it has not been set.
      */
-    getParameter(key: string): any;
-
-    /** Typed overload for callers that know the command parameter shape. */
-    getParameter<T>(key: string): T | undefined;
-
+    getParameter<K extends string & keyof T>(key: K): T[K] | undefined;
     /**
      * @return {!Object.<*>} The parameters to send with this command.
      */
-    getParameters(): any;
 
     /** Typed overload for callers that know the complete parameter shape. */
-    getParameters<T extends Record<string, unknown>>(): T;
-
-    // endregion
+    getParameters(): T;
+    /**
+     * Sets a parameter to send with this command.
+     * @param {string} name The parameter name.
+     * @param {*} value The parameter value.
+     * @return {!Command} A self reference.
+     */
+    setParameter<K extends string & keyof T>(key: K, value: T[K]): this;
+    /**
+     * Sets the parameters for this command.
+     * @param {!Object.<*>} parameters The command parameters.
+     * @return {!Command} A self reference.
+     */
+    setParameters(parameters: T): this;
 }
 
-/**
- * Handles the execution of WebDriver {@link Command commands}.
- * @interface
- */
+/** A shipped WebDriver command name, or a custom command name. */
+export type CommandName = SuggestedString<ICommandName[keyof ICommandName]>;
+
+/** The exact command names defined by selenium-webdriver 4.46.0. */
+export interface ICommandName {
+    GET_SERVER_STATUS: 'getStatus';
+
+    NEW_SESSION: 'newSession';
+    GET_SESSIONS: 'getSessions';
+
+    CLOSE: 'close';
+    QUIT: 'quit';
+
+    GET_CURRENT_URL: 'getCurrentUrl';
+    GET: 'get';
+    GO_BACK: 'goBack';
+    GO_FORWARD: 'goForward';
+    REFRESH: 'refresh';
+
+    ADD_COOKIE: 'addCookie';
+    GET_COOKIE: 'getCookie';
+    GET_ALL_COOKIES: 'getCookies';
+    DELETE_COOKIE: 'deleteCookie';
+    DELETE_ALL_COOKIES: 'deleteAllCookies';
+
+    GET_ACTIVE_ELEMENT: 'getActiveElement';
+    FIND_ELEMENT: 'findElement';
+    FIND_ELEMENTS: 'findElements';
+    FIND_ELEMENTS_RELATIVE: 'findElementsRelative';
+    FIND_CHILD_ELEMENT: 'findChildElement';
+    FIND_CHILD_ELEMENTS: 'findChildElements';
+
+    CLEAR_ELEMENT: 'clearElement';
+    CLICK_ELEMENT: 'clickElement';
+    SEND_KEYS_TO_ELEMENT: 'sendKeysToElement';
+
+    GET_CURRENT_WINDOW_HANDLE: 'getCurrentWindowHandle';
+    GET_WINDOW_HANDLES: 'getWindowHandles';
+    GET_WINDOW_RECT: 'getWindowRect';
+    SET_WINDOW_RECT: 'setWindowRect';
+    MAXIMIZE_WINDOW: 'maximizeWindow';
+    MINIMIZE_WINDOW: 'minimizeWindow';
+    FULLSCREEN_WINDOW: 'fullscreenWindow';
+
+    SWITCH_TO_WINDOW: 'switchToWindow';
+    SWITCH_TO_NEW_WINDOW: 'newWindow';
+    SWITCH_TO_FRAME: 'switchToFrame';
+    SWITCH_TO_FRAME_PARENT: 'switchToFrameParent';
+    GET_PAGE_SOURCE: 'getPageSource';
+    GET_TITLE: 'getTitle';
+
+    EXECUTE_SCRIPT: 'executeScript';
+    EXECUTE_ASYNC_SCRIPT: 'executeAsyncScript';
+
+    GET_ELEMENT_TEXT: 'getElementText';
+    GET_COMPUTED_ROLE: 'getAriaRole';
+    GET_COMPUTED_LABEL: 'getAccessibleName';
+    GET_ELEMENT_TAG_NAME: 'getElementTagName';
+    IS_ELEMENT_SELECTED: 'isElementSelected';
+    IS_ELEMENT_ENABLED: 'isElementEnabled';
+    IS_ELEMENT_DISPLAYED: 'isElementDisplayed';
+    GET_ELEMENT_RECT: 'getElementRect';
+    GET_ELEMENT_ATTRIBUTE: 'getElementAttribute';
+    GET_DOM_ATTRIBUTE: 'getDomAttribute';
+    GET_ELEMENT_VALUE_OF_CSS_PROPERTY: 'getElementValueOfCssProperty';
+    GET_ELEMENT_PROPERTY: 'getElementProperty';
+
+    SCREENSHOT: 'screenshot';
+    TAKE_ELEMENT_SCREENSHOT: 'takeElementScreenshot';
+    PRINT_PAGE: 'printPage';
+
+    GET_TIMEOUT: 'getTimeout';
+    SET_TIMEOUT: 'setTimeout';
+
+    ACCEPT_ALERT: 'acceptAlert';
+    DISMISS_ALERT: 'dismissAlert';
+    GET_ALERT_TEXT: 'getAlertText';
+    SET_ALERT_TEXT: 'setAlertValue';
+
+    GET_SHADOW_ROOT: 'getShadowRoot';
+    FIND_ELEMENT_FROM_SHADOWROOT: 'findElementFromShadowRoot';
+    FIND_ELEMENTS_FROM_SHADOWROOT: 'findElementsFromShadowRoot';
+
+    ADD_VIRTUAL_AUTHENTICATOR: 'addVirtualAuthenticator';
+    REMOVE_VIRTUAL_AUTHENTICATOR: 'removeVirtualAuthenticator';
+    ADD_CREDENTIAL: 'addCredential';
+    GET_CREDENTIALS: 'getCredentials';
+    REMOVE_CREDENTIAL: 'removeCredential';
+    REMOVE_ALL_CREDENTIALS: 'removeAllCredentials';
+    SET_USER_VERIFIED: 'setUserVerified';
+
+    GET_AVAILABLE_LOG_TYPES: 'getAvailableLogTypes';
+    GET_LOG: 'getLog';
+    UPLOAD_FILE: 'uploadFile';
+
+    ACTIONS: 'actions';
+    CLEAR_ACTIONS: 'clearActions';
+
+    GET_DOWNLOADABLE_FILES: 'getDownloadableFiles';
+    DOWNLOAD_FILE: 'downloadFile';
+    DELETE_DOWNLOADABLE_FILES: 'deleteDownloadableFiles';
+    FIRE_SESSION_EVENT: 'fireSessionEvent';
+
+    CANCEL_DIALOG: 'cancelDialog';
+    SELECT_ACCOUNT: 'selectAccount';
+    GET_ACCOUNTS: 'getAccounts';
+    GET_FEDCM_TITLE: 'getFedCmTitle';
+    GET_FEDCM_DIALOG_TYPE: 'getFedCmDialogType';
+    SET_DELAY_ENABLED: 'setDelayEnabled';
+    RESET_COOLDOWN: 'resetCooldown';
+    CLICK_DIALOG_BUTTON: 'clickdialogbutton';
+}
+
+export const Name: ICommandName;
+
+/** Executes WebDriver commands. */
 export class Executor {
     /**
      * Executes the given {@code command}. If there is an error executing the
@@ -231,8 +167,7 @@ export class Executor {
      * @return {!Promise<?>} A promise that will be fulfilled with the command
      *     result.
      */
-    execute(command: Command): Promise<any>;
 
     /** Typed overload for callers that know the command result shape. */
-    execute<T>(command: Command): Promise<T>;
+    execute<T = unknown>(command: Command): Promise<T>;
 }

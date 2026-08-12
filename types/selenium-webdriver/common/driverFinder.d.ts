@@ -1,5 +1,5 @@
-import type { Capabilities } from "../lib/capabilities";
-import type { BinaryPaths } from "./seleniumManager";
+import type { Capabilities } from '../lib/capabilities.js';
+import type { BinaryPaths } from './seleniumManager.js';
 
 /**
  * Resolves the browser and driver paths for the supplied capabilities.

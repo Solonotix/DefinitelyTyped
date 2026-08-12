@@ -1,5 +1,6 @@
-import * as webdriver from "./index";
-import * as remote from "./remote";
+import { Capabilities } from './lib/capabilities.js';
+import { WebDriver } from './lib/webdriver.js';
+import * as remote from './remote/index.js';
 
 /**
  * Creates {@link selenium-webdriver/remote.DriverService} instances that manage
@@ -18,12 +19,12 @@ export class ServiceBuilder extends remote.DriverService.Builder {
 /**
  * Configuration options specific to the {@link Driver SafariDriver}.
  */
-export class Options extends webdriver.Capabilities {
+export class Options extends Capabilities {
     /**
      * @param {(Capabilities|Map<string, ?>|Object)=} other Another set of
      *     capabilities to initialize this instance from.
      */
-    constructor(other?: webdriver.Capabilities | Map<string, any> | object);
+    constructor(other?: Capabilities | Map<string, unknown> | Record<string, unknown>);
 
     /**
      * Instruct the SafariDriver to use the Safari Technology Preview if true.
@@ -32,7 +33,10 @@ export class Options extends webdriver.Capabilities {
      * @param {boolean} useTechnologyPreview
      * @return {!Options} A self reference.
      */
-    setTechnologyPreview(useTechnologyPreview: boolean): Options;
+    setTechnologyPreview(useTechnologyPreview: boolean): this;
+
+    /** Enables Safari diagnostic logging. */
+    enableLogging(): this;
 }
 
 /**
@@ -43,12 +47,12 @@ export class Options extends webdriver.Capabilities {
  *         .forBrowser('safari')
  *         .build();
  */
-export class Driver extends webdriver.WebDriver {
+export class Driver extends WebDriver {
     /**
      * Creates a new Safari session.
      *
      * @param {(Options|Capabilities)=} options The configuration options.
      * @return {!Driver} A new driver instance.
      */
-    static createSession(options?: Options | webdriver.Capabilities): Driver;
+    static createSession(options?: Options | Capabilities): Driver;
 }

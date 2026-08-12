@@ -22,8 +22,8 @@ function TestServiceBuilder() {
     let anything: any = builder.build();
     builder = builder.setPort(8080);
     builder = builder.setPath("path");
-    builder = builder.setStdio("config");
-    builder = builder.setStdio(["A", "B"]);
+    builder = builder.setStdio("inherit");
+    builder = builder.setStdio(["ignore", "pipe", "pipe"]);
     builder = builder.setEnvironment({ A: "a", B: "b" });
 }
 

@@ -1,17 +1,24 @@
-import type { WebDriver } from "../lib/webdriver";
-import type { ClientWindowInfo } from "./clientWindowInfo";
+import type { WebDriver } from '../lib/webdriver.js';
+import type { Browser as BrowserContract } from './_internal.js';
 
-declare function getBrowserInstance(driver: WebDriver): Promise<getBrowserInstance.Instance>;
+declare class Browser implements BrowserContract {
+    constructor(driver: WebDriver);
+
+    createUserContext(): Promise<string>;
+    getUserContexts(): Promise<string[]>;
+    removeUserContext(userContext: string): Promise<void>;
+    getClientWindows(): ReturnType<BrowserContract['getClientWindows']>;
+}
+
+declare function getBrowserInstance(driver: WebDriver): Promise<getBrowserInstance.Browser>;
 
 declare namespace getBrowserInstance {
-    const WindowState: typeof import("./clientWindowInfo").WindowState;
+    export const WindowState: typeof import('./clientWindowInfo').WindowState;
 
-    interface Instance {
-        createUserContext(): Promise<string>;
-        getUserContexts(): Promise<string[]>;
-        removeUserContext(userContext: string): Promise<void>;
-        getClientWindows(): Promise<ClientWindowInfo[]>;
-    }
+    export { BrowserContract as Browser };
+
+    /** @deprecated Use {@link Browser}. */
+    export type Instance = BrowserContract;
 }
 
 export = getBrowserInstance;

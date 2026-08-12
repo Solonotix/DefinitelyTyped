@@ -5,13 +5,17 @@ import {
     RemoteReferenceType,
     RemoteValue,
 } from "selenium-webdriver/bidi/protocolValue";
+import type * as ProtocolValue from "selenium-webdriver/bidi/protocolValue";
+
+const rootOwnership: ProtocolValue.ResultOwnership.Root = "root";
+const sharedReference: ProtocolValue.RemoteReferenceType.SharedId = "sharedId";
 
 function TestLocalValue() {
     const local = new LocalValue("number", 1);
-    const localValue = local.toJson();
+    const localValue = local.asMap();
     const localValueMatch = localValue.value === 1;
     if (!localValueMatch) {
-        throw new Error("LocalValue.toJson failure");
+        throw new Error("LocalValue.asMap failure");
     }
 }
 

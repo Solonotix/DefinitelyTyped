@@ -43,6 +43,8 @@ const header = new Header("content-type", bytesValue);
 header.name;
 // $ExpectType BytesValue
 header.value;
+// $ExpectType Map<string, string | Record<string, string>>
+header.asMap();
 
 // @ts-expect-error
 new Header("content-type", "invalid");

@@ -1,4 +1,4 @@
-import type { WebSocket } from "ws";
+import type { WebSocket } from 'ws';
 
 export class CdpConnection {
     cmd_id: number;

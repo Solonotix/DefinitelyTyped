@@ -73,6 +73,12 @@ export function TestError() {
     const elementClickIntercepted: 64 = ErrorCode.ELEMENT_CLICK_INTERCEPTED;
     const methodNotAllowed: 405 = ErrorCode.METHOD_NOT_ALLOWED;
 
+    const encoded = encodeError(new NoSuchElementError("missing"));
+    const encodedName: string = encoded.error;
+    if (isErrorResponse(encoded)) {
+        const errorName: string = encoded.error;
+    }
+
     const webDriverError: WebDriverError = new WebDriverError();
     const webDriverErrorWithMessage: WebDriverError = new WebDriverError("message");
     const remoteStacktrace: string = webDriverErrorWithMessage.remoteStacktrace;

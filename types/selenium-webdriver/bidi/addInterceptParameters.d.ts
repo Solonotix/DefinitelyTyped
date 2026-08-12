@@ -1,4 +1,4 @@
-import { UrlPattern } from "./urlPattern";
+import { UrlPattern } from './urlPattern.js';
 
 declare class AddInterceptParameters {
     private _phases;

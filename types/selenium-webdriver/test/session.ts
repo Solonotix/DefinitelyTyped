@@ -6,6 +6,7 @@ function TestSession() {
     let session: Session = new Session("sessionId", capabilities);
     let sessionId: string = session.getId();
     let sessionCapabilities: Capabilities = session.getCapabilities();
+    let browserName: string | undefined = session.getCapability<string>("browserName");
     let sessionCapability: any = session.getCapability("capability");
     let sessionToJSON: string = session.toJSON();
 }

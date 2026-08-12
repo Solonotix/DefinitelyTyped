@@ -50,7 +50,7 @@ import { BaseLogEntry, ConsoleLogEntry, GenericLogEntry, JavascriptLogEntry } fr
     // $ExpectType string
     consoleLogEntry.method;
 
-    // $ExpectType any[]
+    // $ExpectType unknown[]
     consoleLogEntry.args;
 
     // $ExpectType string

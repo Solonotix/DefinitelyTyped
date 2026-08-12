@@ -6,6 +6,8 @@ const testText = "hello!";
 async function TestLogInspector() {
     const driver: webdriver.WebDriver = new webdriver.Builder().build();
     const logInspector = await LogInspector(driver);
+    const callbackId: number = await logInspector.onConsoleEntry(entry => entry.method);
+    logInspector.removeCallback(callbackId);
     await driver.executeScript(`console.log('${testText}')`);
     await checkForLog(testText, 1000);
     await logInspector.close();

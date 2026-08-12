@@ -1,4 +1,4 @@
-import type { WebDriver } from "./webdriver";
+import type { WebDriver } from './webdriver.js';
 
 declare class Network {
     constructor(driver: WebDriver);

@@ -1,8 +1,9 @@
-import { Executor } from "./http";
-import * as webdriver from "./index";
-import * as remote from "./remote";
+import { Executor } from './http/index.js';
+import { Capabilities } from './lib/capabilities.js';
+import { WebDriver } from './lib/webdriver.js';
+import * as remote from './remote/index.js';
 
-export type PermissionState = "granted" | "denied" | "prompt" | (string & {});
+export type PermissionState = 'granted' | 'denied' | 'prompt' | (string & {});
 
 export interface INetworkConditionsSpec {
     download_throughput?: number;
@@ -10,10 +11,6 @@ export interface INetworkConditionsSpec {
     offline?: boolean;
     upload_throughput?: number;
 }
-
-// TODO: The staged declaration exports Command, createExecutor, and configureExecutor, but chromium.js exports only
-// Driver, Options, and ServiceBuilder. Its detailed preference interfaces are type-only candidates that still need
-// validation against accepted Chromium preference data before replacing the existing object parameters.
 
 /**
  * Creates {@link selenium-webdriver/remote.DriverService} instances that manage
@@ -34,7 +31,7 @@ export class ServiceBuilder extends remote.DriverService.Builder {
      * @param {number} port Which port adb is running on.
      * @return {!ServiceBuilder} A self reference.
      */
-    setAdbPort(port: number): ServiceBuilder;
+    setAdbPort(port: number): this;
 
     /**
      * Sets the path of the log file the driver should log to. If a log file is
@@ -42,19 +39,19 @@ export class ServiceBuilder extends remote.DriverService.Builder {
      * @param {string} path Path of the log file to use.
      * @return {!ServiceBuilder} A self reference.
      */
-    loggingTo(path: string): ServiceBuilder;
+    loggingTo(path: string): this;
 
     /**
      * Enables Chrome logging.
      * @returns {!ServiceBuilder} A self reference.
      */
-    enableChromeLogging(): ServiceBuilder;
+    enableChromeLogging(): this;
 
     /**
      * Enables verbose logging.
      * @return {!ServiceBuilder} A self reference.
      */
-    enableVerboseLogging(): ServiceBuilder;
+    enableVerboseLogging(): this;
 
     /**
      * Sets the number of threads the driver should use to manage HTTP requests.
@@ -62,44 +59,44 @@ export class ServiceBuilder extends remote.DriverService.Builder {
      * @param {number} n The number of threads to use.
      * @return {!ServiceBuilder} A self reference.
      */
-    setNumHttpThreads(n: number): ServiceBuilder;
+    setNumHttpThreads(n: number): this;
 
     /**
      * @override
      */
-    setPath(path: string): any;
+    setPath(path: string): this;
 }
 
 /**
  * Class for managing WebDriver options specific to a Chromium-based browser.
  */
-export class Options extends webdriver.Capabilities {
+export class Options extends Capabilities {
     /**
      * @param {(Capabilities|Map<string, ?>|Object)=} other Another set of
      *     capabilities to initialize this instance from.
      */
-    constructor(other?: webdriver.Capabilities | Map<string, any> | object);
+    constructor(other?: Capabilities | Map<string, unknown> | Record<string, unknown>);
 
     /**
      * Add additional command line arguments to use when launching the browser.
-     * Each argument may be specified with or without the "--" prefix
-     * (e.g. "--foo" and "foo"). Arguments with an associated value should be
-     * delimited by an "=": "foo=bar".
+     * Each argument may be specified with or without the '--' prefix
+     * (e.g. '--foo' and 'foo'). Arguments with an associated value should be
+     * delimited by an '=': 'foo=bar'.
      *
      * @param {...(string|!Array<string>)} args The arguments to add.
      * @return {!Options} A self reference.
      */
-    addArguments(...args: string[]): Options;
+    addArguments(...args: string[]): this;
 
     /**
      * Sets the address of a Chromium remote debugging server to connect to.
-     * Address should be of the form "{hostname|IP address}:port"
-     * (e.g. "localhost:9222").
+     * Address should be of the form '{hostname|IP address}:port'
+     * (e.g. 'localhost:9222').
      *
      * @param {string} address The address to connect to.
      * @return {!Options} A self reference.
      */
-    debuggerAddress(address: string): Options;
+    debuggerAddress(address: string): this;
 
     /**
      * Sets the initial window size.
@@ -109,16 +106,16 @@ export class Options extends webdriver.Capabilities {
      * @throws {TypeError} if width or height is unspecified, not a number, or
      *     less than or equal to 0.
      */
-    windowSize({ width, height }: { width: number; height: number }): Options;
+    windowSize({ width, height }: { width: number; height: number }): this;
 
     /**
      * List of Chrome command line switches to exclude that ChromeDriver by default
-     * passes when starting Chrome.  Do not prefix switches with "--".
+     * passes when starting Chrome.  Do not prefix switches with '--'.
      *
      * @param {...(string|!Array<string>)} args The switches to exclude.
      * @return {!Options} A self reference.
      */
-    excludeSwitches(...args: string[]): Options;
+    excludeSwitches(...args: string[]): this;
 
     /**
      * Add additional extensions to install when launching the browser. Each extension
@@ -128,12 +125,12 @@ export class Options extends webdriver.Capabilities {
      *     extensions to add.
      * @return {!Options} A self reference.
      */
-    addExtensions(...args: Array<string | Buffer>): Options;
+    addExtensions(...args: Array<string | Buffer>): this;
 
     /**
      * Sets the path to the browser binary to use. On Mac OS X, this path should
      * reference the actual Chromium executable, not just the application binary
-     * (e.g. "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome").
+     * (e.g. '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome').
      *
      * The binary path can be absolute or relative to the WebDriver server
      * executable, but it must exist on the machine that will launch the browser.
@@ -141,7 +138,7 @@ export class Options extends webdriver.Capabilities {
      * @param {string} path The path to the browser binary to use.
      * @return {!Options} A self reference.
      */
-    setBinaryPath(path: string): Options;
+    setBinaryPath(path: string): this;
 
     /**
      * Sets whether to leave the started browser process running if the controlling
@@ -151,15 +148,15 @@ export class Options extends webdriver.Capabilities {
      *     driver service is killed before the session.
      * @return {!Options} A self reference.
      */
-    detachDriver(detach: boolean): Options;
+    detachDriver(detach: boolean): this;
 
     /**
-     * Sets the user preferences for Chrome's user profile. See the "Preferences"
+     * Sets the user preferences for Chrome's user profile. See the 'Preferences'
      * file in Chrome's user data directory for examples.
      * @param {!Object} prefs Dictionary of user preferences to use.
      * @return {!Options} A self reference.
      */
-    setUserPreferences(prefs: object): Options;
+    setUserPreferences(prefs: object): this;
 
     /**
      * Sets the performance logging preferences. Options include:
@@ -191,15 +188,15 @@ export class Options extends webdriver.Capabilities {
         enableTimeline: boolean;
         traceCategories: string;
         bufferUsageReportingInterval: number;
-    }): Options;
+    }): this;
 
     /**
-     * Sets preferences for the "Local State" file in Chrome's user data
+     * Sets preferences for the 'Local State' file in Chrome's user data
      * directory.
      * @param {!Object} state Dictionary of local state preferences.
      * @return {!Options} A self reference.
      */
-    setLocalState(state: object): Options;
+    setLocalState(state: object): this;
 
     /**
      * Sets the name of the activity hosting a Chrome-based Android WebView. This
@@ -209,7 +206,7 @@ export class Options extends webdriver.Capabilities {
      * @param {string} name The activity name.
      * @return {!Options} A self reference.
      */
-    androidActivity(name: string): Options;
+    androidActivity(name: string): this;
 
     /**
      * Sets the device serial number to connect to via ADB. If not specified, the
@@ -219,7 +216,7 @@ export class Options extends webdriver.Capabilities {
      * @param {string} serial The device serial number to connect to.
      * @return {!Options} A self reference.
      */
-    androidDeviceSerial(serial: string): Options;
+    androidDeviceSerial(serial: string): this;
 
     /**
      * Sets the package name of the Chrome or WebView app.
@@ -228,7 +225,7 @@ export class Options extends webdriver.Capabilities {
      *     and switch back to using desktop browser.
      * @return {!Options} A self reference.
      */
-    androidPackage(pkg: string | null): Options;
+    androidPackage(pkg: string | null): this;
 
     /**
      * Sets the process name of the Activity hosting the WebView (as given by
@@ -238,7 +235,7 @@ export class Options extends webdriver.Capabilities {
      * @param {string} processName The main activity name.
      * @return {!Options} A self reference.
      */
-    androidProcess(processName: string): Options;
+    androidProcess(processName: string): this;
 
     /**
      * Sets whether to connect to an already-running instead of the specified
@@ -248,7 +245,7 @@ export class Options extends webdriver.Capabilities {
      * @param {boolean} useRunning Whether to connect to a running instance.
      * @return {!Options} A self reference.
      */
-    androidUseRunningApp(useRunning: boolean): Options;
+    androidUseRunningApp(useRunning: boolean): this;
 
     /**
      * Sets the path to the browser's log file. This path should exist on the machine
@@ -256,7 +253,7 @@ export class Options extends webdriver.Capabilities {
      * @param {string} path Path to the log file to use.
      * @return {!Options} A self reference.
      */
-    setBrowserLogFile(path: string): Options;
+    setBrowserLogFile(path: string): this;
 
     /**
      * Sets the directory to store browser minidumps in. This option is only
@@ -264,7 +261,7 @@ export class Options extends webdriver.Capabilities {
      * @param {string} path The directory path.
      * @return {!Options} A self reference.
      */
-    setBrowserMinidumpPath(path: string): Options;
+    setBrowserMinidumpPath(path: string): this;
 
     /**
      * Configures the browser to emulate a mobile device. For more information, refer
@@ -305,50 +302,28 @@ export class Options extends webdriver.Capabilities {
         config?:
             | { deviceName: string }
             | { width: number; height: number; pixelRatio: number },
-    ): Options;
+    ): this;
 
     /**
      * Sets a list of the window types that will appear when getting window
-     * handles. For access to <webview> elements, include "webview" in the list.
+     * handles. For access to <webview> elements, include 'webview' in the list.
      * @param {...(string|!Array<string>)} args The window types that will appear
      * when getting window handles.
      * @return {!Options} A self reference.
      */
-    windowTypes(...args: string[]): Options;
+    windowTypes(...args: string[]): this;
 
     /**
      * Enable bidi connection
      * @returns {!Capabilities}
      */
-    enableBidi(): webdriver.Capabilities;
-}
-
-/**
- * A list of extensions to install when launching the browser.
- */
-export class Extensions {
-    constructor();
-
-    /**
-     * @return {number} The length of the extensions list.
-     */
-    length: number;
-
-    /**
-     * Add additional extensions to install when launching the browser. Each
-     * extension should be specified as the path to the packed CRX file, or a
-     * Buffer for an extension.
-     *
-     * @param {...(string|!Buffer|!Array<(string|!Buffer)>)} args The
-     *     extensions to add.
-     */
-    add(...args: Array<string | Buffer>): void;
+    enableBidi(): Capabilities;
 }
 
 /**
  * Creates a new WebDriver client for Chromium-based browsers.
  */
-export class ChromiumWebDriver extends webdriver.WebDriver {
+export class Driver extends WebDriver {
     /**
      * Creates a new session with the WebDriver server.
      *
@@ -360,14 +335,14 @@ export class ChromiumWebDriver extends webdriver.WebDriver {
      *     default.
      * @param vendorPrefix Either 'goog' or 'ms'
      * @param vendorCapabilityKey Either 'goog:chromeOptions' or 'ms:edgeOptions'
-     * @return {!ChromiumWebDriver} A new driver instance.
+     * @return {!Driver} A new driver instance.
      */
     static createSession(
-        caps?: webdriver.Capabilities | Options,
+        caps?: Capabilities | Options,
         opt_serviceExecutor?: remote.DriverService | Executor,
         vendorPrefix?: string,
         vendorCapabilityKey?: string,
-    ): ChromiumWebDriver;
+    ): Driver;
 
     /**
      * This function is a no-op as file detectors are not supported by this
@@ -512,13 +487,9 @@ export class ChromiumWebDriver extends webdriver.WebDriver {
     stopCasting(deviceName: string): Promise<void>;
 }
 
-// TODO: The 4.46.0 runtime exports this constructor as `Driver`; the existing declaration instead exposed the
-// non-runtime `ChromiumWebDriver` name. Keep the compatibility class above until consumers can migrate.
-export class Driver extends ChromiumWebDriver {
-    static createSession(
-        caps?: webdriver.Capabilities | Options,
-        opt_serviceExecutor?: remote.DriverService | Executor,
-        vendorPrefix?: string,
-        vendorCapabilityKey?: string,
-    ): Driver;
-}
+/**
+ * The instance type historically exported for Chromium drivers.
+ *
+ * @deprecated Use {@link Driver}. The runtime exports only `Driver`.
+ */
+export type ChromiumWebDriver = Driver;

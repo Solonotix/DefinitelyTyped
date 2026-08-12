@@ -1,22 +1,22 @@
-export class ClipRectangle {
-    clipType: string;
-    constructor(type: string);
-    get type(): string;
-    asMap(): Map<string, any>;
+export interface ClipRectangle {
+    readonly type: 'box' | 'element';
+    asMap(): Map<string, unknown>;
 }
 
-export class ElementClipRectangle extends ClipRectangle {
+export class ElementClipRectangle implements ClipRectangle {
     #sharedId: string;
     #handleId?: string;
+    readonly type: 'element';
     constructor(sharedId: string, handleId?: string);
-    asMap(): Map<string, any>;
+    asMap(): Map<string, unknown>;
 }
 
-export class BoxClipRectangle extends ClipRectangle {
+export class BoxClipRectangle implements ClipRectangle {
     #x: number;
     #y: number;
     #width: number;
     #height: number;
+    readonly type: 'box';
     constructor(x: number, y: number, width: number, height: number);
-    asMap(): Map<string, any>;
+    asMap(): Map<string, unknown>;
 }

@@ -1,28 +1,9 @@
-export const WindowState: {
-    readonly FULLSCREEN: "fullscreen";
-    readonly MAXIMIZED: "maximized";
-    readonly MINIMIZED: "minimized";
-    readonly NORMAL: "normal";
-};
+import type { ClientWindow } from './_internal.js';
 
-export type WindowState = (typeof WindowState)[keyof typeof WindowState];
+export const WindowState: ClientWindow.StateEnum;
 
-export interface ClientWindowInfoAttributes {
-    /** Window identifier */
-    clientWindow: string;
-    /** Window state from WindowState */
-    state: WindowState;
-    /** Window width */
-    width: number;
-    /** Window height */
-    height: number;
-    /** Window x coordinate */
-    x: number;
-    /** Window y coordinate */
-    y: number;
-    /** Whether window is active and can receive keyboard input */
-    active: boolean;
-}
+export type WindowState = ClientWindow.State;
+export interface ClientWindowInfoAttributes extends ClientWindow.Info { }
 
 export class ClientWindowInfo implements ClientWindowInfoAttributes {
     /** Window identifier */

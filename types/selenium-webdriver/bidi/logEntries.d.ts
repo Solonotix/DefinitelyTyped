@@ -1,4 +1,4 @@
-import { ScriptSource, Source } from "./scriptTypes";
+import { ScriptSource, Source } from './scriptTypes.js';
 
 /**
  * Represents a base log entry.
@@ -97,7 +97,7 @@ declare class ConsoleLogEntry extends GenericLogEntry {
         timeStamp: number,
         type: string,
         method: string,
-        args: any[],
+        args: unknown[],
         stackTrace: string,
     );
 
@@ -109,7 +109,7 @@ declare class ConsoleLogEntry extends GenericLogEntry {
     /**
      * Gets the arguments associated with the log entry.
      */
-    readonly args: any[];
+    readonly args: unknown[];
 }
 
 /**

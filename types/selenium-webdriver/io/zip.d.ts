@@ -1,23 +1,18 @@
-import type { default as JSZip, JSZipObjectOptions } from 'jszip';
-
-export type Compression = JSZipObjectOptions['compression'];
+export type Compression = 'STORE' | 'DEFLATE';
 export function load(path: string): Promise<Zip>;
 
 export function unzip(src: string, dst: string): Promise<string>;
 
 export class Zip {
-  private readonly pendingAdds_: Set<Promise<unknown>>;
-  private readonly z_: JSZip;
+    constructor();
 
-  constructor();
+    addFile(filePath: string, zipPath?: string): Promise<boolean>;
 
-  addFile(filePath: string, zipPath?: string): Promise<unknown>;
+    addDir(dirPath: string, zipPath?: string): Promise<boolean[]>;
 
-  addDir(dirPath: string, zipPath?: string): Promise<unknown>;
+    has(path: string): boolean;
 
-  has(path: string): boolean;
+    getFile(path: string): Promise<Buffer>;
 
-  getFile(path: string): Promise<Buffer>;
-
-  toBuffer(compression?: Compression): Promise<Buffer>;
+    toBuffer(compression?: Compression): Promise<Buffer>;
 }
