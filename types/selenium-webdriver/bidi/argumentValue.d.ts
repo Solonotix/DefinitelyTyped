@@ -1,12 +1,11 @@
-import type { LocalValue, ReferenceValue } from "./protocolValue";
+import type { ProtocolType } from './protocolType.js';
+import type { LocalValue, ReferenceValue } from './protocolValue.js';
 
 /** @deprecated Use the LocalValue factory methods directly. */
-export class ArgumentValue<T = unknown> {
-    readonly value: LocalValue<T> | ReferenceValue;
+export class ArgumentValue<T extends ProtocolType = ProtocolType, V = unknown> {
+    readonly value: LocalValue<T, V> | ReferenceValue;
 
-    constructor(value: LocalValue<T> | ReferenceValue);
+    constructor(value: LocalValue<T, V> | ReferenceValue);
 
-    // TODO: The staged declaration models LocalValue.asMap(), while the existing
-    // protocolValue declaration exposes toJson(); the 4.46.0 runtime has asMap().
     asMap(): Record<string, unknown>;
 }

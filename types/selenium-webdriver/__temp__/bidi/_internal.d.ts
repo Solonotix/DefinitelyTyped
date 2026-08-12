@@ -2,7 +2,7 @@ import type * as events from 'node:events';
 
 import * as ws from 'ws';
 
-import type { MapOf, SuggestedString } from '../_internal.js';
+import type { EventListenerSimple, MapOf, SuggestedString } from '../_internal.js';
 import type { WebElement } from '../lib/webdriver.js';
 
 export type BidiLogLevel = SuggestedString<'debug' | 'error' | 'info' | 'warn'>;
@@ -61,43 +61,47 @@ export interface Browser {
     removeUserContext(userContext: string): Promise<void>;
 }
 
+export namespace Browser {
+    export import Commands = Command.Browser;
+}
+
+interface BrowsingContext {
+    readonly id: string;
+
+    create(type: Type, createParameters?: CreateContext.Parameters): Promise<unknown>;
+    navigate(url: string, readinessState?: BrowsingContext.Readiness): Promise<BrowsingContext.Navigation>;
+    getTree(maxDepth?: number): Promise<Array<BrowsingContext.Info>>;
+    getTopLevelContexts(): Promise<Array<BrowsingContext.Info>>;
+    close(): Promise<void>;
+    printPage(options?: IPrintPageOptions): Promise<PrintResult>;
+    captureScreenshot(parameters?: CaptureScreenshotParameters): Promise<string>;
+    captureBoxScreenshot(x: number, y: number, width: number, height: number): Promise<string>;
+    captureElementScreenshot(sharedId: string, handle?: string): Promise<string>;
+    activate(): Promise<void>;
+    handleUserPrompt(accept?: boolean, userText?: string): Promise<void>;
+    reload(ignoreCache?: boolean, readinessState?: BrowsingContext.Readiness): Promise<BrowsingContext.Navigation>;
+    setViewport(width: number, height: number, devicePixelRatio?: number): Promise<void>;
+    traverseHistory(delta: number): Promise<void>;
+    forward(): Promise<void>;
+    back(): Promise<void>;
+    locateNodes(
+        locator: Locator,
+        maxNodeCount?: number,
+        sandbox?: string,
+        serializationOptions?: SerializationOptions,
+        startNodes?: Array<ReferenceValue>,
+    ): Promise<Array<RemoteValue>>;
+    locateNode(
+        locator: Locator,
+        sandbox?: string,
+        serializationOptions?: SerializationOptions,
+        startNodes?: Array<ReferenceValue>,
+    ): Promise<RemoteValue | undefined>;
+    locateElement(locator: Locator): Promise<WebElement>;
+    locateElements(locator: Locator): Promise<Array<WebElement>>;
+}
+
 export namespace BrowsingContext {
-    interface BrowsingContext {
-        readonly id: string;
-
-        create(type: Type, createParameters?: CreateContext.Parameters): Promise<unknown>;
-        navigate(url: string, readinessState?: Readiness): Promise<NavigateResult>;
-        getTree(maxDepth?: number): Promise<Array<BrowsingContext.Info>>;
-        getTopLevelContexts(): Promise<Array<BrowsingContext.Info>>;
-        close(): Promise<void>;
-        printPage(options?: IPrintPageOptions): Promise<PrintResult>;
-        captureScreenshot(parameters?: CaptureScreenshotParameters): Promise<string>;
-        captureBoxScreenshot(x: number, y: number, width: number, height: number): Promise<string>;
-        captureElementScreenshot(sharedId: string, handle?: string): Promise<string>;
-        activate(): Promise<void>;
-        handleUserPrompt(accept?: boolean, userText?: string): Promise<void>;
-        reload(ignoreCache?: boolean, readinessState?: ReadinessState): Promise<NavigateResult>;
-        setViewport(width: number, height: number, devicePixelRatio?: number): Promise<void>;
-        traverseHistory(delta: number): Promise<void>;
-        forward(): Promise<void>;
-        back(): Promise<void>;
-        locateNodes(
-            locator: Locator,
-            maxNodeCount?: number,
-            sandbox?: string,
-            serializationOptions?: SerializationOptions,
-            startNodes?: Array<ReferenceValue>,
-        ): Promise<Array<RemoteValue>>;
-        locateNode(
-            locator: Locator,
-            sandbox?: string,
-            serializationOptions?: SerializationOptions,
-            startNodes?: Array<ReferenceValue>,
-        ): Promise<RemoteValue | undefined>;
-        locateElement(locator: Locator): Promise<WebElement>;
-        locateElements(locator: Locator): Promise<Array<WebElement>>;
-    }
-
     interface Info {
         readonly _children: null | Array<BrowsingContext.Info>;
         readonly _id: string;
@@ -114,14 +118,14 @@ export namespace BrowsingContext {
     }
 
     interface Inspector {
-        onBrowsingContextCreated(callback: Callback<BrowsingContextInfo>): Promise<void>;
-        onBrowsingContextDestroyed(callback: Callback<BrowsingContextInfo>): Promise<void>;
-        onNavigationStarted(callback: Callback<NavigationInfo>): Promise<void>;
-        onFragmentNavigated(callback: Callback<NavigationInfo>): Promise<void>;
-        onUserPromptClosed(callback: Callback<UserPromptClosed>): Promise<void>;
-        onUserPromptOpened(callback: Callback<UserPromptOpened<unknown>>): Promise<void>;
-        onDomContentLoaded(callback: Callback<NavigationInfo>): Promise<void>;
-        onBrowsingContextLoaded(callback: Callback<NavigationInfo>): Promise<void>;
+        onBrowsingContextCreated(callback: EventListenerSimple<BrowsingContext.Info>): Promise<void>;
+        onBrowsingContextDestroyed(callback: EventListenerSimple<BrowsingContext.Info>): Promise<void>;
+        onNavigationStarted(callback: EventListenerSimple<BrowsingContext.Navigation>): Promise<void>;
+        onFragmentNavigated(callback: EventListenerSimple<BrowsingContext.Navigation>): Promise<void>;
+        onUserPromptClosed(callback: EventListenerSimple<UserPromptClosed>): Promise<void>;
+        onUserPromptOpened(callback: EventListenerSimple<UserPromptOpened<unknown>>): Promise<void>;
+        onDomContentLoaded(callback: EventListenerSimple<BrowsingContext.Navigation>): Promise<void>;
+        onBrowsingContextLoaded(callback: EventListenerSimple<BrowsingContext.Navigation>): Promise<void>;
         close(): Promise<void>;
     }
 
@@ -154,17 +158,22 @@ export namespace BrowsingContext {
     }
 
     interface Navigation {
-        readonly context: string;
-        readonly navigation: string | null;
+        readonly browsingContextId: string;
+        readonly navigationId: string;
         readonly timestamp: number;
         readonly url: string;
     }
-
+    
     interface Options {
         browsingContextId?: string;
         createParameters?: CreateContext.Parameters;
         type?: BrowsingContext.Type;
     }
+
+    interface PrintResult {
+        readonly data: string;
+    }
+    
 
     type Readiness = SuggestedString<Readiness.Complete | Readiness.Interactive | Readiness.None>;
     namespace Readiness {
@@ -179,27 +188,35 @@ export namespace BrowsingContext {
         type Window = 'window';
     }
 
-    interface NavigateResult {
-        readonly url: string;
-        readonly navigationId: string | null;
+    namespace UserPrompt {
+        interface Closed {
+            readonly accepted: boolean;
+            readonly browsingContextId: string;
+            readonly userText?: string;
+        }
+
+        interface Opened<T extends Type = Type> {
+            readonly browsingContextId: string;
+            readonly message: string;
+            readonly type: T;
+        }
+
+        type Type = '';
+        namespace Type {
+            
+        }
     }
-
-    interface PrintResult {
-        readonly data: string;
-    }
-
-
 }
 
 export namespace ClientWindow {
     interface Info {
-        readonly active: boolean | undefined;
-        readonly clientWindow: string | undefined;
-        readonly height: number | undefined;
-        readonly state: string | undefined;
-        readonly width: number | undefined;
-        readonly x: number | undefined;
-        readonly y: number | undefined;
+        readonly active?: boolean | undefined;
+        readonly clientWindow?: State | undefined;
+        readonly height?: number | undefined;
+        readonly state?: string | undefined;
+        readonly width?: number | undefined;
+        readonly x?: number | undefined;
+        readonly y?: number | undefined;
     }
 
     type State = SuggestedString<State.Full | State.Max | State.Min | State.Normal>;
@@ -210,11 +227,127 @@ export namespace ClientWindow {
         type Normal = 'normal';
     }
 
-    interface IState {
+    interface StateEnum {
         FULLSCREEN: State.Full;
         MAXIMIZED: State.Max;
         MINIMIZED: State.Min;
         NORMAL: State.Normal;
+    }
+}
+
+export type Command = SuggestedString<
+    Command.Browser |
+    Command.BrowserContext |
+    Command.Input |
+    Command.Network |
+    Command.Script |
+    Command.Session |
+    Command.Storage>;
+
+export namespace Command {
+    type Browser = SuggestedString<
+        Browser.CreateUserContext | 
+        Browser.GetClientWindows | 
+        Browser.GetUserContexts |
+        Browser.RemoveUserContext>;
+
+    namespace Browser {
+        type CreateUserContext = 'browser.createUserContext';
+        type GetClientWindows = 'browser.getClientWindows';
+        type GetUserContexts = 'browser.getUserContexts';
+        type RemoveUserContext = 'browser.removeUserContext';
+    }
+
+    type BrowserContext = SuggestedString<
+        BrowserContext.Activate |
+        BrowserContext.CaptureScreenshot |
+        BrowserContext.Close |
+        BrowserContext.Create |
+        BrowserContext.GetTree |
+        BrowserContext.HandleUserPrompt |
+        BrowserContext.LocateNodes |
+        BrowserContext.Navigate |
+        BrowserContext.Print |
+        BrowserContext.Reload |
+        BrowserContext.SetViewport |
+        BrowserContext.TraverseHistory>;
+
+    namespace BrowserContext {
+        type Activate = 'browsingContext.activate';
+        type CaptureScreenshot = 'browsingContext.catpureScreenshot';
+        type Close = 'browsingContext.close';
+        type Create = 'browsingContext.create';
+        type GetTree = 'browsingContext.getTree';
+        type HandleUserPrompt = 'browsingContext.handleUserPrompt';
+        type LocateNodes = 'browsingContext.locateNodes';
+        type Navigate = 'browsingContext.navigate';
+        type Print = 'browsingContext.close';
+        type Reload = 'browsingContext.reload';
+        type SetViewport = 'browsingContext.setViewport';
+        type TraverseHistory = 'browsingContext.traverseHistory';
+    }
+
+    type Input = SuggestedString<
+        Input.PerformActions |
+        Input.ReleaseActions |
+        Input.SetFiles>;
+
+    namespace Input {
+        type PerformActions = 'input.performActions';
+        type ReleaseActions = 'input.releaseActions';
+        type SetFiles = 'input.setFiles';
+    }
+
+    type Network = SuggestedString<
+        Network.AddIntercept |
+        Network.ContinueRequest |
+        Network.ContinueResponse |
+        Network.ContinueWithAuth |
+        Network.FailRequest |
+        Network.ProvideResponse |
+        Network.RemoveIntercept |
+        Network.SetCacheBehavior>;
+
+    namespace Network {
+        type AddIntercept = 'network.addIntercept';
+        type ContinueRequest = 'network.continueRequest';
+        type ContinueResponse = 'network.continueResponse';
+        type ContinueWithAuth = 'network.continueWithAuth';
+        type FailRequest = 'network.failRequest';
+        type ProvideResponse = 'network.provideResponse';
+        type RemoveIntercept = 'network.removeIntercept';
+        type SetCacheBehavior = 'network.setCacheBehavior';
+    }
+
+    type Script = SuggestedString<
+        Script.AddPreloadScript |
+        Script.CallFunction |
+        Script.Disown |
+        Script.Evaluate |
+        Script.GetRealms |
+        Script.RemovePreloadScript>;
+
+    namespace Script {
+        type AddPreloadScript = 'script.addPreloadScript';
+        type CallFunction = 'script.callFunction';
+        type Disown = 'script.disown';
+        type Evaluate = 'script.evaluate';
+        type GetRealms = 'script.getRealms';
+        type RemovePreloadScript = 'script.removePreloadScript';
+    }
+
+    type Session = SuggestedString<Session.Status | Session.Subscribe | Session.Unsubscribe>;
+    namespace Session {
+        type Status = 'session.status';
+        type Subscribe = 'session.subscribe';
+        type Unsubscribe = 'session.unsubscribe';
+    }
+
+    type Storage = SuggestedString<Storage.DeleteCookies | Storage.GetCookies | Storage.SetCookies>;
+    namespace Storage {
+        type DeleteCookies = 'storage.deleteCookies';
+        type GetCookies = 'storage.getCookies';
+        type SetCookie = 'storage.setCookie';
     }
 }
 
@@ -233,6 +366,54 @@ export namespace CreateContext {
         referenceContext(id: string): this;
 
         userContext(userContext: string): this;
+    }
+}
+
+export interface Event<M extends Command, T = unknown> {
+    method: M;
+    params: T;
+}
+
+export namespace Event {
+    namespace BrowsingContext {
+        interface Create extends Event<Command.BrowserContext.Create> {
+
+        }
+
+        namespace Create {
+            interface Parameters {
+                background?: boolean;
+                referenceContext?: string;
+                userContext?: string;
+                type: string;
+            }
+        }
+
+        interface Info {
+            children: Array<Info> | null;
+            clientWindow: ClientWindow.Info,
+            context: string,
+            originalOpener: string | null,
+            url: string,
+            userContext: browser.UserContext,
+            parent?: string | null,
+        }
+
+        interface Navigation {
+            readonly context: string;
+            readonly navigation: string | null;
+            readonly timestamp: number;
+            readonly url: string;
+        }
+
+        interface NavigateRequest {
+            readonly method: '';
+        }
+
+        interface NavigateResult {
+            readonly url: string;
+            readonly navigationId: string | null;
+        }
     }
 }
 

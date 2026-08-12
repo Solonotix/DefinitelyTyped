@@ -1,4 +1,4 @@
-import type { BytesValue, Header } from "./networkTypes";
+import type { BytesValue, Header } from './networkTypes.js';
 
 export class ContinueRequestParameters {
     constructor(request: string);

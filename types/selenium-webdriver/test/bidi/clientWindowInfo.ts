@@ -22,7 +22,7 @@ const windowInfo = new ClientWindowInfo({
 
 // $ExpectType string
 windowInfo.clientWindow;
-// $ExpectType WindowState
+// $ExpectType State
 windowInfo.state;
 // $ExpectType number
 windowInfo.width;

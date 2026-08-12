@@ -1,13 +1,14 @@
-import type { WebDriver } from "../lib/webdriver";
-import type { AddInterceptParameters } from "./addInterceptParameters";
-import type { ContinueRequestParameters } from "./continueRequestParameters";
-import type { ContinueResponseParameters } from "./continueResponseParameters";
-import type { BeforeRequestSent, FetchError, ResponseStarted } from "./networkTypes";
-import type { ProvideResponseParameters } from "./provideResponseParameters";
+import type { WebDriver } from '../lib/webdriver.js';
+import type { AddInterceptParameters } from './addInterceptParameters.js';
+import type { ContinueRequestParameters } from './continueRequestParameters.js';
+import type { ContinueResponseParameters } from './continueResponseParameters.js';
+import type { BeforeRequestSent, FetchError, ResponseStarted } from './networkTypes.js';
+import type * as Types from './networkTypes.js';
+import type { ProvideResponseParameters } from './provideResponseParameters.js';
 
 export const CacheBehavior: {
-    readonly DEFAULT: "default";
-    readonly BYPASS: "bypass";
+    readonly DEFAULT: 'default';
+    readonly BYPASS: 'bypass';
 };
 
 export type CacheBehavior = (typeof CacheBehavior)[keyof typeof CacheBehavior];
@@ -18,15 +19,19 @@ export function Network(
 ): Promise<Network.Instance>;
 
 export namespace Network {
-    type BeforeRequestSentCallback = (event: BeforeRequestSent) => void;
-    type ResponseCallback = (event: ResponseStarted) => void;
-    type FetchErrorCallback = (event: FetchError) => void;
+    export type CacheBehavior = import('./network').CacheBehavior;
 
-    interface Instance {
+    export { Types };
+
+    export type BeforeRequestSentCallback = (event: BeforeRequestSent) => void;
+    export type ResponseCallback = (event: ResponseStarted) => void;
+    export type FetchErrorCallback = (event: FetchError) => void;
+
+    export interface Instance {
         beforeRequestSent(callback: BeforeRequestSentCallback): Promise<void>;
         responseStarted(callback: ResponseCallback): Promise<void>;
         responseCompleted(callback: ResponseCallback): Promise<void>;
-        authRequired(callback: BeforeRequestSentCallback): Promise<number>;
+        authRequired(callback: ResponseCallback): Promise<number>;
         fetchError(callback: FetchErrorCallback): Promise<void>;
         removeCallback(id: number): void;
         addIntercept(params: AddInterceptParameters): Promise<string>;

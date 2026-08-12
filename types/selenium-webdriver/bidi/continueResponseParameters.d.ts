@@ -1,8 +1,6 @@
-import type { Header } from "./networkTypes";
+import type { Header } from './networkTypes.js';
 
 export class ContinueResponseParameters {
-    // TODO: The staged declaration used RequestData here, but the 4.46.0 runtime
-    // stores this value as the BiDi `request` parameter, whose protocol value is an ID string.
     constructor(request: string);
 
     cookies(cookieHeaders: Header[]): this;

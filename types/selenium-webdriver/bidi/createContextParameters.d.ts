@@ -1,11 +1,11 @@
-export default class CreateContextParameters {
+export class CreateContextParameters {
     private map: Map<string, string | boolean>;
 
-    referenceContext(id: string): CreateContextParameters;
+    referenceContext(id: string): this;
 
-    background(background: boolean): CreateContextParameters;
+    background(background: boolean): this;
 
-    userContext(userContext: string): CreateContextParameters;
+    userContext(userContext: string): this;
 
     asMap(): Map<string, string | boolean>;
 }

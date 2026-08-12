@@ -1,17 +1,18 @@
-// TODO: The staged declaration models Protocol and Transport as frozen
-// CommonJS objects plus open string types, while the existing declaration uses
-// TypeScript enums. Preserve the enums until compatibility can be evaluated.
+import type { SuggestedString } from '../_internal.js';
+
+export type Protocol = SuggestedString<'ctap1/u2f' | 'ctap2'>;
+export type Transport = SuggestedString<'ble' | 'internal' | 'nfc' | 'usb'>;
 
 export interface IProtocol {
-    CTAP2: "ctap2";
-    U2F: "ctap1/u2f";
+    readonly CTAP2: 'ctap2';
+    readonly U2F: 'ctap1/u2f';
 }
 
 export interface ITransport {
-    BLE: "ble";
-    USB: "usb";
-    NFC: "nfc";
-    INTERNAL: "internal";
+    readonly BLE: 'ble';
+    readonly USB: 'usb';
+    readonly NFC: 'nfc';
+    readonly INTERNAL: 'internal';
 }
 
 export interface IVirtualAuthenticatorOptions {
@@ -32,23 +33,11 @@ export interface ICredentialDictionary {
     userHandle?: string;
 }
 
-/**
- * Protocol for virtual authenticators
- */
-export enum Protocol {
-    CTAP2 = "ctap2",
-    U2F = "ctap1/u2f",
-}
+/** Protocol values for virtual authenticators. */
+export const Protocol: IProtocol;
 
-/**
- * AuthenticatorTransport values
- */
-export enum Transport {
-    BLE = "ble",
-    USB = "usb",
-    NFC = "nfc",
-    INTERNAL = "internal",
-}
+/** Transport values for virtual authenticators. */
+export const Transport: ITransport;
 
 /**
  * Options for the creation of virtual authenticators.
@@ -127,6 +116,15 @@ export class Credential {
         signCount: number,
     ): Credential;
 
+    /** @deprecated Use the static Credential.createResidentCredential method. */
+    createResidentCredential(
+        id: Uint8Array,
+        rpId: string,
+        userHandle: Uint8Array,
+        privateKey: string,
+        signCount: number,
+    ): Credential;
+
     /**
      * Creates a non-resident (i.e. stateless) credential.
      * @param id Unique base64 encoded string.
@@ -136,6 +134,9 @@ export class Credential {
      * @returns A non-resident credential
      */
     static createNonResidentCredential(id: Uint8Array, rpId: string, privateKey: string, signCount: number): Credential;
+
+    /** @deprecated Use the static Credential.createNonResidentCredential method. */
+    createNonResidentCredential(id: Uint8Array, rpId: string, privateKey: string, signCount: number): Credential;
 
     toDict(): ICredentialDictionary;
 

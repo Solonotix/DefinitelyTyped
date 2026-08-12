@@ -9,8 +9,10 @@ function TestVirtualAuthenticator() {
     let vaOptions: VirtualAuthenticatorOptions = new VirtualAuthenticatorOptions();
     let protocol: string = vaOptions.getProtocol();
     vaOptions.setProtocol(Protocol["CTAP2"]);
+    const ctap2: "ctap2" = Protocol.CTAP2;
     let transport: string = vaOptions.getTransport();
     vaOptions.setTransport(Transport["NFC"]);
+    const nfc: "nfc" = Transport.NFC;
     let residentKey: boolean = vaOptions.getHasResidentKey();
     vaOptions.setHasResidentKey(true);
     let userVerification: boolean = vaOptions.getHasUserVerification();
@@ -31,6 +33,14 @@ function TestVirtualAuthenticator() {
     let nonResidentCredential: Credential = Credential.createNonResidentCredential(
         new Uint8Array([1, 2, 3, 4]),
         "localhost",
+        "BASE64_ENCODED_PK",
+        0,
+    );
+
+    residentCredential.createResidentCredential(
+        new Uint8Array([1, 2, 3, 4]),
+        "localhost",
+        new Uint8Array([1]),
         "BASE64_ENCODED_PK",
         0,
     );

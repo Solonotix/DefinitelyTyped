@@ -1,6 +1,5 @@
 import { WebDriver } from "selenium-webdriver";
 import getScriptManagerInstance = require("selenium-webdriver/bidi/scriptManager");
-import { EvaluateResultSuccess } from "selenium-webdriver/bidi/evaluateResult";
 
 function assert(condition: unknown, message?: string): asserts condition {
     if (!condition) {
@@ -32,7 +31,7 @@ async function TestScriptManager() {
             true,
             null,
             "thisParameter",
-            "resultOwnership",
+            "root",
         );
         console.log("callFunctionInRealm method passed");
 
@@ -72,23 +71,29 @@ async function TestScriptManager() {
 
         // Test getCallFunctionParams method
         scriptManager.getCallFunctionParams(
-            "targetType",
+            "realm",
             "id",
             "sandbox",
             "functionDeclaration",
             true,
             null,
             "thisParameter",
-            "resultOwnership",
+            "root",
         );
         console.log("getCallFunctionParams method passed");
 
         // Test getEvaluateParams method
-        scriptManager.getEvaluateParams("targetType", "id", "sandbox", "expression", true, "root");
+        scriptManager.getEvaluateParams("realm", "id", "sandbox", "expression", true, "root");
         console.log("getEvaluateParams method passed");
 
         // Test createEvaluateResult method
-        scriptManager.createEvaluateResult({ result: new EvaluateResultSuccess("realmId", {}) });
+        scriptManager.createEvaluateResult({
+            result: {
+                type: "success",
+                realm: "realmId",
+                result: { type: "string", value: "value" },
+            },
+        });
         console.log("createEvaluateResult method passed");
 
         // Test realmInfoMapper method
@@ -100,7 +105,7 @@ async function TestScriptManager() {
         console.log("getAllRealms method passed");
 
         // Test getRealmsByType method
-        await scriptManager.getRealmsByType("type");
+        await scriptManager.getRealmsByType("window");
         console.log("getRealmsByType method passed");
 
         // Test getRealmsInBrowsingContext method
@@ -108,7 +113,7 @@ async function TestScriptManager() {
         console.log("getRealmsInBrowsingContext method passed");
 
         // Test getRealmsInBrowsingContextByType method
-        await scriptManager.getRealmsInBrowsingContextByType("browsingContext", "type");
+        await scriptManager.getRealmsInBrowsingContextByType("browsingContext", "window");
         console.log("getRealmsInBrowsingContextByType method passed");
     } catch (err) {
         assert(false, err instanceof Error ? err.message : String(err));

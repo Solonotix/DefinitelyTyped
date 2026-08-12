@@ -1,4 +1,4 @@
-import { Capabilities } from "./capabilities";
+import { Capabilities } from './capabilities.js';
 
 /**
  * Contains information about a single WebDriver session.
@@ -32,11 +32,7 @@ export class Session {
      * @param {string} key The capability to retrieve.
      * @return {*} The capability value.
      */
-    getCapability(key: string): any;
-
-    // TODO: The staged declaration makes Session and Capabilities generic so
-    // this result is keyed to the capability name. The existing Capabilities
-    // declaration is not generic, so retain its compatibility return for now.
+    getCapability<T = unknown>(key: string): T | undefined;
 
     /**
      * Returns the JSON representation of this object, which is just the string

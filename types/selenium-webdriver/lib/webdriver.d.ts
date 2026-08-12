@@ -1,74 +1,32 @@
-import { WebSocket } from "ws";
-import {
-    Actions,
-    Capabilities,
-    IWebElementId,
-    Locator,
-    Logs,
-    Serializable,
-    Session,
-    WebElement,
-    WebElementPromise,
-    Window,
-} from "..";
-import { Index as BIDI } from "../bidi";
-import { HttpResponse } from "../devtools/networkinterceptor";
-import { Command, Executor } from "./command";
-import { FileDetector } from "./input";
-export {};
+import type { SuggestedString, TypedFunction } from '../_internal.js';
+import type { Bidi } from '../bidi/_internal.js';
+import type { CdpConnection } from '../devtools/CDPConnection.js';
+import type { HttpResponse } from '../devtools/networkinterceptor.js';
+import type { LocatorArgument, LocatorFunction, ScriptFunction } from './by.js';
+import type { Capabilities } from './capabilities.js';
+import type { Command, Executor } from './command.js';
+import type { Actions, FileDetector, IActionsOptions } from './input.js';
+import type * as logging from './logging.js';
+import Network = require('./network.js');
+import type { PinnedScript } from './pinnedScript.js';
+import Script = require('./script.js');
+import type { Session } from './session.js';
+import * as Symbols from './symbols.js';
+import type { WebElementBuildLegacyId, WebElementBuildObject } from './webelement.js';
+import Dialog = require('./fedcm/dialog.js');
+import { Credential, VirtualAuthenticatorOptions } from './virtual_authenticator.js';
 
-// TODO: The staged declaration moves Logs, IWebDriver, WebElement, WebElementPromise, and Window into this runtime
-// module. The existing package still defines several of them in the root declaration and imports them back here;
-// reconcile that circular compatibility layout before promoting the staged ownership wholesale.
+export { };
 
-type ConditionFn<T> = (webdriver: WebDriver) => T | null | Promise<T | null>;
-
-export interface IWebDriverOptionsCookie {
-    /**
-     * The name of the cookie.
-     */
+export type IWebDriverOptionsCookie = ICookie;
+export interface ICookie {
     name: string;
-
-    /**
-     * The cookie value.
-     */
     value: string;
-
-    /**
-     * The cookie path. Defaults to "/" when adding a cookie.
-     */
-    path?: string | undefined;
-
-    /**
-     * The domain the cookie is visible to. Defaults to the current browsing
-     * context's document's URL when adding a cookie.
-     */
-    domain?: string | undefined;
-
-    /**
-     * Whether the cookie is a secure cookie. Defaults to false when adding a new
-     * cookie.
-     */
-    secure?: boolean | undefined;
-
-    /**
-     * Whether the cookie is an HTTP only cookie. Defaults to false when adding a
-     * new cookie.
-     */
-    httpOnly?: boolean | undefined;
-
-    /**
-     * When the cookie expires.
-     *
-     * When {@linkplain Options#addCookie() adding a cookie}, this may be
-     * specified in _seconds_ since Unix epoch (January 1, 1970). The expiry will
-     * default to 20 years in the future if omitted.
-     *
-     * The expiry is always returned in seconds since epoch when
-     * {@linkplain Options#getCookies() retrieving cookies} from the browser.
-     */
-    expiry?: number | Date | undefined;
-
+    path?: string;
+    domain?: string;
+    secure?: boolean;
+    httpOnly?: boolean;
+    expiry?: number;
     sameSite?: string;
 }
 
@@ -77,20 +35,215 @@ export interface ITimeouts {
      * Defines when, in milliseconds, to interrupt a script that is being
      * {@linkplain ./webdriver.IWebDriver#executeScript evaluated}.
      */
-    script?: number | undefined;
-
+    script?: number;
     /**
      * The timeout, in milliseconds, to apply to navigation events along with the
      * {@link PageLoadStrategy}.
      */
-    pageLoad?: number | undefined;
-
+    pageLoad?: number;
     /**
      * The maximum amount of time, in milliseconds, to spend attempting to
      * {@linkplain ./webdriver.IWebDriver#findElement locate} an element on the
      * current page.
      */
-    implicit?: number | undefined;
+    implicit?: number;
+}
+
+export type NewWindowTypeHint = SuggestedString<'window' | 'tab'>;
+
+export interface IPrintPageOptions {
+    background?: boolean;
+    bottom?: number;
+    height?: number;
+    left?: number;
+    orientation?: string;
+    pageRanges?: Array<string>;
+    right?: number;
+    scale?: number;
+    shrinkToFit?: boolean;
+    top?: number;
+    width?: number;
+}
+
+export interface IPrintPageParamsMargin {
+    bottom?: number;
+    left?: number;
+    right?: number;
+    top?: number;
+}
+
+export interface IPrintPageParamsPage {
+    height?: number;
+    width?: number;
+}
+
+export interface IPrintPageParams {
+    background?: boolean;
+    margin?: IPrintPageParamsMargin;
+    orientation?: string;
+    page?: IPrintPageParamsPage;
+    pageRanges?: Array<string>;
+    scale?: number;
+    shrinkToFit?: boolean;
+}
+
+type LogEventConsoleCalled = 'Runtime.consoleAPICalled';
+type LogEventEntryAdded = 'Log.entryAdded';
+type LogEventMutation = 'Runtime.bindingCalled';
+type LogEvenRuntimeException = 'Runtime.exceptionThrown';
+export type LogEventMethod = SuggestedString<
+    LogEventConsoleCalled | LogEventEntryAdded | LogEventMutation | LogEvenRuntimeException
+>;
+
+export interface ILogEventParams {
+    args: unknown;
+    level?: string;
+    message?: string;
+    timestamp: Date;
+    type?: string;
+}
+
+export interface ILogExceptionParams {
+    exceptionDetails?: unknown;
+    timestamp: Date;
+}
+
+export interface ILogMutationParams {
+    attribute_name?: string;
+    current_value?: unknown;
+    element?: WebElement;
+    old_value?: unknown;
+}
+
+export interface ISessionEventResponse {
+    eventType: string;
+    success: boolean;
+    timestamp: number;
+}
+
+export interface IDimensions {
+    height: number;
+    width: number;
+}
+
+/** @deprecated Use {@link IDimensions}. */
+export type ISize = IDimensions;
+
+/**
+ * x,y
+ */
+export interface ILocation {
+    x: number;
+    y: number;
+}
+
+export type IWebElementId = WebElementBuildObject;
+
+/**
+ * Defines an object that can be asynchronously serialized to its WebDriver
+ * wire representation.
+ *
+ * @template T
+ */
+export interface Serializable<T> {
+    [Symbols.serialize](): T | Promise<T>;
+}
+
+/**
+ * x,y,w,h
+ */
+export interface IRectangle extends IDimensions {
+    x: number;
+    y: number;
+}
+
+/**
+ * Represents a modal dialog such as {@code alert}, {@code confirm}, or
+ * {@code prompt}. Provides functions to retrieve the message displayed with
+ * the alert, accept or dismiss the alert, and set the response text (in the
+ * case of {@code prompt}).
+ */
+export class Alert {
+    readonly driver_: WebDriver;
+    readonly text_: Promise<string>;
+
+    /**
+     * @param {!WebDriver} driver The driver controlling the browser this alert
+     *     is attached to.
+     * @param {string} text The message text displayed with this alert.
+     */
+    constructor(driver: WebDriver, text: string);
+
+    /**
+     * Accepts this alert.
+     *
+     * @return {!Promise<void>} A promise that will be resolved
+     *     when this command has completed.
+     */
+    accept(): Promise<void>;
+
+    /**
+     * Dismisses this alert.
+     *
+     * @return {!Promise<void>} A promise that will be resolved
+     *     when this command has completed.
+     */
+    dismiss(): Promise<void>;
+
+    /**
+     * Retrieves the message text displayed with this alert. For instance, if the
+     * alert were opened with alert('hello'), then this would return 'hello'.
+     *
+     * @return {!Promise<string>} A promise that will be
+     *     resolved to the text displayed with this alert.
+     */
+    getText(): Promise<string>;
+
+    /**
+     * Sets the response text on this alert. This command will return an error if
+     * the underlying alert does not support response text (e.g. window.alert and
+     * window.confirm).
+     *
+     * @param {string} text The text to set.
+     * @return {!Promise<void>} A promise that will be resolved
+     *     when this command has completed.
+     */
+    sendKeys(text: string): Promise<void>;
+}
+
+/**
+ * Implement AlertPromise
+ */
+export class AlertPromise extends Alert {
+    catch(onrejected?: (reason: unknown) => void | PromiseLike<void>): Promise<void>;
+
+    then(
+        onfulfilled: (value: Alert) => void | PromiseLike<void>,
+        onrejected?: (reason: unknown) => void | PromiseLike<void>,
+    ): Promise<void>;
+
+    /**
+     * @param {!WebDriver} driver The driver controlling the browser this
+     *     alert is attached to.
+     * @param {!Promise<!Alert>} alert A thenable
+     *     that will be fulfilled with the promised alert.
+     */
+    constructor(driver: WebDriver, alert: Promise<Alert>);
+}
+
+declare class Cookie implements ICookie {
+    domain?: string;
+    expiry?: number;
+    httpOnly?: boolean;
+    name: string;
+    path?: string;
+    sameSite?: string;
+    secure?: boolean;
+    value: string;
+}
+
+interface CookieConstructor {
+    new(): Cookie;
 }
 
 /**
@@ -98,39 +251,276 @@ export interface ITimeouts {
  * command}.
  */
 export class Condition<T> {
+    readonly description_: string;
+
+    readonly fn: (driver: WebDriver) => T | null | Promise<T | null>;
+
     /**
      * @param {string} message A descriptive error message. Should complete the
-     *     sentence "Waiting [...]"
+     *     sentence 'Waiting [...]'
      * @param {function(!WebDriver): OUT} fn The condition function to
      *     evaluate on each iteration of the wait loop.
      */
-    constructor(message: string, fn: ConditionFn<T>);
+    constructor(message: string, fn: (driver: WebDriver) => T | null | Promise<T | null>);
 
     /** @return {string} A description of this condition. */
     description(): string;
 }
 
 /**
- * Defines a condition that will result in a {@link WebElement}.
+ * Interface for managing WebDriver log records.
  */
-export class WebElementCondition extends Condition<WebElement> {
-    /**
-     * Private discriminator to prevent structural type compatibility with
-     * Condition<WebElement[]>. This ensures TypeScript correctly resolves
-     * driver.wait() overloads when using elementsLocated() vs elementLocated().
-     * @see https://github.com/SeleniumHQ/selenium/issues/14239
-     */
-    private readonly __isWebElementCondition: true;
+export class Logs {
+    readonly driver_: WebDriver;
 
     /**
-     * @param {string} message A descriptive error message. Should complete the
-     *     sentence "Waiting [...]"
-     * @param {function(!WebDriver): !(WebElement|IThenable<!WebElement>)}
-     *     fn The condition function to evaluate on each iteration of the wait
-     *     loop.
+     * @param {!WebDriver} driver The parent driver.
      */
-    constructor(message: string, fn: ConditionFn<WebElement>);
+    constructor(driver: WebDriver);
+
+    /**
+     * Fetches available log entries for the given type.
+     *
+     * <p/>Note that log buffers are reset after each call, meaning that
+     * available log entries correspond to those entries not yet returned for a
+     * given log type. In practice, this means that this call will return the
+     * available log entries since the last call, or from the start of the
+     * session.
+     *
+     * @param {!logging.Type} type The desired log type.
+     * @return {!Promise.<!Array.<!logging.Entry>>} A
+     *   promise that will resolve to a list of log entries for the specified
+     *   type.
+     */
+    get(type: logging.Type): Promise<Array<logging.Entry>>;
+
+    /**
+     * Retrieves the log types available to this driver.
+     * @return {!Promise.<!Array.<!logging.Type>>} A
+     *     promise that will resolve to a list of available log types.
+     */
+    getAvailableLogTypes(): Promise<Array<logging.Type>>;
 }
+
+/**
+ * Interface for navigating back and forth in the browser history.
+ *
+ * This class should never be instantiated directly. Instead, obtain an instance
+ * with
+ *
+ *    webdriver.navigate()
+ *
+ * @see WebDriver#navigate()
+ */
+export class Navigation {
+    readonly driver_: WebDriver;
+
+    /**
+     * @param {!WebDriver} driver The parent driver.
+     */
+    constructor(driver: WebDriver);
+
+    /**
+     * Navigates to a new URL.
+     *
+     * @param {string} url The URL to navigate to.
+     * @return {!Promise<void>} A promise that will be resolved when the URL
+     *     has been loaded.
+     */
+    to(url: string): Promise<void>;
+
+    /**
+     * Moves backwards in the browser history.
+     *
+     * @return {!Promise<void>} A promise that will be resolved when the
+     *     navigation event has completed.
+     */
+    back(): Promise<void>;
+
+    /**
+     * Moves forwards in the browser history.
+     *
+     * @return {!Promise<void>} A promise that will be resolved when the
+     *     navigation event has completed.
+     */
+    forward(): Promise<void>;
+
+    /**
+     * Refreshes the current page.
+     *
+     * @return {!Promise<void>} A promise that will be resolved when the
+     *     navigation event has completed.
+     */
+    refresh(): Promise<void>;
+}
+
+/**
+ * Provides methods for managing browser and driver state.
+ *
+ * This class should never be instantiated directly. Instead, obtain an instance
+ * with {@linkplain WebDriver#manage() webdriver.manage()}.
+ */
+export class Options {
+    static Cookie: CookieConstructor;
+
+    readonly driver_: WebDriver;
+
+    /**
+     * @param {!WebDriver} driver The parent driver.
+     */
+    constructor(driver: WebDriver);
+
+    /**
+     * Adds a cookie.
+     *
+     * __Sample Usage:__
+     *
+     *     // Set a basic cookie.
+     *     driver.manage().addCookie({name: 'foo', value: 'bar'});
+     *
+     *     // Set a cookie that expires in 10 minutes.
+     *     let expiry = new Date(Date.now() + (10 * 60 * 1000));
+     *     driver.manage().addCookie({name: 'foo', value: 'bar', expiry});
+     *
+     *     // The cookie expiration may also be specified in seconds since epoch.
+     *     driver.manage().addCookie({
+     *       name: 'foo',
+     *       value: 'bar',
+     *       expiry: Math.floor(Date.now() / 1000)
+     *     });
+     *
+     * @param {!Options.Cookie} spec Defines the cookie to add.
+     * @return {!Promise<void>} A promise that will be resolved
+     *     when the cookie has been added to the page.
+     * @throws {error.InvalidArgumentError} if any of the cookie parameters are
+     *     invalid.
+     * @throws {TypeError} if `spec` is not a cookie object.
+     */
+    addCookie(cookie: ICookie): Promise<void>;
+
+    /**
+     * Deletes all cookies visible to the current page.
+     *
+     * @return {!Promise<void>} A promise that will be resolved
+     *     when all cookies have been deleted.
+     */
+    deleteAllCookies(): Promise<void>;
+
+    /**
+     * Deletes the cookie with the given name. This command is a no-op if there is
+     * no cookie with the given name visible to the current page.
+     *
+     * @param {string} name The name of the cookie to delete.
+     * @return {!Promise<void>} A promise that will be resolved
+     *     when the cookie has been deleted.
+     */
+    deleteCookie(name: string): Promise<void>;
+
+    /**
+     * Retrieves all cookies visible to the current page. Each cookie will be
+     * returned as a JSON object as described by the WebDriver wire protocol.
+     *
+     * @return {!Promise<!Array<!Options.Cookie>>} A promise that will be
+     *     resolved with the cookies visible to the current browsing context.
+     */
+    getCookies(): Promise<Array<ICookie>>;
+
+    /**
+     * Retrieves the cookie with the given name. Returns null if there is no such
+     * cookie. The cookie will be returned as a JSON object as described by the
+     * WebDriver wire protocol.
+     *
+     * @param {string} name The name of the cookie to retrieve.
+     * @return {!Promise<?Options.Cookie>} A promise that will be resolved
+     *     with the named cookie
+     * @throws {error.NoSuchCookieError} if there is no such cookie.
+     */
+    getCookie(name: string): Promise<Cookie | null>;
+
+    /**
+     * Fetches the timeouts currently configured for the current session.
+     *
+     * @return {!Promise<{script: number,
+     *                             pageLoad: number,
+     *                             implicit: number}>} A promise that will be
+     *     resolved with the timeouts currently configured for the current
+     *     session.
+     * @see #setTimeouts()
+     */
+    getTimeouts(): Promise<ITimeouts>;
+
+    /**
+     * Sets the timeout durations associated with the current session.
+     *
+     * The following timeouts are supported (all timeouts are specified in
+     * milliseconds):
+     *
+     * -  `implicit` specifies the maximum amount of time to wait for an element
+     *    locator to succeed when {@linkplain WebDriver#findElement locating}
+     *    {@linkplain WebDriver#findElements elements} on the page.
+     *    Defaults to 0 milliseconds.
+     *
+     * -  `pageLoad` specifies the maximum amount of time to wait for a page to
+     *    finishing loading. Defaults to 300000 milliseconds.
+     *
+     * -  `script` specifies the maximum amount of time to wait for an
+     *    {@linkplain WebDriver#executeScript evaluated script} to run. If set to
+     *    `null`, the script timeout will be indefinite.
+     *    Defaults to 30000 milliseconds.
+     *
+     * @param {{script: (number|null|undefined),
+     *          pageLoad: (number|null|undefined),
+     *          implicit: (number|null|undefined)}} conf
+     *     The desired timeout configuration.
+     * @return {!Promise<void>} A promise that will be resolved when the timeouts
+     *     have been set.
+     * @throws {!TypeError} if an invalid options object is provided.
+     * @see #getTimeouts()
+     * @see <https://w3c.github.io/webdriver/webdriver-spec.html#dfn-set-timeouts>
+     */
+    setTimeouts(conf?: ITimeouts): Promise<void>;
+
+    /**
+     * @return {!Logs} The interface for managing driver logs.
+     */
+    logs(): Logs;
+
+    /**
+     * @return {!Window} The interface for managing the current window.
+     */
+    window(): Window;
+}
+
+declare class ShadowRootBase {
+    readonly driver_: WebDriver;
+    readonly id_: string;
+
+    constructor(driver: WebDriver, id: string);
+
+    static extractId(obj: unknown): string;
+
+    static isId(obj: unknown): boolean;
+
+    [Symbols.serialize](): string;
+
+    private execute_<T>(command: Command): Promise<T>;
+
+    findElement(locator: LocatorArgument): WebElementPromise;
+
+    findElements(locator: LocatorArgument): Promise<Array<WebElement>>;
+}
+
+/**
+ * Represents a ShadowRoot of a {@link WebElement}. Provides functions to
+ * retrieve elements that live in the DOM below the ShadowRoot.
+ */
+export class ShadowRoot extends ShadowRootBase {
+    getId(): string;
+}
+
+export type ShadowRootPromise = Omit<ShadowRoot, 'getId'> & Promise<ShadowRoot> & {
+    getId(): Promise<string>;
+};
 
 /**
  * An interface for changing the focus of the driver to another frame or window.
@@ -143,14 +533,12 @@ export class WebElementCondition extends Condition<WebElement> {
  * @see WebDriver#switchTo()
  */
 export class TargetLocator {
+    readonly driver_: WebDriver;
+
     /**
      * @param {!WebDriver} driver The parent driver.
      */
     constructor(driver: WebDriver);
-
-    // endregion
-
-    // region Methods
 
     /**
      * Locates the DOM element on the current page that corresponds to
@@ -226,7 +614,7 @@ export class TargetLocator {
      * @return {!Promise<void>} A promise that will be resolved
      *     when the driver has changed focus to the new window.
      */
-    newWindow(typeHint: string): Promise<void>;
+    newWindow(typeHint: NewWindowTypeHint): Promise<void>;
 
     /**
      * Changes focus to the active modal dialog, such as those opened by
@@ -239,10 +627,88 @@ export class TargetLocator {
     alert(): AlertPromise;
 }
 
+type WaitCondition<T> = Condition<T> | Promise<T> | ((driver: WebDriver) => T | null | Promise<T | null>);
+
+export interface IWebDriver {
+    actions(options: IActionsOptions): Actions;
+
+    close(): Promise<void>;
+
+    execute<T, C extends Command = Command>(command: C): Promise<T>;
+
+    executeAsyncScript<T, A extends Array<unknown>>(script: ScriptFunction<T, A>, ...var_args: A): Promise<T>;
+
+    executeScript<T, A extends Array<unknown>>(script: ScriptFunction<T, A>, ...var_args: A): Promise<T>;
+
+    findElement(locator: LocatorArgument): WebElementPromise;
+
+    findElements(locator: LocatorArgument): Promise<Array<WebElement>>;
+
+    get(url: string): Promise<void>;
+
+    getAllWindowHandles(): Promise<Array<string>>;
+
+    getCapabilities(): Promise<Capabilities>;
+
+    fireSessionEvent(eventType: string, payload?: Record<string, unknown> | null): Promise<ISessionEventResponse>;
+
+    getCurrentUrl(): Promise<string>;
+
+    getExecutor(): Executor;
+
+    getPageSource(): Promise<string>;
+
+    getSession(): Promise<Session>;
+
+    getTitle(): Promise<string>;
+
+    getWindowHandle(): Promise<string>;
+
+    sleep(ms: number): Promise<void>;
+
+    takeScreenshot(): Promise<string>;
+
+    manage(): Options;
+
+    navigate(): Navigation;
+
+    printPage(options: IPrintPageOptions): Promise<string>;
+
+    quit(): Promise<void>;
+
+    setFileDetector(detector: FileDetector): void;
+
+    switchTo(): TargetLocator;
+
+    wait(
+        condition: WebElementCondition,
+        timeout?: number,
+        message?: string,
+        pollTimeout?: number,
+    ): WebElementPromise;
+
+    wait<T>(condition: WaitCondition<T>, timeout?: number, message?: string, pollTimeout?: number): Promise<T>;
+}
+
+export const IWebDriver: { new(): IWebDriver };
+
 /**
  * Each WebDriver instance provides automated control over a browser session.
  */
-export class WebDriver {
+export class WebDriver implements IWebDriver {
+    private _bidiConnection: Bidi;
+    private _cdpConnect?: CdpConnection;
+    private _wsUrl?: string;
+
+    private authenticatorId_: string | null;
+    readonly executor_: Executor;
+    private fileDetector_: FileDetector | null;
+    readonly onQuit_: CallableFunction | undefined;
+    readonly pinnedScripts_: Record<string, PinnedScript>;
+    readonly session_: Promise<Session>;
+
+    sessionId: string;
+
     /**
      * @param {!(./session.Session|IThenable<!./session.Session>)} session Either
      *     a known session or a promise that will be resolved to a session.
@@ -251,7 +717,7 @@ export class WebDriver {
      * @param {(function(this: void): ?)=} onQuit A function to call, if any,
      *     when the session is terminated.
      */
-    constructor(session: Session | Promise<Session>, executor: Executor, onQuit?: (this: void) => any);
+    constructor(session: Session | Promise<Session>, executor: Executor, onQuit?: CallableFunction);
 
     /**
      * Creates a new WebDriver session.
@@ -278,13 +744,13 @@ export class WebDriver {
      *    up any resources associated with the session.
      * @return {!WebDriver} The driver for the newly created session.
      */
-    static createSession(...var_args: any[]): WebDriver;
+    static createSession(...args: any[]): WebDriver;
 
     /** @override */
-    execute(command: Command): Promise<void>;
+    execute<T, C extends Command>(command: C): Promise<T>;
 
     /** @override */
-    setFileDetector(detector: FileDetector): void;
+    setFileDetector<T extends FileDetector>(detector: T): void;
 
     /** @override */
     getExecutor(): Executor;
@@ -295,11 +761,13 @@ export class WebDriver {
     /** @override */
     getCapabilities(): Promise<Capabilities>;
 
+    fireSessionEvent(eventType: string, payload?: Record<string, unknown> | null): Promise<ISessionEventResponse>;
+
     /** @override */
     quit(): Promise<void>;
 
     /** @override */
-    actions(options?: { async?: boolean | undefined; bridge?: boolean | undefined }): Actions;
+    actions(options?: IActionsOptions): Actions;
 
     /**
      * Executes a snippet of JavaScript in the context of the currently selected
@@ -338,7 +806,7 @@ export class WebDriver {
      * @template T
      */
     /** @override */
-    executeScript<T>(script: string | Function, ...args: any[]): Promise<T>;
+    executeScript<T>(script: CallableFunction | string | PinnedScript, ...args: Array<unknown>): Promise<T>;
 
     /**
      * Executes a snippet of asynchronous JavaScript in the context of the
@@ -398,7 +866,7 @@ export class WebDriver {
      *     driver.executeAsyncScript(function() {
      *       var callback = arguments[arguments.length - 1];
      *       var xhr = new XMLHttpRequest();
-     *       xhr.open("GET", "/resource/data.json", true);
+     *       xhr.open('GET', '/resource/data.json', true);
      *       xhr.onreadystatechange = function() {
      *         if (xhr.readyState == 4) {
      *           callback(xhr.responseText);
@@ -415,7 +883,7 @@ export class WebDriver {
      *     value.
      * @template T
      */
-    executeAsyncScript<T>(script: string | Function, ...args: any[]): Promise<T>;
+    executeAsyncScript<T>(script: CallableFunction | string | PinnedScript, ...args: Array<unknown>): Promise<T>;
 
     wait(
         condition: WebElementCondition,
@@ -425,7 +893,7 @@ export class WebDriver {
     ): WebElementPromise;
 
     /**
-     * Waits for a condition to evaluate to a "truthy" value. The condition may be
+     * Waits for a condition to evaluate to a 'truthy' value. The condition may be
      * specified by a {@link Condition}, as a custom function, or as any
      * promise-like thenable.
      *
@@ -468,12 +936,7 @@ export class WebDriver {
      * @throws {TypeError} if the provided `condition` is not a valid type.
      * @template T
      */
-    wait<T>(
-        condition: PromiseLike<T> | Condition<T> | ((driver: WebDriver) => T | PromiseLike<T>) | Function,
-        timeout?: number,
-        message?: string,
-        pollTimeout?: number,
-    ): Promise<T>;
+    wait<T>(condition: WaitCondition<T>, timeout?: number, message?: string, pollTimeout?: number): Promise<T>;
 
     /**
      * Makes the driver sleep for the given amount of time.
@@ -498,7 +961,7 @@ export class WebDriver {
      * @return {!Promise<!Array<string>>} A promise that will be resolved with an
      *     array of window handles.
      */
-    getAllWindowHandles(): Promise<string[]>;
+    getAllWindowHandles(): Promise<Array<string>>;
 
     /**
      * Retrieves the current page's source. The returned source is a representation
@@ -581,13 +1044,13 @@ export class WebDriver {
      *     commands against the located element. If the element is not found, the
      *     element will be invalidated and all scheduled commands aborted.
      */
-    findElement(locator: Locator): WebElementPromise;
+    findElement(locator: LocatorArgument): WebElementPromise;
 
     /**
      * @param {!Function} webElementPromise The webElement in unresolved state
      * @return {!Promise<!WebElement>} First single WebElement from array of resolved promises
      */
-    normalize_(webElementPromise: Function): Promise<WebElement>;
+    normalize_(webElementPromise: WebElementPromise): Promise<WebElement>;
 
     /**
      * @param {!Function} locatorFn The locator function to use.
@@ -595,7 +1058,7 @@ export class WebDriver {
      * @return {!Promise<!WebElement>} A promise that will resolve to a list of
      *     WebElements.
      */
-    findElementInternal_(locatorFn: Function, context: WebDriver | WebElement): Promise<WebElement>;
+    findElementInternal_(locatorFn: LocatorFunction, context: WebDriver | WebElement): Promise<WebElement>;
 
     /**
      * Search for multiple elements on the page. Refer to the documentation on
@@ -605,7 +1068,7 @@ export class WebDriver {
      * @return {!Promise<!Array<!WebElement>>} A promise that will resolve to an
      *     array of WebElements.
      */
-    findElements(locator: Locator): Promise<WebElement[]>;
+    findElements(locator: LocatorArgument): Promise<Array<WebElement>>;
 
     /**
      * @param {!Function} locatorFn The locator function to use.
@@ -613,7 +1076,7 @@ export class WebDriver {
      * @return {!Promise<!Array<!WebElement>>} A promise that will resolve to an
      *     array of WebElements.
      */
-    findElementsInternal_(locatorFn: Function, context: WebDriver | WebElement): Promise<WebElement[]>;
+    findElementsInternal_(locatorFn: LocatorFunction, context: WebDriver | WebElement): Promise<Array<WebElement>>;
 
     /**
      * Takes a screenshot of the current page. The driver makes the best effort to
@@ -628,6 +1091,12 @@ export class WebDriver {
      *     screenshot as a base-64 encod    ed PNG.
      */
     takeScreenshot(): Promise<string>;
+
+    setDelayEnabled(enabled: boolean): Promise<void>;
+
+    resetCooldown(): Promise<void>;
+
+    getFederalCredentialManagementDialog(): Dialog;
 
     /**
      * @return {!Options} The options interface for this instance.
@@ -645,6 +1114,12 @@ export class WebDriver {
      */
     switchTo(): TargetLocator;
 
+    script(): Script;
+
+    network(): Network;
+
+    validatePrintPageParams(keys: IPrintPageOptions, object: IPrintPageParams): IPrintPageParams;
+
     /**
      * Takes a PDF of the current page. The driver makes a best effort to
      * return a PDF based on the provided parameters.
@@ -661,31 +1136,21 @@ export class WebDriver {
      *         shrinkToFit:(boolean|undefined),
      *         pageRanges:(Array|undefined)}} options
      */
-    printPage(options: {
-        orientation: string | undefined;
-        scale: number | undefined;
-        background: boolean | undefined;
-        width: number | undefined;
-        height: number | undefined;
-        top: number | undefined;
-        bottom: number | undefined;
-        left: number | undefined;
-        right: number | undefined;
-        shrinkToFit: boolean | undefined;
-        pageRanges: [] | undefined;
-    }): void;
+    printPage(options?: IPrintPageOptions): Promise<string>;
 
     /**
      * Creates a new WebSocket connection.
      * @return {!Promise<resolved>} A new CDP instance.
      */
-    createCDPConnection(target: string): Promise<any>;
+    createCDPConnection(target?: string): Promise<CdpConnection>;
+
+    getCdpTargets(): Promise<void>;
 
     /**
      * Initiates bidi connection using 'webSocketUrl'
      * @returns {BIDI}
      */
-    getBidi(): Promise<BIDI>;
+    getBidi(): Promise<Bidi>;
 
     /**
      * Retrieves 'webSocketDebuggerUrl' by sending a http request using debugger address
@@ -704,7 +1169,7 @@ export class WebDriver {
      * @param {string} password
      * @param connection CDP Connection
      */
-    register(username: string, password: string, connection: any): Promise<void>;
+    register(username: string, password: string, connection: CdpConnection): Promise<void>;
 
     /**
      * Handle Network interception requests
@@ -713,289 +1178,165 @@ export class WebDriver {
      *                     as well as what should be returned.
      * @param callback callback called when we intercept requests.
      */
-    onIntercept(connection: WebSocket, httpResponse: HttpResponse, callback: () => void): Promise<void>;
+    onIntercept(connection: CdpConnection, httpResponse: HttpResponse, callback: CallableFunction): Promise<void>;
 
     /**
      * @param connection
      * @param callback
      * @returns {Promise<void>}
      */
-    onLogEvent(connection: WebSocket, callback: (event: any) => void): Promise<void>;
+    onLogEvent(connection: CdpConnection, callback: (params: ILogEventParams) => void): Promise<void>;
 
     /**
      * @param connection
      * @param callback
      * @returns {Promise<void>}
      */
-    onLogException(connection: WebSocket, callback: (event: any) => void): Promise<void>;
+    onLogException(connection: CdpConnection, callback: (params: ILogExceptionParams) => void): Promise<void>;
 
     /**
      * @param connection
      * @param callback
      * @returns {Promise<void>}
      */
-    logMutationEvents(connection: WebSocket, callback: (event: any) => void): Promise<void>;
+    logMutationEvents(connection: CdpConnection, callback: (params: ILogMutationParams) => void): Promise<void>;
+
+    pinScript(script: string | CallableFunction): Promise<PinnedScript>;
+
+    unpinScript(script: PinnedScript): Promise<void>;
+
+    virtualAuthenticatorId(): string | null;
+
+    addVirtualAuthenticator(options: VirtualAuthenticatorOptions): Promise<void>;
+
+    removeVirtualAuthenticator(): Promise<void>;
+
+    addCredential(credential: Credential): Promise<void>;
+
+    getCredentials(): Promise<Array<Credential>>;
+
+    removeCredential(credential_id: string | ArrayLike<number> | Uint8Array | ArrayBuffer): Promise<void>;
+
+    removeAllCredentials(): Promise<void>;
+
+    setUserVerified(verified: boolean): Promise<void>;
+
+    getDownloadableFiles(): Promise<Array<string>>;
+
+    downloadFile(fileName: string, targetDirectory: string): Promise<void>;
+
+    deleteDownloadableFiles(): Promise<void>;
 }
 
 /**
- * Interface for navigating back and forth in the browser history.
+ * Represents a DOM element. WebElements can be found by searching from the
+ * document root using a {@link WebDriver} instance, or by searching
+ * under another WebElement:
  *
- * This class should never be instantiated directly. Instead, obtain an instance
- * with
+ *     driver.get('http://www.google.com');
+ *     var searchForm = driver.findElement(By.tagName('form'));
+ *     var searchBox = searchForm.findElement(By.name('q'));
+ *     searchBox.sendKeys('webdriver');
  *
- *    webdriver.navigate()
+ * The WebElement is implemented as a promise for compatibility with the promise
+ * API. It will always resolve itself when its internal state has been fully
+ * resolved and commands may be issued against the element. This can be used to
+ * catch errors when an element cannot be located on the page:
  *
- * @see WebDriver#navigate()
+ *     driver.findElement(By.id('not-there')).then(function(element) {
+ *       alert('Found an element that was not expected to be there!');
+ *     }, function(error) {
+ *       alert('The element was not found, as expected');
+ *     });
  */
-export class Navigation {
-    /**
-     * @param {!WebDriver} driver The parent driver.
-     */
-    constructor(driver: WebDriver);
+export class WebElement implements Serializable<WebElementBuildLegacyId> {
+    readonly driver_: WebDriver;
+    readonly id_: Promise<string>;
+    readonly log_: logging.Logger;
 
     /**
-     * Navigates to a new URL.
-     *
-     * @param {string} url The URL to navigate to.
-     * @return {!Promise<void>} A promise that will be resolved when the URL
-     *     has been loaded.
+     * @param {!WebDriver} driver the parent WebDriver instance for this element.
+     * @param {(!IThenable<string>|string)} id The server-assigned opaque ID for
+     *     the underlying DOM element.
      */
-    to(url: string): Promise<void>;
-
-    /**
-     * Moves backwards in the browser history.
-     *
-     * @return {!Promise<void>} A promise that will be resolved when the
-     *     navigation event has completed.
-     */
-    back(): Promise<void>;
-
-    /**
-     * Moves forwards in the browser history.
-     *
-     * @return {!Promise<void>} A promise that will be resolved when the
-     *     navigation event has completed.
-     */
-    forward(): Promise<void>;
-
-    /**
-     * Refreshes the current page.
-     *
-     * @return {!Promise<void>} A promise that will be resolved when the
-     *     navigation event has completed.
-     */
-    refresh(): Promise<void>;
-}
-
-/**
- * Provides methods for managing browser and driver state.
- *
- * This class should never be instantiated directly. Instead, obtain an instance
- * with {@linkplain WebDriver#manage() webdriver.manage()}.
- */
-export class Options {
-    /**
-     * @param {!WebDriver} driver The parent driver.
-     */
-    constructor(driver: WebDriver);
-
-    /**
-     * Adds a cookie.
-     *
-     * __Sample Usage:__
-     *
-     *     // Set a basic cookie.
-     *     driver.manage().addCookie({name: 'foo', value: 'bar'});
-     *
-     *     // Set a cookie that expires in 10 minutes.
-     *     let expiry = new Date(Date.now() + (10 * 60 * 1000));
-     *     driver.manage().addCookie({name: 'foo', value: 'bar', expiry});
-     *
-     *     // The cookie expiration may also be specified in seconds since epoch.
-     *     driver.manage().addCookie({
-     *       name: 'foo',
-     *       value: 'bar',
-     *       expiry: Math.floor(Date.now() / 1000)
-     *     });
-     *
-     * @param {!Options.Cookie} spec Defines the cookie to add.
-     * @return {!Promise<void>} A promise that will be resolved
-     *     when the cookie has been added to the page.
-     * @throws {error.InvalidArgumentError} if any of the cookie parameters are
-     *     invalid.
-     * @throws {TypeError} if `spec` is not a cookie object.
-     */
-    addCookie(spec: IWebDriverOptionsCookie): Promise<void>;
-
-    /**
-     * Deletes all cookies visible to the current page.
-     *
-     * @return {!Promise<void>} A promise that will be resolved
-     *     when all cookies have been deleted.
-     */
-    deleteAllCookies(): Promise<void>;
-
-    /**
-     * Deletes the cookie with the given name. This command is a no-op if there is
-     * no cookie with the given name visible to the current page.
-     *
-     * @param {string} name The name of the cookie to delete.
-     * @return {!Promise<void>} A promise that will be resolved
-     *     when the cookie has been deleted.
-     */
-    deleteCookie(name: string): Promise<void>;
-
-    /**
-     * Retrieves all cookies visible to the current page. Each cookie will be
-     * returned as a JSON object as described by the WebDriver wire protocol.
-     *
-     * @return {!Promise<!Array<!Options.Cookie>>} A promise that will be
-     *     resolved with the cookies visible to the current browsing context.
-     */
-    getCookies(): Promise<IWebDriverOptionsCookie[]>;
-
-    /**
-     * Retrieves the cookie with the given name. Returns null if there is no such
-     * cookie. The cookie will be returned as a JSON object as described by the
-     * WebDriver wire protocol.
-     *
-     * @param {string} name The name of the cookie to retrieve.
-     * @return {!Promise<?Options.Cookie>} A promise that will be resolved
-     *     with the named cookie
-     * @throws {error.NoSuchCookieError} if there is no such cookie.
-     */
-    getCookie(name: string): Promise<IWebDriverOptionsCookie>;
-
-    /**
-     * Fetches the timeouts currently configured for the current session.
-     *
-     * @return {!Promise<{script: number,
-     *                             pageLoad: number,
-     *                             implicit: number}>} A promise that will be
-     *     resolved with the timeouts currently configured for the current
-     *     session.
-     * @see #setTimeouts()
-     */
-    getTimeouts(): Promise<ITimeouts>;
-
-    /**
-     * Sets the timeout durations associated with the current session.
-     *
-     * The following timeouts are supported (all timeouts are specified in
-     * milliseconds):
-     *
-     * -  `implicit` specifies the maximum amount of time to wait for an element
-     *    locator to succeed when {@linkplain WebDriver#findElement locating}
-     *    {@linkplain WebDriver#findElements elements} on the page.
-     *    Defaults to 0 milliseconds.
-     *
-     * -  `pageLoad` specifies the maximum amount of time to wait for a page to
-     *    finishing loading. Defaults to 300000 milliseconds.
-     *
-     * -  `script` specifies the maximum amount of time to wait for an
-     *    {@linkplain WebDriver#executeScript evaluated script} to run. If set to
-     *    `null`, the script timeout will be indefinite.
-     *    Defaults to 30000 milliseconds.
-     *
-     * @param {{script: (number|null|undefined),
-     *          pageLoad: (number|null|undefined),
-     *          implicit: (number|null|undefined)}} conf
-     *     The desired timeout configuration.
-     * @return {!Promise<void>} A promise that will be resolved when the timeouts
-     *     have been set.
-     * @throws {!TypeError} if an invalid options object is provided.
-     * @see #getTimeouts()
-     * @see <https://w3c.github.io/webdriver/webdriver-spec.html#dfn-set-timeouts>
-     */
-    setTimeouts(timeouts: ITimeouts): Promise<void>;
-
-    /**
-     * @return {!Logs} The interface for managing driver logs.
-     */
-    logs(): Logs;
-
-    /**
-     * @return {!Window} The interface for managing the current window.
-     */
-    window(): Window;
-
-    /**
-     * @param {!WebDriver} driver
-     * @param {string} type
-     * @param {number} ms
-     * @return {!Promise<void>}
-     */
-    legacyTimeout(driver: WebDriver, type: string, ms: number): Promise<void>;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-//
-//  ShadowRoot
-//
-//////////////////////////////////////////////////////////////////////////////
-
-/**
- * Represents a ShadowRoot of a {@link WebElement}. Provides functions to
- * retrieve elements that live in the DOM below the ShadowRoot.
- */
-export class ShadowRoot implements Serializable<IWebElementId> {
     constructor(driver: WebDriver, id: string | Promise<string>);
 
     /**
-     * Extracts the encoded ShadowRoot ID from the object.
+     * @param {string} id The raw ID.
+     * @param {boolean=} opt_noLegacy Whether to exclude the legacy element key.
+     * @return {!Object} The element ID for use with WebDriver's wire protocol.
+     */
+    static buildId(id: string, noLegacy?: boolean): WebElementBuildObject;
+
+    /**
+     * Extracts the encoded WebElement ID from the object.
      *
      * @param {?} obj The object to extract the ID from.
      * @return {string} the extracted ID.
      * @throws {TypeError} if the object is not a valid encoded ID.
      */
-    static extractId(obj: any): string;
+    static extractId(obj: unknown): string;
 
     /**
      * @param {?} obj the object to test.
      * @return {boolean} whether the object is a valid encoded WebElement ID.
      */
-    static isId(obj: any): boolean;
-
-    /** @override */
-    serialize(): Promise<IWebElementId>;
+    static isId(obj: unknown): obj is WebElementBuildObject;
 
     /**
-     * Schedules a command that targets this element with the parent WebDriver
-     * instance. Will ensure this element's ID is included in the command
-     * parameters under the "id" key.
+     * Compares two WebElements for equality.
      *
-     * @param {!Command} command The command to schedule.
-     * @return {!Promise<T>} A promise that will be resolved with the result.
-     * @template T
-     * @see WebDriver#schedule
+     * @param {!WebElement} a A WebElement.
+     * @param {!WebElement} b A WebElement.
+     * @return {!Promise<boolean>} A promise that will be
+     *     resolved to whether the two WebElements are equal.
      */
-    execute_<T>(command: Command): Promise<T>;
+    static equals(a: WebElement, b: WebElement): Promise<boolean>;
 
     /**
-     * Schedule a command to find a descendant of this ShadowROot. If the element
-     * cannot be found, the returned promise will be rejected with a
-     * {@linkplain error.NoSuchElementError NoSuchElementError}.
+     * @return {!WebDriver} The parent driver for this instance.
+     */
+    getDriver(): WebDriver;
+
+    /**
+     * @return {!Promise<string>} A promise that resolves to
+     *     the server-assigned opaque ID assigned to this element.
+     */
+    getId(): Promise<string>;
+
+    [Symbols.serialize](): Promise<WebElementBuildLegacyId>;
+
+    private execute_<T>(command: Command): Promise<T>;
+
+    /**
+     * Schedule a command to find a descendant of this element. If the element
+     * cannot be found, a {@link bot.ErrorCode.NO_SUCH_ELEMENT} result will
+     * be returned by the driver. Unlike other commands, this error cannot be
+     * suppressed. In other words, scheduling a command to find an element doubles
+     * as an assert that the element is present on the page. To test whether an
+     * element is present on the page, use {@link #findElements}.
      *
-     * The search criteria for an element may be defined using one of the static
-     * factories on the {@link by.By} class, or as a short-hand
-     * {@link ./by.ByHash} object. For example, the following two statements
+     * The search criteria for an element may be defined using one of the
+     * factories in the {@link By} namespace, or as a short-hand
+     * {@link By.Hash} object. For example, the following two statements
      * are equivalent:
      *
-     *     var e1 = shadowroot.findElement(By.id('foo'));
-     *     var e2 = shadowroot.findElement({id:'foo'});
+     *     var e1 = element.findElement(By.id('foo'));
+     *     var e2 = element.findElement({id:'foo'});
      *
-     * You may also provide a custom locator function, which takes as input this
-     * instance and returns a {@link WebElement}, or a promise that will resolve
-     * to a WebElement. If the returned promise resolves to an array of
-     * WebElements, WebDriver will use the first element. For example, to find the
-     * first visible link on a page, you could write:
+     * You may also provide a custom locator function, which takes as input
+     * this WebDriver instance and returns a {@link WebElement}, or a
+     * promise that will resolve to a WebElement. For example, to find the first
+     * visible link on a page, you could write:
      *
      *     var link = element.findElement(firstVisibleLink);
      *
-     *     function firstVisibleLink(shadowRoot) {
-     *       var links = shadowRoot.findElements(By.tagName('a'));
+     *     function firstVisibleLink(element) {
+     *       var links = element.findElements(By.tagName('a'));
      *       return promise.filter(links, function(link) {
-     *         return link.isDisplayed();
+     *         return links.isDisplayed();
+     *       }).then(function(visibleLinks) {
+     *         return visibleLinks[0];
      *       });
      *     }
      *
@@ -1005,126 +1346,311 @@ export class ShadowRoot implements Serializable<IWebElementId> {
      *     commands against the located element. If the element is not found, the
      *     element will be invalidated and all scheduled commands aborted.
      */
-    findElement(locator: Locator): WebElementPromise;
+    findElement(locator: LocatorArgument): WebElementPromise;
 
     /**
-     * Locates all of the descendants of this element that match the given search
-     * criteria.
+     * Schedules a command to find all of the descendants of this element that
+     * match the given search criteria.
      *
      * @param {!(by.By|Function)} locator The locator strategy to use when
      *     searching for the element.
-     * @return {!Promise<!Array<!WebElement>>} A promise that will resolve to an
-     *     array of WebElements.
+     * @return {!Promise<!Array<!WebElement>>} A
+     *     promise that will resolve to an array of WebElements.
      */
-    findElements(locator: Locator): Promise<WebElement[]>;
+    findElements(locator: LocatorArgument): Promise<Array<WebElement>>;
+
+    /**
+     * Schedules a command to click on this element.
+     * @return {!Promise.<void>} A promise that will be resolved
+     *     when the click command has completed.
+     */
+    click(): Promise<void>;
+
+    /**
+     * Schedules a command to type a sequence on the DOM element represented by
+     * this promsieinstance.
+     *
+     * Modifier keys (SHIFT, CONTROL, ALT, META) are stateful; once a modifier is
+     * processed in the keysequence, that key state is toggled until one of the
+     * following occurs:
+     *
+     * - The modifier key is encountered again in the sequence. At this point the
+     *   state of the key is toggled (along with the appropriate keyup/down
+     * events).
+     * - The {@link Key.NULL} key is encountered in the sequence. When
+     *   this key is encountered, all modifier keys current in the down state are
+     *   released (with accompanying keyup events). The NULL key can be used to
+     *   simulate common keyboard shortcuts:
+     *
+     *         element.sendKeys('text was',
+     *                          Key.CONTROL, 'a', Key.NULL,
+     *                          'now text is');
+     *         // Alternatively:
+     *         element.sendKeys('text was',
+     *                          Key.chord(Key.CONTROL, 'a'),
+     *                          'now text is');
+     *
+     * - The end of the keysequence is encountered. When there are no more keys
+     *   to type, all depressed modifier keys are released (with accompanying
+     * keyup events).
+     *
+     * If this element is a file input ({@code <input type='file'>}), the
+     * specified key sequence should specify the path to the file to attach to
+     * the element. This is analgous to the user clicking 'Browse...' and entering
+     * the path into the file select dialog.
+     *
+     *     var form = driver.findElement(By.css('form'));
+     *     var element = form.findElement(By.css('input[type=file]'));
+     *     element.sendKeys('/path/to/file.txt');
+     *     form.submit();
+     *
+     * For uploads to function correctly, the entered path must reference a file
+     * on the _browser's_ machine, not the local machine running this script. When
+     * running against a remote Selenium server, a {@link FileDetector}
+     * may be used to transparently copy files to the remote machine before
+     * attempting to upload them in the browser.
+     *
+     * __Note:__ On browsers where native keyboard events are not supported
+     * (e.g. Firefox on OS X), key events will be synthesized. Special
+     * punctionation keys will be synthesized according to a standard QWERTY en-us
+     * keyboard layout.
+     *
+     * @param {...(string|!Promise<string>)} var_args The sequence
+     *     of keys to type. All arguments will be joined into a single sequence.
+     * @return {!Promise.<void>} A promise that will be resolved
+     *     when all keys have been typed.
+     */
+    sendKeys(...args: Array<string | number | Promise<string | number>>): Promise<void>;
+
+    /**
+     * Schedules a command to query for the tag/node name of this element.
+     * @return {!Promise.<string>} A promise that will be
+     *     resolved with the element's tag name.
+     */
+    getTagName(): Promise<string>;
+
+    /**
+     * Schedules a command to query for the computed style of the element
+     * represented by this instance. If the element inherits the named style from
+     * its parent, the parent will be queried for its value.  Where possible,
+     * color values will be converted to their hex representation (e.g. #00ff00
+     * instead of rgb(0, 255, 0)).
+     *
+     * _Warning:_ the value returned will be as the browser interprets it, so
+     * it may be tricky to form a proper assertion.
+     *
+     * @param {string} cssStyleProperty The name of the CSS style property to look
+     *     up.
+     * @return {!Promise<string>} A promise that will be
+     *     resolved with the requested CSS value.
+     */
+    getCssValue(cssStyleProperty: string): Promise<string>;
+
+    /**
+     * Schedules a command to query for the value of the given attribute of the
+     * element. Will return the current value, even if it has been modified after
+     * the page has been loaded. More exactly, this method will return the value
+     * of the given attribute, unless that attribute is not present, in which case
+     * the value of the property with the same name is returned. If neither value
+     * is set, null is returned (for example, the 'value' property of a textarea
+     * element). The 'style' attribute is converted as best can be to a
+     * text representation with a trailing semi-colon. The following are deemed to
+     * be 'boolean' attributes and will return either 'true' or null:
+     *
+     * async, autofocus, autoplay, checked, compact, complete, controls, declare,
+     * defaultchecked, defaultselected, defer, disabled, draggable, ended,
+     * formnovalidate, hidden, indeterminate, iscontenteditable, ismap, itemscope,
+     * loop, multiple, muted, nohref, noresize, noshade, novalidate, nowrap, open,
+     * paused, pubdate, readonly, required, reversed, scoped, seamless, seeking,
+     * selected, spellcheck, truespeed, willvalidate
+     *
+     * Finally, the following commonly mis-capitalized attribute/property names
+     * are evaluated as expected:
+     *
+     * - 'class'
+     * - 'readonly'
+     *
+     * @param {string} attributeName The name of the attribute to query.
+     * @return {!Promise.<?string>} A promise that will be
+     *     resolved with the attribute's value. The returned value will always be
+     *     either a string or null.
+     */
+    getAttribute(attributeName: string): Promise<string | null>;
+
+    getDomAttribute(attributeName: string): Promise<string | null>;
+
+    getProperty<T = unknown>(propertyName: string): Promise<T>;
+
+    /**
+     * Get the shadow root of the current web element.
+     * @returns {!Promise<ShadowRoot>} A promise that will be
+     *      resolved with the elements shadow root or rejected
+     *      with {@link NoSuchShadowRootError}
+     */
+    getShadowRoot(): ShadowRootPromise;
+
+    /**
+     * Get the visible (i.e. not hidden by CSS) innerText of this element,
+     * including sub-elements, without any leading or trailing whitespace.
+     * @return {!Promise.<string>} A promise that will be
+     *     resolved with the element's visible text.
+     */
+    getText(): Promise<string>;
+
+    getAriaRole(): Promise<string>;
+
+    getAccessibleName(): Promise<string>;
+
+    /**
+     * Returns an object describing an element's location, in pixels relative to
+     * the document element, and the element's size in pixels.
+     */
+    getRect(): Promise<IRectangle>;
+
+    /**
+     * Schedules a command to query whether the DOM element represented by this
+     * instance is enabled, as dicted by the {@code disabled} attribute.
+     * @return {!Promise.<boolean>} A promise that will be
+     *     resolved with whether this element is currently enabled.
+     */
+    isEnabled(): Promise<boolean>;
+
+    /**
+     * Schedules a command to query whether this element is selected.
+     * @return {!Promise.<boolean>} A promise that will be
+     *     resolved with whether this element is currently selected.
+     */
+    isSelected(): Promise<boolean>;
+
+    /**
+     * Schedules a command to submit the form containing this element (or this
+     * element if it is a FORM element). This command is a no-op if the element is
+     * not contained in a form.
+     * @return {!Promise.<void>} A promise that will be resolved
+     *     when the form has been submitted.
+     */
+    submit(): Promise<void>;
+
+    /**
+     * Schedules a command to clear the `value` of this element. This command has
+     * no effect if the underlying DOM element is neither a text INPUT element
+     * nor a TEXTAREA element.
+     * @return {!Promise<void>} A promise that will be resolved
+     *     when the element has been cleared.
+     */
+    clear(): Promise<void>;
+
+    /**
+     * Schedules a command to test whether this element is currently displayed.
+     * @return {!Promise.<boolean>} A promise that will be
+     *     resolved with whether this element is currently visible on the page.
+     */
+    isDisplayed(): Promise<boolean>;
+
+    /**
+     * Take a screenshot of the visible region encompassed by this element's
+     * bounding rectangle.
+     *
+     * @param {boolean=} opt_scroll Optional argument that indicates whether the
+     *     element should be scrolled into view before taking a screenshot.
+     *     Defaults to false.
+     * @return {!Promise<string>} A promise that will be
+     *     resolved to the screenshot as a base-64 encoded PNG.
+     */
+    takeScreenshot(): Promise<string>;
+}
+
+/**
+ * Defines a condition that will result in a {@link WebElement}.
+ */
+export class WebElementCondition extends Condition<WebElement> { }
+
+/**
+ * Implement WebElementPromise
+ */
+export class WebElementPromise extends WebElement {
+    readonly catch: Promise<WebElement>['catch'];
+    readonly then: Promise<WebElement>['then'];
+
+    /**
+     * @param {!WebDriver} driver The parent WebDriver instance for this
+     *     element.
+     * @param {!Promise<!WebElement>} el A promise
+     *     that will resolve to the promised element.
+     */
+    constructor(driver: WebDriver, el: Promise<WebElement>);
 
     getId(): Promise<string>;
 }
 
 /**
- * ShadowRootPromise is a promise that will be fulfilled with a WebElement.
- * This serves as a forward proxy on ShadowRoot, allowing calls to be
- * scheduled without directly on this instance before the underlying
- * ShadowRoot has been fulfilled.
- *
- * @final
+ * An interface for managing the current window.
  */
-export interface ShadowRootPromise extends Promise<ShadowRoot> {}
+export class Window {
+    readonly driver_: WebDriver;
+    readonly log_: logging.Logger;
 
-/**
- * Implement ShadowRootPromise
- */
-export class ShadowRootPromise extends ShadowRoot {
     /**
-     * @param {!WebDriver} driver The parent WebDriver instance for this
-     *     element.
-     * @param {!Promise<!ShadowRoot>} shadow A promise
-     *     that will resolve to the promised element.
+     * @param {!WebDriver} driver The parent driver.
      */
-    constructor(driver: WebDriver, shadow: Promise<ShadowRoot>);
-}
+    constructor(driver: WebDriver);
 
-//////////////////////////////////////////////////////////////////////////////
-//
-//  Alert
-//
-//////////////////////////////////////////////////////////////////////////////
-
-/**
- * Represents a modal dialog such as {@code alert}, {@code confirm}, or
- * {@code prompt}. Provides functions to retrieve the message displayed with
- * the alert, accept or dismiss the alert, and set the response text (in the
- * case of {@code prompt}).
- */
-export class Alert {
     /**
-     * @param {!WebDriver} driver The driver controlling the browser this alert
-     *     is attached to.
-     * @param {string} text The message text displayed with this alert.
+     * Returns the current top-level window's size and position.
      */
-    constructor(driver: WebDriver, text: string);
+    getRect(): Promise<IRectangle>;
 
     /**
-     * Retrieves the message text displayed with this alert. For instance, if the
-     * alert were opened with alert("hello"), then this would return "hello".
+     * Sets the current top-level window's size and position. You may update
+     * just the size by omitting `x` & `y`, or just the position by omitting
+     * `width` & `height` options.
+     */
+    setRect(options: Partial<IRectangle>): Promise<IRectangle>;
+
+    /**
+     * Maximizes the current window. The exact behavior of this command is
+     * specific to individual window managers, but typically involves increasing
+     * the window to the maximum available size without going full-screen.
+     * @return {!Promise} A promise that will be resolved when the
+     *     command has completed.
+     */
+    maximize(): Promise<void>;
+
+    /**
+     * Minimizes the current window. The exact behavior of this command is
+     * specific to individual window managers, but typically involves hiding
+     * the window in the system tray.
+     * @return {!Promise} A promise that will be resolved when the
+     *     command has completed.
+     */
+    minimize(): Promise<void>;
+
+    /**
+     * Invokes the 'full screen' operation on the current window. The exact
+     * behavior of this command is specific to individual window managers, but
+     * this will typically increase the window size to the size of the physical
+     * display and hide the browser chrome.
      *
-     * @return {!Promise<string>} A promise that will be
-     *     resolved to the text displayed with this alert.
+     * @return {!Promise<void>} A promise that will be resolved when the command
+     *     has completed.
+     * @see <https://fullscreen.spec.whatwg.org/#fullscreen-an-element>
      */
-    getText(): Promise<string>;
+    fullscreen(): Promise<void>;
 
     /**
-     * Accepts this alert.
-     *
-     * @return {!Promise<void>} A promise that will be resolved
-     *     when this command has completed.
+     * Retrieves the window's current size.
+     * @return {!Promise} A promise that will be resolved with the
+     *     window's size in the form of a {width:number, height:number} object
+     *     literal.
      */
-    accept(): Promise<void>;
+    getSize(windowHandle?: string): Promise<IDimensions>;
 
     /**
-     * Dismisses this alert.
-     *
-     * @return {!Promise<void>} A promise that will be resolved
-     *     when this command has completed.
+     * Resizes the current window.
+     * @param {number} width The desired window width.
+     * @param {number} height The desired window height.
+     * @return {!Promise} A promise that will be resolved when the
+     *     command has completed.
      */
-    dismiss(): Promise<void>;
-
-    /**
-     * Sets the response text on this alert. This command will return an error if
-     * the underlying alert does not support response text (e.g. window.alert and
-     * window.confirm).
-     *
-     * @param {string} text The text to set.
-     * @return {!Promise<void>} A promise that will be resolved
-     *     when this command has completed.
-     */
-    sendKeys(text: string): Promise<void>;
-}
-
-/**
- * AlertPromise is a promise that will be fulfilled with an Alert. This promise
- * serves as a forward proxy on an Alert, allowing calls to be scheduled
- * directly on this instance before the underlying Alert has been fulfilled. In
- * other words, the following two statements are equivalent:
- *
- *     driver.switchTo().alert().dismiss();
- *     driver.switchTo().alert().then(function(alert) {
- *       return alert.dismiss();
- *     });
- *
- * @final
- */
-export interface AlertPromise extends Promise<Alert> {}
-
-/**
- * Implement AlertPromise
- */
-export class AlertPromise extends Alert {
-    /**
-     * @param {!WebDriver} driver The driver controlling the browser this
-     *     alert is attached to.
-     * @param {!Promise<!Alert>} alert A thenable
-     *     that will be fulfilled with the promised alert.
-     */
-    constructor(driver: WebDriver, alert: Promise<Alert>);
+    setSize(options: Partial<IRectangle>, windowHandle?: string): Promise<void>;
 }

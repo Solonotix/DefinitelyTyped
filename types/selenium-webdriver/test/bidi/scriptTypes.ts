@@ -1,4 +1,4 @@
-import { RemoteValue } from "selenium-webdriver/bidi/remoteValue";
+import { RemoteValue } from "selenium-webdriver/bidi/protocolValue";
 import { Message, ScriptSource, Source } from "selenium-webdriver/bidi/scriptTypes";
 
 function testMessageClass() {
@@ -9,16 +9,13 @@ function testMessageClass() {
 
     const source = new Source(scriptSource);
 
-    const remoteValue: RemoteValue = {
-        type: "string",
-        value: "testValue",
-    };
+    const remoteValue = new RemoteValue({ type: "string", value: "testValue" });
 
     const message = new Message("testChannel", remoteValue, source);
 
     // $ExpectType string
     message.channel;
-    // $ExpectType RemoteValue
+    // $ExpectType RemoteValue<"string", string>
     message.data;
     // $ExpectType Source
     message.source;

@@ -1,11 +1,11 @@
-import type { WebDriver } from "../lib/webdriver";
-import type { CookieFilter } from "./cookieFilter";
-import type { Cookie } from "./networkTypes";
-import type { PartialCookie } from "./partialCookie";
-import type { BrowsingContextPartitionDescriptor, StorageKeyPartitionDescriptor } from "./partitionDescriptor";
-import type { PartitionKey } from "./partitionKey";
+import type { WebDriver } from '../lib/webdriver.js';
+import type { CookieFilter } from './cookieFilter.js';
+import type { Cookie } from './networkTypes.js';
+import type { PartialCookie } from './partialCookie.js';
+import type { BrowsingContextPartitionDescriptor, StorageKeyPartitionDescriptor } from './partitionDescriptor.js';
+import type { PartitionKey } from './partitionKey.js';
 
-declare function getStorageInstance(driver: WebDriver): Promise<getStorageInstance.Instance>;
+declare function getStorageInstance(driver: WebDriver): Promise<getStorageInstance.Storage>;
 
 declare namespace getStorageInstance {
     type PartitionDescriptor = BrowsingContextPartitionDescriptor | StorageKeyPartitionDescriptor;
@@ -15,19 +15,20 @@ declare namespace getStorageInstance {
         partitionKey?: PartitionKey;
     }
 
-    interface Instance {
+    interface Storage {
         getCookies(
             filter?: CookieFilter,
             partition?: PartitionDescriptor,
         ): Promise<GetCookiesResult | undefined>;
         setCookie(cookie: PartialCookie, partition?: PartitionDescriptor): Promise<PartitionKey | undefined>;
-        // TODO: The staged declaration returns Promise<void>, but the 4.46.0 runtime
-        // returns a PartitionKey when the remote response includes one.
         deleteCookies(
             cookieFilter?: CookieFilter,
             partition?: PartitionDescriptor,
         ): Promise<PartitionKey | undefined>;
     }
+
+    /** @deprecated Use {@link Storage}. */
+    type Instance = Storage;
 }
 
 export = getStorageInstance;

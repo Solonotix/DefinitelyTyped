@@ -1,27 +1,29 @@
-import type { FilterBy } from "./filterBy";
-import type { ConsoleLogEntry, GenericLogEntry, JavascriptLogEntry } from "./logEntries";
+import type { SuggestedString } from '../_internal.js';
+import type { WebDriver } from '../lib/webdriver.js';
+import type { FilterBy } from './filterBy.js';
+import type { BaseLogEntry, ConsoleLogEntry, JavascriptLogEntry } from './logEntries.js';
 
-declare class LogInspector {
-    private _driver: any;
-    private _browsingContextIds: any;
-    private listener: Record<string, Function[]>;
-    private bidi: any;
-    private ws: { on: Function };
+declare function LogInspector(
+    driver: WebDriver,
+    browsingContextIds?: string[] | null,
+): Promise<LogInspector.Instance>;
 
-    constructor(driver: any, browsingContextIds: any);
+declare namespace LogInspector {
+    type LogType = SuggestedString<'console' | 'javascript' | 'javascriptException' | 'logs'>;
+    type LogFilter = SuggestedString<
+        'console_filter' | 'javascript_filter' | 'javascriptException_filter' | 'logs_filter'
+    >;
+    type LogHandler<T extends BaseLogEntry = BaseLogEntry> = (data: T) => void;
 
-    init(): Promise<void>;
-    logListener(kind: string): void;
-    onConsoleEntry(callback: (entry: ConsoleLogEntry) => void, filterBy?: FilterBy): Promise<void>;
-    onJavascriptLog(callback: (entry: JavascriptLogEntry) => void, filterBy?: FilterBy): Promise<void>;
-    onJavascriptException(callback: (entry: JavascriptLogEntry) => void): Promise<void>;
-    onLog(
-        callback: (entry: ConsoleLogEntry | JavascriptLogEntry | GenericLogEntry) => void,
-        filterBy?: FilterBy,
-    ): Promise<void>;
-    close(): Promise<void>;
+    /** Public contract returned by the CommonJS factory. */
+    interface Instance {
+        removeCallback(id: number): void;
+        onConsoleEntry(callback: LogHandler<ConsoleLogEntry>, filterBy?: FilterBy): Promise<number>;
+        onJavascriptLog(callback: LogHandler<JavascriptLogEntry>, filterBy?: FilterBy): Promise<number>;
+        onJavascriptException(callback: LogHandler<JavascriptLogEntry>): Promise<number>;
+        onLog(callback: LogHandler<BaseLogEntry>, filterBy?: FilterBy): Promise<number>;
+        close(): Promise<void>;
+    }
 }
 
-declare function getLogInspectorInstance(driver: any, browsingContextIds?: any): Promise<LogInspector>;
-
-export = getLogInspectorInstance;
+export = LogInspector;

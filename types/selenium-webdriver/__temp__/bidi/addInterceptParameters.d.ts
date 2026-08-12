@@ -7,7 +7,7 @@ export interface IAddInterceptParameters {
 }
 
 export interface IUrlStringPattern {
-    type: "string";
+    type: 'string';
     pattern: string;
 }
 

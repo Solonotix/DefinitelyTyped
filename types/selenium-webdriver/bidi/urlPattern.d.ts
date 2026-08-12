@@ -8,14 +8,14 @@ declare class UrlPattern {
      * @param protocol - The protocol to set.
      * @returns Returns the updated instance of the URL pattern for chaining.
      */
-    protocol(protocol: string): UrlPattern;
+    protocol(protocol: string): this;
 
     /**
      * Sets the hostname for the URL pattern.
      * @param hostname - The hostname to set.
      * @returns Returns the updated instance of the URL pattern for chaining.
      */
-    hostname(hostname: string): UrlPattern;
+    hostname(hostname: string): this;
 
     /**
      * Sets the port for the URL pattern.
@@ -23,21 +23,21 @@ declare class UrlPattern {
      * @returns Returns the updated instance of the URL pattern for chaining.
      * @throws Throws an error if the port is not a number.
      */
-    port(port: number): UrlPattern;
+    port(port: number): this;
 
     /**
      * Sets the pathname for the URL pattern.
      * @param pathname - The pathname to set.
      * @returns Returns the updated instance of the URL pattern for chaining.
      */
-    pathname(pathname: string): UrlPattern;
+    pathname(pathname: string): this;
 
     /**
      * Sets the search parameter in the URL pattern.
      * @param search - The search parameter to be set.
      * @returns Returns the updated instance of the URL pattern for chaining.
      */
-    search(search: string): UrlPattern;
+    search(search: string): this;
 
     asMap(): Map<string, string>;
 }

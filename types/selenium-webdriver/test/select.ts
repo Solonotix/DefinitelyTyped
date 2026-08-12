@@ -19,4 +19,5 @@ function TestSelect() {
     select.deselectByVisibleText(3);
     select.deselectByIndex(4);
     select.deselectByValue("Value");
+    select.setSelected(element);
 }

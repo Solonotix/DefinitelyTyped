@@ -1,27 +1,36 @@
-import { WebDriver, WebElement } from "../";
-import { Executor } from "./command";
+import type { SuggestedNumber, SuggestedString } from '../_internal.js';
+import { Executor } from './command.js';
+import type { WebDriver, WebElement } from './webdriver.js';
 
 /**
  * Defines the reference point from which to compute offsets for
  * {@linkplain ./input.Pointer#move pointer move} actions.
  */
-export enum Origin {
+export type Origin = SuggestedString<'pointer' | 'viewport'>;
+
+export interface IOrigin {
     /** Compute offsets relative to the pointer's current position. */
-    POINTER = "pointer",
+    readonly POINTER: 'pointer';
     /** Compute offsets relative to the viewport. */
-    VIEWPORT = "viewport",
+    readonly VIEWPORT: 'viewport';
 }
+
+export const Origin: IOrigin;
 
 /**
  * Enumeration of the buttons used in the advanced interactions API.
  */
-export enum Button {
-    LEFT = 0,
-    MIDDLE = 1,
-    RIGHT = 2,
-    BACK = 3,
-    FORWARD = 4,
+export type Button = SuggestedNumber<0 | 1 | 2 | 3 | 4>;
+
+export interface IButton {
+    readonly LEFT: 0;
+    readonly MIDDLE: 1;
+    readonly RIGHT: 2;
+    readonly BACK: 3;
+    readonly FORWARD: 4;
 }
+
+export const Button: IButton;
 
 export interface IKey {
     NULL: string;
@@ -121,7 +130,7 @@ export const INTERNAL_COMPUTE_OFFSET_SCRIPT: string;
 
 /**
  * Used with {@link ./webelement.WebElement#sendKeys WebElement#sendKeys} on
- * file input elements (`<input type="file">`) to detect when the entered key
+ * file input elements (`<input type='file'>`) to detect when the entered key
  * sequence defines the path to a file.
  *
  * By default, {@linkplain ./webelement.WebElement WebElement's} will enter all
@@ -152,31 +161,28 @@ export class FileDetector {
 }
 
 export type ActionType =
-    | "keyDown"
-    | "keyUp"
-    | "pause"
-    | "pointerDown"
-    | "pointerUp"
-    | "pointerMove"
-    | "pointerCancel"
-    | "scroll";
+    | 'keyDown'
+    | 'keyUp'
+    | 'pause'
+    | 'pointerDown'
+    | 'pointerUp'
+    | 'pointerMove'
+    | 'pointerCancel'
+    | 'scroll';
 
 export interface IActionType {
-    readonly KEY_DOWN: "keyDown";
-    readonly KEY_UP: "keyUp";
-    readonly PAUSE: "pause";
-    readonly POINTER_DOWN: "pointerDown";
-    readonly POINTER_UP: "pointerUp";
-    readonly POINTER_MOVE: "pointerMove";
-    readonly POINTER_CANCEL: "pointerCancel";
-    readonly SCROLL: "scroll";
+    readonly KEY_DOWN: 'keyDown';
+    readonly KEY_UP: 'keyUp';
+    readonly PAUSE: 'pause';
+    readonly POINTER_DOWN: 'pointerDown';
+    readonly POINTER_UP: 'pointerUp';
+    readonly POINTER_MOVE: 'pointerMove';
+    readonly POINTER_CANCEL: 'pointerCancel';
+    readonly SCROLL: 'scroll';
 }
 
-/** A single low-level action exported by the 4.46.0 runtime. */
-export class Action {
-    static readonly Type: IActionType;
-
-    type?: ActionType;
+export interface IAction<T extends ActionType = ActionType> {
+    type?: T;
     duration?: number;
     value?: string;
     button?: Button;
@@ -184,15 +190,153 @@ export class Action {
     y?: number;
 }
 
-// TODO: The staged declaration models Button, Origin, and other runtime constant objects with literal-valued
-// interfaces, while the existing package exposes TypeScript enums. Reconcile those shapes package-wide.
+/** A single low-level action exported by the 4.46.0 runtime. */
+export class Action<T extends ActionType = ActionType> implements IAction<T> {
+    static readonly Type: IActionType;
 
-export class Device {
-    constructor(type: string, id: string);
+    type?: T;
+    duration?: number;
+    value?: string;
+    button?: Button;
+    x?: number;
+    y?: number;
 }
 
-export class Pointer extends Device {}
-export class Keyboard extends Device {}
+export type DeviceType = SuggestedString<'key' | 'none' | 'pointer' | 'wheel'>;
+
+export interface IDeviceType {
+    readonly KEY: 'key';
+    readonly NONE: 'none';
+    readonly POINTER: 'pointer';
+    readonly WHEEL: 'wheel';
+}
+
+export interface IDeviceJSON<T extends DeviceType = DeviceType> {
+    type: T;
+    id: string;
+}
+
+export class Device<T extends DeviceType = DeviceType> {
+    static readonly Type: IDeviceType;
+
+    constructor(type: T, id: string);
+
+    toJSON(): IDeviceJSON<T>;
+}
+
+export class Keyboard extends Device<'key'> {
+    constructor(id: string);
+
+    keyDown(key: string | number): IAction<'keyDown'>;
+
+    keyUp(key: string | number): IAction<'keyUp'>;
+}
+
+export type PointerType = SuggestedString<'mouse' | 'pen' | 'touch'>;
+
+export interface IPointerType {
+    readonly MOUSE: 'mouse';
+    readonly PEN: 'pen';
+    readonly TOUCH: 'touch';
+}
+
+export interface IButtonAction<T extends ActionType, B extends Button = 0> extends IAction<T> {
+    button: B;
+}
+
+export interface IPointerAction<T extends ActionType> extends IAction<T> {
+    altitudeAngle: number;
+    azimuthAngle: number;
+    height: number;
+    pressure: number;
+    tangentialPressure: number;
+    tiltX: number;
+    tiltY: number;
+    twist: number;
+    width: number;
+}
+
+export interface IPointerButtonAction<B extends Button = 0> extends IPointerAction<'pointerDown'> {
+    button: B;
+}
+
+export interface IPointerMoveOptions<O extends Origin | WebElement = Origin | WebElement> {
+    x?: number;
+    y?: number;
+    duration?: number;
+    origin?: O;
+    width?: number;
+    height?: number;
+    pressure?: number;
+    tangentialPressure?: number;
+    tiltX?: number;
+    tiltY?: number;
+    twist?: number;
+    altitudeAngle?: number;
+    azimuthAngle?: number;
+}
+
+export interface IPointerMoveAction<O extends Origin | WebElement = Origin | WebElement>
+    extends IPointerAction<'pointerMove'> {
+    type: 'pointerMove';
+    origin: O;
+    duration: number;
+    x: number;
+    y: number;
+}
+
+export class Pointer<T extends PointerType = PointerType> {
+    static readonly Type: IPointerType;
+
+    constructor(id: string, type: T);
+
+    toJSON(): IDeviceJSON<'pointer'> & {
+        parameters: {
+            pointerType: T;
+        };
+    };
+
+    cancel(): IAction<'pointerCancel'>;
+
+    press<B extends Button = 0>(
+        button?: B,
+        width?: number,
+        height?: number,
+        pressure?: number,
+        tangentialPressure?: number,
+        tiltX?: number,
+        tiltY?: number,
+        twist?: number,
+        altitudeAngle?: number,
+        azimuthAngle?: number,
+    ): IPointerButtonAction<B>;
+
+    release<B extends Button = 0>(button?: B): IButtonAction<'pointerUp', B>;
+
+    move<O extends Origin | WebElement = Origin | WebElement>(
+        options: IPointerMoveOptions<O>,
+    ): IPointerMoveAction<O>;
+}
+
+/** The wheel device exposed by {@link Actions.wheel}. */
+export interface Wheel extends Device<'wheel'> {
+    scroll(
+        x: number,
+        y: number,
+        deltaX: number,
+        deltaY: number,
+        origin: Origin | WebElement,
+        duration: number,
+    ): IAction<'scroll'>;
+}
+
+export interface IActionsSequence extends IDeviceJSON {
+    actions: IAction[];
+}
+
+export interface IActionsOptions {
+    async?: boolean;
+}
 
 /**
  * Class for defining sequences of complex user interactions. Each sequence
@@ -211,16 +355,18 @@ export class Keyboard extends Device {}
 export class Actions {
     // region Constructors
 
-    constructor(
-        executor: Executor,
-        options?: { async: boolean; bridge: boolean } | { async: boolean } | { bridge: boolean },
-    );
+    constructor(executor: Executor, options?: IActionsOptions);
 
     // endregion
 
     // region Methods
     keyboard(): Keyboard;
     mouse(): Pointer;
+    wheel(): Wheel;
+
+    insert<T extends DeviceType>(device: Device<T>, ...actions: IAction[]): this;
+
+    synchronize(...devices: Device[]): this;
     /**
      * Executes this action sequence.
      * @return {!Promise} A promise that will be resolved once
@@ -235,19 +381,29 @@ export class Actions {
      */
     perform(): Promise<void>;
 
-    pause(duration?: number | Device, ...devices: Device[]): Actions;
+    pause(duration?: number | Device, ...devices: Device[]): this;
 
     /**
      * Inserts an action to press a mouse button at the mouse's current location.
      * Defaults to `LEFT`.
      */
-    press(button?: Button): Actions;
+    press(button?: Button): this;
 
     /**
      * Inserts an action to release a mouse button at the mouse's current
      * location.  Defaults to `LEFT`.
      */
-    release(button?: Button): Actions;
+    release(button?: Button): this;
+
+    /** Adds a wheel scroll action. */
+    scroll(
+        x: number,
+        y: number,
+        targetDeltaX: number,
+        targetDeltaY: number,
+        origin: Origin | WebElement,
+        duration: number,
+    ): this;
 
     /**
      * Inserts an action for moving the mouse `x` and `y` pixels relative to the
@@ -264,7 +420,7 @@ export class Actions {
      * Defaults to moving the mouse to the top-left
      *     corner of the viewport over 100ms.
      */
-    move(direction: IDirection): Actions;
+    move(direction?: IDirection): this;
 
     /**
      * Convenience function for performing a 'drag and drop' manuever. The target
@@ -273,8 +429,8 @@ export class Actions {
      */
     dragAndDrop(
         from: WebElement,
-        to?: WebElement | { x?: number | string | undefined; y?: number | string | undefined } | null,
-    ): Actions;
+        to: WebElement | { x: number; y: number },
+    ): this;
 
     /**
      * Short-hand for performing a simple left-click (down/up) with the mouse.
@@ -284,7 +440,7 @@ export class Actions {
      *     click.
      * @return {!Actions} a self reference.
      */
-    click(element?: WebElement): Actions;
+    click(element?: WebElement): this;
 
     /**
      * Short-hand for performing a double left-click with the mouse.
@@ -294,7 +450,7 @@ export class Actions {
      *     click.
      * @return {!Actions} a self reference.
      */
-    doubleClick(element?: WebElement): Actions;
+    doubleClick(element?: WebElement): this;
 
     /**
      * Short-hand for performing a simple right-click (down/up) with the mouse.
@@ -304,7 +460,7 @@ export class Actions {
      *     click.
      * @return {!Actions} a self reference.
      */
-    contextClick(element?: WebElement): Actions;
+    contextClick(element?: WebElement): this;
 
     /**
      * Performs a modifier key press. The modifier key is <em>not released</em>
@@ -315,7 +471,7 @@ export class Actions {
      * @return {!Actions} A self reference.
      * @throws {Error} If the key is not a valid modifier key.
      */
-    keyDown(key: string): Actions;
+    keyDown(key: string | number): this;
 
     /**
      * Performs a modifier key release. The release is targetted at the currently
@@ -325,7 +481,7 @@ export class Actions {
      * @return {!Actions} A self reference.
      * @throws {Error} If the key is not a valid modifier key.
      */
-    keyUp(key: string): Actions;
+    keyUp(key: string | number): this;
 
     /**
      * Simulates typing multiple keys. Each modifier key encountered in the
@@ -337,7 +493,10 @@ export class Actions {
      * @return {!Actions} A self reference.
      * @throws {Error} If the key is not a valid modifier key.
      */
-    sendKeys(...var_args: Array<string | Promise<string>>): Actions;
+    sendKeys(...var_args: Array<string | number | WebElement>): this;
+
+    /** Returns the non-idle action sequences currently configured. */
+    getSequences(): IActionsSequence[];
 
     // endregion
 }

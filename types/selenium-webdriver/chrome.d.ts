@@ -1,11 +1,12 @@
-import * as http from "./http";
-import * as webdriver from "./index";
-import * as remote from "./remote";
+import * as chromium from './chromium.js';
+import * as http from './http/index.js';
+import type { Capabilities } from './lib/capabilities.js';
+import * as remote from './remote/index.js';
 
 /**
  * Creates a new WebDriver client for Chrome.
  */
-export class Driver extends webdriver.chromium.ChromiumWebDriver {
+export class Driver extends chromium.Driver {
     /**
      * Creates a new session with the ChromeDriver.
      *
@@ -18,7 +19,7 @@ export class Driver extends webdriver.chromium.ChromiumWebDriver {
      * @return {!Driver} A new driver instance.
      */
     static createSession(
-        opt_config?: Options | webdriver.Capabilities,
+        opt_config?: Options | Capabilities,
         opt_serviceExecutor?: remote.DriverService | http.Executor,
     ): Driver;
 
@@ -34,9 +35,9 @@ export interface IOptionsValues {
     binary?: string | undefined;
     detach: boolean;
     extensions: string[];
-    localState?: any;
+    localState?: Record<string, unknown>;
     logFile?: string | undefined;
-    prefs?: any;
+    prefs?: Record<string, unknown>;
 }
 
 export interface IPerfLoggingPrefs {
@@ -50,7 +51,7 @@ export interface IPerfLoggingPrefs {
 /**
  * Class for managing ChromeDriver specific options.
  */
-export class Options extends webdriver.chromium.Options {
+export class Options extends chromium.Options {
     /**
      * Sets the path to the Chrome binary to use. On Mac OS X, this path should
      * reference the actual Chrome executable, not just the application binary
@@ -62,7 +63,7 @@ export class Options extends webdriver.chromium.Options {
      * @param {string} path The path to the Chrome binary to use.
      * @return {!Options} A self reference.
      */
-    setChromeBinaryPath(path: string): Options;
+    setChromeBinaryPath(path: string): this;
 
     /**
      * Configures the ChromeDriver to launch Chrome on Android via adb. This
@@ -70,7 +71,7 @@ export class Options extends webdriver.chromium.Options {
      * {@link #androidPackage options.androidPackage('com.android.chrome')}.
      * @return {!Options} A self reference.
      */
-    androidChrome(): Options;
+    androidChrome(): this;
 
     /**
      * Sets the path to Chrome's log file. This path should exist on the machine
@@ -78,7 +79,7 @@ export class Options extends webdriver.chromium.Options {
      * @param {string} path Path to the log file to use.
      * @return {!Options} A self reference.
      */
-    setChromeLogFile(path: string): Options;
+    setChromeLogFile(path: string): this;
 
     /**
      * Sets the directory to store Chrome minidumps in. This option is only
@@ -86,7 +87,7 @@ export class Options extends webdriver.chromium.Options {
      * @param {string} path The directory path.
      * @return {!Options} A self reference.
      */
-    setChromeMinidumpPath(path: string): Options;
+    setChromeMinidumpPath(path: string): this;
 }
 
 /**
@@ -94,7 +95,7 @@ export class Options extends webdriver.chromium.Options {
  * a [ChromeDriver](https://chromedriver.chromium.org/)
  * server in a child process.
  */
-export class ServiceBuilder extends webdriver.chromium.ServiceBuilder {
+export class ServiceBuilder extends chromium.ServiceBuilder {
     /**
      * @param {string=} opt_exe Path to the server executable to use. If omitted,
      *     the builder will attempt to locate the chromedriver on the current

@@ -9,10 +9,23 @@ export type SuggestedNumber<T extends number> = T | (number & {});
 /** Preserves literal suggestions while allowing arbitrary string values. */
 export type SuggestedString<T extends string> = T | (string & {});
 
-// TODO: The staged declaration defaults the argument tuple to `[]`, while the
-// existing declaration accepts an arbitrary readonly argument list by default.
-export type TypedFunction<T = unknown, A extends ReadonlyArray<unknown> = ReadonlyArray<unknown>> = (...args: A) => T;
+/** Describes a callable with an optionally specified readonly argument tuple. */
+export type TypedFunction<T = unknown, A extends ReadonlyArray<unknown> = []> = (...args: A) => T;
+export type ErrorFirstCallback<A extends ReadonlyArray<unknown> = []> = TypedFunction<void, [Error | null | undefined, ...A]>;
+export type EventListener<A extends ReadonlyArray<unknown> = []> = TypedFunction<void, A>;
+// eslint-disable-next-line @definitelytyped/no-single-element-tuple-type
+export type EventListenerSimple<T> = EventListener<[T]>;
 
 export namespace Internal {
-    export { EntriesOf, EntryOf, MapOf, ObjectLike, SuggestedNumber, SuggestedString, TypedFunction };
+    export { 
+        EntriesOf, 
+        EntryOf,
+        ErrorFirstCallback,
+        EventListener, 
+        MapOf, 
+        ObjectLike, 
+        SuggestedNumber, 
+        SuggestedString, 
+        TypedFunction 
+    };
 }

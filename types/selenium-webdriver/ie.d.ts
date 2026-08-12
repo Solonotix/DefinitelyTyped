@@ -1,6 +1,7 @@
-import type { SuggestedNumber, SuggestedString } from "./_internal";
-import * as webdriver from "./index";
-import * as remote from "./remote";
+import type { SuggestedNumber, SuggestedString } from './_internal.js';
+import { Capabilities } from './lib/capabilities.js';
+import { WebDriver } from './lib/webdriver.js';
+import * as remote from './remote/index.js';
 
 export type Behavior = SuggestedNumber<0 | 1>;
 
@@ -12,71 +13,71 @@ export const Behavior: {
 /**
  * IEDriverServer logging levels.
  */
-export type Level = SuggestedString<"FATAL" | "ERROR" | "WARN" | "INFO" | "DEBUG" | "TRACE">;
+export type Level = SuggestedString<'FATAL' | 'ERROR' | 'WARN' | 'INFO' | 'DEBUG' | 'TRACE'>;
 
 export const Level: {
-    readonly FATAL: "FATAL";
-    readonly ERROR: "ERROR";
-    readonly WARN: "WARN";
-    readonly INFO: "INFO";
-    readonly DEBUG: "DEBUG";
-    readonly TRACE: "TRACE";
+    readonly FATAL: 'FATAL';
+    readonly ERROR: 'ERROR';
+    readonly WARN: 'WARN';
+    readonly INFO: 'INFO';
+    readonly DEBUG: 'DEBUG';
+    readonly TRACE: 'TRACE';
 };
 
 export type Key = SuggestedString<
-    | "ignoreProtectedModeSettings"
-    | "ignoreZoomSetting"
-    | "initialBrowserUrl"
-    | "enablePersistentHover"
-    | "enableElementCacheCleanup"
-    | "elementScrollBehavior"
-    | "requireWindowFocus"
-    | "browserAttachTimeout"
-    | "ie.forceCreateProcessApi"
-    | "ie.browserCommandLineSwitches"
-    | "ie.usePerProcessProxy"
-    | "ie.ensureCleanSession"
-    | "logFile"
-    | "logLevel"
-    | "host"
-    | "extractPath"
-    | "silent"
-    | "ie.fileUploadDialogTimeout"
-    | "ie.edgechromium"
-    | "ie.edgepath"
-    | "ie.ignoreprocessmatch"
+    | 'ignoreProtectedModeSettings'
+    | 'ignoreZoomSetting'
+    | 'initialBrowserUrl'
+    | 'enablePersistentHover'
+    | 'enableElementCacheCleanup'
+    | 'elementScrollBehavior'
+    | 'requireWindowFocus'
+    | 'browserAttachTimeout'
+    | 'ie.forceCreateProcessApi'
+    | 'ie.browserCommandLineSwitches'
+    | 'ie.usePerProcessProxy'
+    | 'ie.ensureCleanSession'
+    | 'logFile'
+    | 'logLevel'
+    | 'host'
+    | 'extractPath'
+    | 'silent'
+    | 'ie.fileUploadDialogTimeout'
+    | 'ie.edgechromium'
+    | 'ie.edgepath'
+    | 'ie.ignoreprocessmatch'
 >;
 
 export const Key: {
-    readonly IGNORE_PROTECTED_MODE_SETTINGS: "ignoreProtectedModeSettings";
-    readonly IGNORE_ZOOM_SETTING: "ignoreZoomSetting";
-    readonly INITIAL_BROWSER_URL: "initialBrowserUrl";
-    readonly ENABLE_PERSISTENT_HOVER: "enablePersistentHover";
-    readonly ENABLE_ELEMENT_CACHE_CLEANUP: "enableElementCacheCleanup";
-    readonly ELEMENT_SCROLL_BEHAVIOR: "elementScrollBehavior";
-    readonly REQUIRE_WINDOW_FOCUS: "requireWindowFocus";
-    readonly BROWSER_ATTACH_TIMEOUT: "browserAttachTimeout";
-    readonly FORCE_CREATE_PROCESS: "ie.forceCreateProcessApi";
-    readonly BROWSER_COMMAND_LINE_SWITCHES: "ie.browserCommandLineSwitches";
-    readonly USE_PER_PROCESS_PROXY: "ie.usePerProcessProxy";
-    readonly ENSURE_CLEAN_SESSION: "ie.ensureCleanSession";
-    readonly LOG_FILE: "logFile";
-    readonly LOG_LEVEL: "logLevel";
-    readonly HOST: "host";
-    readonly EXTRACT_PATH: "extractPath";
-    readonly SILENT: "silent";
-    readonly FILE_UPLOAD_DIALOG_TIMEOUT: "ie.fileUploadDialogTimeout";
-    readonly ATTACH_TO_EDGE_CHROMIUM: "ie.edgechromium";
-    readonly EDGE_EXECUTABLE_PATH: "ie.edgepath";
-    readonly IGNORE_PROCESS_MATCH: "ie.ignoreprocessmatch";
+    readonly IGNORE_PROTECTED_MODE_SETTINGS: 'ignoreProtectedModeSettings';
+    readonly IGNORE_ZOOM_SETTING: 'ignoreZoomSetting';
+    readonly INITIAL_BROWSER_URL: 'initialBrowserUrl';
+    readonly ENABLE_PERSISTENT_HOVER: 'enablePersistentHover';
+    readonly ENABLE_ELEMENT_CACHE_CLEANUP: 'enableElementCacheCleanup';
+    readonly ELEMENT_SCROLL_BEHAVIOR: 'elementScrollBehavior';
+    readonly REQUIRE_WINDOW_FOCUS: 'requireWindowFocus';
+    readonly BROWSER_ATTACH_TIMEOUT: 'browserAttachTimeout';
+    readonly FORCE_CREATE_PROCESS: 'ie.forceCreateProcessApi';
+    readonly BROWSER_COMMAND_LINE_SWITCHES: 'ie.browserCommandLineSwitches';
+    readonly USE_PER_PROCESS_PROXY: 'ie.usePerProcessProxy';
+    readonly ENSURE_CLEAN_SESSION: 'ie.ensureCleanSession';
+    readonly LOG_FILE: 'logFile';
+    readonly LOG_LEVEL: 'logLevel';
+    readonly HOST: 'host';
+    readonly EXTRACT_PATH: 'extractPath';
+    readonly SILENT: 'silent';
+    readonly FILE_UPLOAD_DIALOG_TIMEOUT: 'ie.fileUploadDialogTimeout';
+    readonly ATTACH_TO_EDGE_CHROMIUM: 'ie.edgechromium';
+    readonly EDGE_EXECUTABLE_PATH: 'ie.edgepath';
+    readonly IGNORE_PROCESS_MATCH: 'ie.ignoreprocessmatch';
 };
 
-export const VENDOR_COMMAND_PREFIX: "se:ieOptions";
+export const VENDOR_COMMAND_PREFIX: 'se:ieOptions';
 
 /**
  * A WebDriver client for Microsoft's Internet Explorer.
  */
-export class Driver extends webdriver.WebDriver {
+export class Driver extends WebDriver {
     /**
      * Creates a new session for Microsoft's Internet Explorer.
      *
@@ -86,7 +87,7 @@ export class Driver extends webdriver.WebDriver {
      * @return {!Driver} A new driver instance.
      */
     static createSession(
-        options?: webdriver.Capabilities | Options,
+        options?: Capabilities | Options,
         opt_service?: remote.DriverService,
     ): Driver;
 
@@ -101,12 +102,12 @@ export class Driver extends webdriver.WebDriver {
 /**
  * Class for managing IEDriver specific options.
  */
-export class Options extends webdriver.Capabilities {
+export class Options extends Capabilities {
     /**
      * @param {(Capabilities|Map<string, ?>|Object)=} other Another set of
      *     capabilities to initialize this instance from.
      */
-    constructor(other?: webdriver.Capabilities | Map<string, any> | object);
+    constructor(other?: Capabilities | Map<string, unknown> | Record<string, unknown>);
 
     /**
      * Whether to disable the protected mode settings check when the session is
@@ -120,7 +121,7 @@ export class Options extends webdriver.Capabilities {
      * @param {boolean} ignoreSettings Whether to ignore protected mode settings.
      * @return {!Options} A self reference.
      */
-    introduceFlakinessByIgnoringProtectedModeSettings(ignoreSettings: boolean): Options;
+    introduceFlakinessByIgnoringProtectedModeSettings(ignoreSettings: boolean): this;
 
     /**
      * Indicates whether to skip the check that the browser's zoom level is set to
@@ -130,7 +131,7 @@ export class Options extends webdriver.Capabilities {
      *     settings.
      * @return {!Options} A self reference.
      */
-    ignoreZoomSetting(ignore: boolean): Options;
+    ignoreZoomSetting(ignore: boolean): this;
 
     /**
      * Sets the initial URL loaded when IE starts. This is intended to be used
@@ -143,7 +144,7 @@ export class Options extends webdriver.Capabilities {
      * @param {string} url The initial browser URL.
      * @return {!Options} A self reference.
      */
-    initialBrowserUrl(url: string): Options;
+    initialBrowserUrl(url: string): this;
 
     /**
      * Configures whether to enable persistent mouse hovering (true by default).
@@ -153,7 +154,7 @@ export class Options extends webdriver.Capabilities {
      * @param {boolean} enable Whether to enable persistent hovering.
      * @return {!Options} A self reference.
      */
-    enablePersistentHover(enable: boolean): Options;
+    enablePersistentHover(enable: boolean): this;
 
     /**
      * Configures whether the driver should attempt to remove obsolete
@@ -164,7 +165,7 @@ export class Options extends webdriver.Capabilities {
      * @param {boolean} enable Whether to enable element reference cleanup.
      * @return {!Options} A self reference.
      */
-    enableElementCacheCleanup(enable: boolean): Options;
+    enableElementCacheCleanup(enable: boolean): this;
 
     /**
      * Configures whether to require the IE window to have input focus before
@@ -175,7 +176,7 @@ export class Options extends webdriver.Capabilities {
      * @param {boolean} require Whether to require window focus.
      * @return {!Options} A self reference.
      */
-    requireWindowFocus(require: boolean): Options;
+    requireWindowFocus(require: boolean): this;
 
     /**
      * Configures the timeout, in milliseconds, that the driver will attempt to
@@ -185,7 +186,7 @@ export class Options extends webdriver.Capabilities {
      * @param {number} timeout How long to wait for IE.
      * @return {!Options} A self reference.
      */
-    browserAttachTimeout(timeout: number): Options;
+    browserAttachTimeout(timeout: number): this;
 
     /**
      * Configures whether to launch Internet Explorer using the CreateProcess API.
@@ -196,13 +197,13 @@ export class Options extends webdriver.Capabilities {
      * @param {boolean} force Whether to use the CreateProcess API.
      * @return {!Options} A self reference.
      */
-    forceCreateProcessApi(force: boolean): Options;
+    forceCreateProcessApi(force: boolean): this;
 
     /**
      * Specifies command-line switches to use when launching Internet Explorer.
      * This is only valid when used with {@link #forceCreateProcessApi}.
      */
-    addBrowserCommandSwitches(...args: string[]): Options;
+    addBrowserCommandSwitches(...args: string[]): this;
 
     /**
      * Specifies command-line switches to use when launching Internet Explorer.
@@ -212,7 +213,7 @@ export class Options extends webdriver.Capabilities {
      * @deprecated Use {@link #addBrowserCommandSwitches} instead.
      * @return {!Options} A self reference.
      */
-    addArguments(...args: string[]): Options;
+    addArguments(...args: string[]): this;
 
     /**
      * Configures whether proxies should be configured on a per-process basis. If
@@ -222,7 +223,7 @@ export class Options extends webdriver.Capabilities {
      * @param {boolean} enable Whether to enable per-process proxy settings.
      * @return {!Options} A self reference.
      */
-    usePerProcessProxy(enable: boolean): Options;
+    usePerProcessProxy(enable: boolean): this;
 
     /**
      * Configures whether to clear the cache, cookies, history, and saved form
@@ -233,42 +234,42 @@ export class Options extends webdriver.Capabilities {
      * @param {boolean} cleanSession Whether to clear all session data on startup.
      * @return {!Options} A self reference.
      */
-    ensureCleanSession(cleanSession: boolean): Options;
+    ensureCleanSession(cleanSession: boolean): this;
 
     /**
      * Sets the path to the log file the driver should log to.
      * @param {string} file The log file path.
      * @return {!Options} A self reference.
      */
-    setLogFile(file: string): Options;
+    setLogFile(file: string): this;
 
     /**
      * Sets the IEDriverServer's logging {@linkplain Level level}.
      * @param {Level} level The logging level.
      * @return {!Options} A self reference.
      */
-    setLogLevel(level: Level): Options;
+    setLogLevel(level: Level): this;
 
     /**
      * Sets the IP address of the driver's host adapter.
      * @param {string} host The IP address to use.
      * @return {!Options} A self reference.
      */
-    setHost(host: string): Options;
+    setHost(host: string): this;
 
     /**
      * Sets the path of the temporary data directory to use.
      * @param {string} path The log file path.
      * @return {!Options} A self reference.
      */
-    setExtractPath(path: string): Options;
+    setExtractPath(path: string): this;
 
     /**
      * Sets whether the driver should start in silent mode.
      * @param {boolean} silent Whether to run in silent mode.
      * @return {!Options} A self reference.
      */
-    silent(silent: boolean): Options;
+    silent(silent: boolean): this;
 
     /**
      * The options File Upload Dialog Timeout in milliseconds
@@ -276,21 +277,21 @@ export class Options extends webdriver.Capabilities {
      * @param {number} timeout How long to wait for IE.
      * @return {!Options} A self reference.
      */
-    fileUploadDialogTimeout(timeout: number): Options;
+    fileUploadDialogTimeout(timeout: number): this;
 
     /**
      * Sets the IEDriver to drive Chromium-based Edge in Internet Explorer mode.
      * @param {boolean} attachEdgeChromium Whether to run in Chromium-based-Edge in IE mode
      * @return {!Options} A self reference.
      */
-    setEdgeChromium(attachEdgeChromium: boolean): Options;
+    setEdgeChromium(attachEdgeChromium: boolean): this;
 
     /**
      * Sets the path of the EdgeChromium driver.
      * @param {string} path The EdgeChromium driver path
      * @return {!Options} A self reference.
      */
-    setEdgePath(path: string): Options;
+    setEdgePath(path: string): this;
 
     /**
      * Sets how elements should be scrolled into view for interaction.
@@ -298,7 +299,7 @@ export class Options extends webdriver.Capabilities {
      *     the top of the viewport or 1 to align with the bottom.
      * @return {!Options} A self reference.
      */
-    setScrollBehavior(behavior: Behavior): Options;
+    setScrollBehavior(behavior: Behavior): this;
 }
 
 /**

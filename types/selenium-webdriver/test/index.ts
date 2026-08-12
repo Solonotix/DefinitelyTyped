@@ -1,3 +1,4 @@
+import { Agent } from "node:http";
 import * as webdriver from "selenium-webdriver";
 import chrome from "selenium-webdriver/chrome";
 import { HttpResponse } from "selenium-webdriver/devtools/networkinterceptor";
@@ -5,10 +6,19 @@ import edge from "selenium-webdriver/edge";
 import firefox from "selenium-webdriver/firefox";
 import * as http from "selenium-webdriver/http";
 import ie from "selenium-webdriver/ie";
+import { checkedLocator, escapeCss } from "selenium-webdriver/lib/by";
 import { PageLoadStrategy, Platform, UserPromptHandler } from "selenium-webdriver/lib/capabilities";
 import { Command } from "selenium-webdriver/lib/command";
-import Symbols from "selenium-webdriver/lib/symbols";
-import { ShadowRoot, ShadowRootPromise } from "selenium-webdriver/lib/webdriver";
+import * as Symbols from "selenium-webdriver/lib/symbols";
+import {
+    Logs,
+    Navigation,
+    Options as WebDriverOptions,
+    ShadowRoot,
+    ShadowRootPromise,
+    TargetLocator,
+    Window,
+} from "selenium-webdriver/lib/webdriver";
 import safari from "selenium-webdriver/safari";
 
 function TestBuilder() {
@@ -25,45 +35,25 @@ function TestBuilder() {
     builder = builder.setAlertBehavior("behavior");
     builder = builder.setAlertBehavior();
     builder = builder.setChromeOptions(new chrome.Options());
-    let chromeOpts: chrome.Options = builder.getChromeOptions();
+    let chromeOpts: chrome.Options | null = builder.getChromeOptions();
     builder = builder.setChromeService(new chrome.ServiceBuilder());
     builder = builder.setEdgeOptions(new edge.Options());
     builder = builder.setEdgeService(new edge.ServiceBuilder());
     builder = builder.setFirefoxOptions(new firefox.Options());
-    let firefoxOpts: firefox.Options = builder.getFirefoxOptions();
+    let firefoxOpts: firefox.Options | null = builder.getFirefoxOptions();
     builder = builder.setFirefoxService(new firefox.ServiceBuilder());
     builder = builder.setIeOptions(new ie.Options());
     builder = builder.setIeService(new ie.ServiceBuilder());
     builder = builder.setLoggingPrefs(new webdriver.logging.Preferences());
     builder = builder.setLoggingPrefs({ key: "value" });
     builder = builder.setProxy({ proxyType: "type" });
-    builder = builder.setSafariOptions(new safari.Options());
-    let safariOpts: safari.Options = builder.getSafariOptions();
-    builder = builder.usingHttpAgent({});
+    builder = builder.setSafariOptions(new safari.Options().enableLogging());
+    let safariOpts: safari.Options | null = builder.getSafariOptions();
+    builder = builder.usingHttpAgent(new Agent());
     let httpAgent = builder.getHttpAgent();
     builder = builder.usingServer("http://someserver");
     builder = builder.withCapabilities(new webdriver.Capabilities());
     builder = builder.withCapabilities({ something: true });
-}
-
-function TestTouchSequence() {
-    let driver: webdriver.WebDriver = new webdriver.Builder().withCapabilities(webdriver.Capabilities.chrome()).build();
-    let element: webdriver.WebElement = new webdriver.WebElement(driver, "elementId");
-
-    let sequence: webdriver.TouchSequence = new webdriver.TouchSequence(driver);
-
-    sequence = sequence.tap(element);
-    sequence = sequence.doubleTap(element);
-    sequence = sequence.longPress(element);
-    sequence = sequence.tapAndHold({ x: 100, y: 100 });
-    sequence = sequence.move({ x: 100, y: 100 });
-    sequence = sequence.release({ x: 100, y: 100 });
-    sequence = sequence.scroll({ x: 100, y: 100 });
-    sequence = sequence.scrollFromElement(element, { x: 100, y: 100 });
-    sequence = sequence.flick({ xspeed: 100, yspeed: 100 });
-    sequence = sequence.flickElement(element, { x: 100, y: 100 }, 100);
-
-    sequence.perform().then(() => {});
 }
 
 function TestAlert() {
@@ -131,38 +121,6 @@ function TestCapability() {
     capability = webdriver.Capability.SET_WINDOW_RECT;
     capability = webdriver.Capability.TIMEOUTS;
     capability = webdriver.Capability.UNHANDLED_PROMPT_BEHAVIOR;
-}
-
-function TestEventEmitter(this: object) {
-    let emitter: webdriver.EventEmitter = new webdriver.EventEmitter();
-
-    let callback = (a: number, b: number, c: number) => {};
-
-    emitter = emitter.addListener("ABC", callback);
-    emitter = emitter.addListener("ABC", callback, this);
-
-    emitter.emit("ABC", 1, 2, 3);
-
-    let listeners = emitter.listeners("ABC");
-    if (listeners[0].oneshot) {
-        listeners[0].fn.apply(listeners[0].scope);
-    }
-    let length: number = listeners.length;
-    let listenerInfo = listeners[0];
-    if (listenerInfo.oneshot) {
-        listenerInfo.fn.apply(listenerInfo.scope, [1, 2, 3]);
-    }
-
-    emitter = emitter.on("ABC", callback);
-    emitter = emitter.on("ABC", callback, this);
-
-    emitter = emitter.once("ABC", callback);
-    emitter = emitter.once("ABC", callback, this);
-
-    emitter = emitter.removeListener("ABC", callback);
-
-    emitter.removeAllListeners("ABC");
-    emitter.removeAllListeners();
 }
 
 function TestKey() {
@@ -261,8 +219,8 @@ function TestBy() {
 
     webdriver.By.js("script", 1, 2, 3)(driver).then((abc: number) => {});
 
-    let cssEscape = webdriver.escapeCss("css");
-    let check = webdriver.checkedLocator(locatorHash);
+    let cssEscape = escapeCss("css");
+    let check = checkedLocator(locatorHash);
     let fromTagName = webdriver.withTagName(webdriver.By.tagName("tag"));
     let fromLocateWith = webdriver.locateWith(webdriver.By.tagName("tag"))
         .above(webdriver.By.tagName("tag"));
@@ -272,6 +230,10 @@ function TestBy() {
     relativeLocator = relativeLocator.below(By.id("id"));
     relativeLocator = relativeLocator.toLeftOf(By.className("class"));
     relativeLocator = relativeLocator.toRightOf(By.xpath("xpath"));
+    relativeLocator = relativeLocator.straightAbove(By.tagName("tag"));
+    relativeLocator = relativeLocator.straightBelow(By.id("id"));
+    relativeLocator = relativeLocator.straightToLeftOf(By.className("class"));
+    relativeLocator = relativeLocator.straightToRightOf(By.xpath("xpath"));
     relativeLocator = relativeLocator.near(By.name("name"));
     let relativeLocatorStr = relativeLocator.toString();
     let relativeLocatorObject = relativeLocator.marshall();
@@ -303,7 +265,7 @@ function TestWebDriverFileDetector() {
 function TestWebDriverLogs() {
     let driver: webdriver.WebDriver = new webdriver.Builder().withCapabilities(webdriver.Capabilities.chrome()).build();
 
-    let logs: webdriver.Logs = new webdriver.Logs(driver);
+    let logs: webdriver.Logs = new Logs(driver);
 
     logs.get(webdriver.logging.Type.BROWSER).then((entries: webdriver.logging.Entry[]) => {});
     logs.getAvailableLogTypes().then((types: string[]) => {});
@@ -312,7 +274,7 @@ function TestWebDriverLogs() {
 function TestWebDriverNavigation() {
     let driver: webdriver.WebDriver = new webdriver.Builder().withCapabilities(webdriver.Capabilities.chrome()).build();
 
-    let navigation: webdriver.Navigation = new webdriver.Navigation(driver);
+    let navigation: webdriver.Navigation = new Navigation(driver);
 
     navigation.back().then(() => {});
     navigation.forward().then(() => {});
@@ -323,7 +285,7 @@ function TestWebDriverNavigation() {
 function TestWebDriverOptions() {
     let driver: webdriver.WebDriver = new webdriver.Builder().withCapabilities(webdriver.Capabilities.chrome()).build();
 
-    let options: webdriver.Options = new webdriver.Options(driver);
+    let options: webdriver.Options = new WebDriverOptions(driver);
     let promise: Promise<void>;
 
     let name: string = "name";
@@ -344,8 +306,8 @@ function TestWebDriverOptions() {
 
     promise = options.deleteAllCookies();
     promise = options.deleteCookie("name");
-    options.getCookie("name").then((cookie: webdriver.IWebDriverOptionsCookie) => {
-        let expiry: number | Date | undefined = cookie.expiry;
+    options.getCookie("name").then((cookie: webdriver.IWebDriverOptionsCookie | null) => {
+        let expiry: number | Date | undefined = cookie?.expiry;
     });
     options.getCookies().then((cookies: webdriver.IWebDriverOptionsCookie[]) => {});
 
@@ -356,7 +318,7 @@ function TestWebDriverOptions() {
 function TestWebDriverTargetLocator() {
     let driver: webdriver.WebDriver = new webdriver.Builder().withCapabilities(webdriver.Capabilities.chrome()).build();
 
-    let locator: webdriver.TargetLocator = new webdriver.TargetLocator(driver);
+    let locator: webdriver.TargetLocator = new TargetLocator(driver);
     let promise: Promise<void>;
 
     let element: webdriver.WebElement = locator.activeElement();
@@ -371,18 +333,18 @@ function TestWebDriverTargetLocator() {
 function TestWebDriverWindow() {
     let driver: webdriver.WebDriver = new webdriver.Builder().withCapabilities(webdriver.Capabilities.chrome()).build();
 
-    let window: webdriver.Window = new webdriver.Window(driver);
-    let locationPromise: Promise<webdriver.ILocation>;
+    let window: webdriver.Window = new Window(driver);
+    let rectPromise: Promise<webdriver.IRectangle>;
     let sizePromise: Promise<webdriver.ISize>;
     let voidPromise: Promise<void>;
 
-    locationPromise = window.getPosition();
+    rectPromise = window.getRect();
     sizePromise = window.getSize();
     voidPromise = window.maximize();
     voidPromise = window.minimize();
     voidPromise = window.fullscreen();
-    voidPromise = window.setPosition(12, 34);
-    voidPromise = window.setSize(12, 34);
+    rectPromise = window.setRect({ x: 12, y: 34 });
+    voidPromise = window.setSize({ width: 12, height: 34 });
 }
 
 declare const sessionPromise: Promise<webdriver.Session>;
@@ -484,15 +446,13 @@ async function TestWebDriver() {
     // actions api
     let actions = await driver.actions();
     actions = driver.actions({ async: true });
-    actions = driver.actions({ bridge: true });
-    actions = driver.actions({ async: true, bridge: true });
     actions.clear();
 }
 
 declare const serializable: webdriver.Serializable<string>;
 
 function TestSerializable() {
-    let serial: string | Promise<string> = serializable.serialize();
+    let serial: string | Promise<string> = serializable[Symbols.serialize]();
 }
 
 function TestWebElement() {
@@ -521,8 +481,7 @@ function TestWebElement() {
     });
     stringPromise = element.getCssValue("display");
     driver = element.getDriver();
-    element.getLocation().then((location: webdriver.ILocation) => {});
-    element.getSize().then((size: webdriver.ISize) => {});
+    element.getRect().then((rect: webdriver.IRectangle) => {});
     stringPromise = element.getTagName();
     stringPromise = element.getText();
     booleanPromise = element.isDisplayed();
@@ -535,7 +494,7 @@ function TestWebElement() {
     voidPromise = element.sendKeys("A", 1, webdriver.Key.BACK_SPACE, stringPromise);
     voidPromise = element.submit();
     element.getId().then((id: string) => {});
-    element.serialize().then((id: webdriver.IWebElementId) => {});
+    element[Symbols.serialize]().then((id: webdriver.IWebElementId) => {});
 
     booleanPromise = webdriver.WebElement.equals(element, new webdriver.WebElement(driver, "elementId"));
 }
@@ -638,8 +597,8 @@ function TestShadowRoot() {
     element = shadowRoot.findElement({ id: "ABC" });
     shadowRoot.findElements({ className: "ABC" }).then((elements: webdriver.WebElement[]) => {});
 
-    shadowRoot.getId().then((id: string) => {});
-    shadowRoot.serialize().then((id: webdriver.IWebElementId) => {});
+    const id: string = shadowRoot.getId();
+    const serializedId: string = shadowRoot[Symbols.serialize]();
 }
 
 function TestShadowRootPromise() {

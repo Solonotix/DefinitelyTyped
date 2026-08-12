@@ -8,8 +8,7 @@
     "dependencies": {
         "@types/node": "*",
         "@types/tmp": "*",
-        "@types/ws": "*",
-        "jszip": "*"
+        "@types/ws": "*"
     },
     "devDependencies": {
         "@types/selenium-webdriver": "workspace:."
