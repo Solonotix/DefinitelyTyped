@@ -21,8 +21,15 @@ pull request.
       still exist.
 - [ ] Model the CommonJS package as CommonJS; do not add synthetic default
       exports or a synthetic `Selenium` runtime export.
-- [ ] Expose otherwise unnamed factory results through companion namespaces on
-      real runtime exports.
+- [ ] Use type-only support declarations such as `bidi/_internal.d.ts` to hold
+      shared structural contracts and namespace scaffolding when importing a
+      concrete entry point would create a circular declaration dependency.
+- [ ] Build type-only companion namespaces on real runtime exports so consumers
+      can name factory results and reach useful submodule declarations without
+      inventing runtime properties.
+- [ ] Keep aggregate entry points out of leaf declaration dependencies. Concrete
+      modules may depend on shared internal contracts; aggregate `index.d.ts`
+      files should be assembled from those modules last.
 - [ ] Keep the intentional removal of the `v2` and `v3` declaration packages.
 
 ## Sources of truth
@@ -67,20 +74,31 @@ Never extract the reference package over `types/selenium-webdriver`.
 
 - [ ] Every shipped JavaScript module has either a matching declaration or an
       explicit, evidence-backed reason that it cannot be imported by consumers.
-- [ ] Every declaration matches the runtime module's CommonJS export shape.
+- [ ] Every runtime-facing declaration matches the runtime module's CommonJS
+      export shape. Explicit type-only support files are documented as
+      declaration infrastructure and are never presented as runtime subpaths.
 - [ ] The root exports match the runtime's enumerable public exports, including
       `Color` and `Colors`.
 - [ ] Every declaration is reviewed against the 4.46.0 implementation, even if
       the draft file has no TODO.
 - [ ] No declaration file is empty or contains a top-level implementation TODO.
-- [ ] No declaration contains JavaScript method bodies, `module.exports`, or a
-      runtime `require` statement.
+- [ ] No declaration contains JavaScript method bodies, `module.exports`, or an
+      expression-level runtime `require` statement. Type-only
+      `import Name = require(...)` remains valid for referencing an `export =`
+      declaration.
 - [ ] No relative import is unresolved or differs from the runtime path by
       spelling or casing.
 - [ ] No declaration file incorrectly shadows a directory entry point.
 - [ ] Existing supported imports and tests continue to compile unless the
       corresponding runtime API is absent in 4.46.0.
-- [ ] New factory result types are usable through companion namespaces.
+- [ ] Every public factory result has a stable, consumer-nameable type through a
+      companion namespace; use a domain name such as `Browser` when one exists
+      and `Instance` only as a descriptive fallback.
+- [ ] `WebDriver`, `Bidi`, and BiDi leaf modules share canonical structural
+      contracts without importing one another's aggregate entry points.
+- [ ] Type-only namespace aliases preserve their nested members, and aggregate
+      namespace members are available in type positions without asserting
+      nonexistent runtime values.
 - [ ] `pnpm test selenium-webdriver` passes, including dtslint and `attw`.
 - [ ] `pnpm run test-all` passes, or unrelated pre-existing failures are
       recorded with their complete command and diagnostics.
@@ -101,6 +119,7 @@ For every shipped `.js` module, record:
 | Export form | `module.exports = value`, `exports.name`, or exported object |
 | Exported names | Runtime keys and whether each value is callable or constructable |
 | Declaration path | Matching `.d.ts` path, if present |
+| Declaration role | Runtime module, type-only support file, leaf module, or aggregate entry point |
 | Existing tests | Test files that exercise the module or export |
 | Status | Keep, merge, add, rename, or remove |
 
@@ -114,6 +133,11 @@ For every shipped `.js` module, record:
       requiring the module is side-effect safe.
 - [ ] Record modules whose export is a function, class, primitive, or other
       non-object value separately; `Object.keys` alone is insufficient for them.
+- [ ] Build a declaration import graph in addition to the runtime inventory.
+      Mark each edge as value-shaped, type-only, or namespace-aliasing, and
+      identify cycles that pass through the root or `bidi/index.d.ts`.
+- [ ] Do not count `_internal.d.ts` support files as shipped JavaScript modules;
+      record why each exists and which cycle or duplicated contract it removes.
 
 ### Four-way reconciliation
 
@@ -169,7 +193,56 @@ For each declaration, compare these inputs before choosing a signature:
 - [ ] Remove `bidi/remoteValue.d.ts` if the module is absent from the 4.46.0
       tarball, and update consumers to the actual 4.46.0 protocol-value modules.
 
-## Phase 3: Enforce the CommonJS contract
+### Type-only support files and dependency layering
+
+Use `_internal.d.ts` as declaration infrastructure, not as a declaration for an
+imagined `_internal.js` runtime module. It may contain interfaces, type aliases,
+and namespace-only type families that concrete declarations need in place of
+importing the module where the corresponding runtime class is implemented.
+
+The intended BiDi dependency layers are:
+
+1. Generic declaration helpers in the package-level `_internal.d.ts`.
+2. Shared BiDi contracts and namespace scaffolding in `bidi/_internal.d.ts`.
+3. Concrete BiDi leaf declarations, parameter types, and protocol modules.
+4. The aggregate `bidi/index.d.ts` CommonJS export and its companion namespace.
+5. The package root `index.d.ts`.
+
+This layering is specifically intended to decouple `lib/webdriver.d.ts` from
+`bidi/index.d.ts`. `WebDriver._bidiConnection` and the public `getBidi()` result
+can refer to the structural `Bidi` contract from `bidi/_internal.d.ts`, while the
+concrete class in `bidi/index.d.ts` implements that same contract. BiDi modules
+that need a `WebDriver` can still import its type without importing the BiDi
+aggregate back through the root.
+
+- [ ] Give each shared contract one canonical declaration. Concrete classes
+      should `implements` it and public namespace aliases should refer to it
+      rather than copying the member list.
+- [ ] Keep `_internal.d.ts` free of runtime constants, classes, factory
+      declarations, `export =`, and claims that a matching JavaScript module
+      exists.
+- [ ] Use `import type` for ordinary structural dependencies, including the
+      internal `Bidi` contract imported by `lib/webdriver.d.ts`.
+- [ ] Allow an ordinary import in a `.d.ts` only when TypeScript requires an
+      entity that can be used as a namespace alias, such as
+      `export import ProtocolType = Protocol.Type`; document that reason in the
+      review if it is not self-evident.
+- [ ] Alias colliding contract names at the import site (`Bidi as IBidi`,
+      `Browser as BrowserContract`, or similarly clear names) so a concrete
+      class can implement the internal interface without recursively referring
+      to itself.
+- [ ] Do not import the package root or `bidi/index.d.ts` from a concrete BiDi
+      leaf declaration. If a leaf needs an aggregate-owned type, move the
+      structural contract to the appropriate `_internal.d.ts` layer.
+- [ ] Keep internal contracts structural and limited to cross-module needs.
+      Module-local implementation details should remain in the concrete
+      declaration, and private fields should not be moved merely to make the
+      internal namespace more comprehensive.
+- [ ] Include support files through the declaration graph, but do not advertise
+      or runtime-smoke-test `selenium-webdriver/_internal` or
+      `selenium-webdriver/bidi/_internal` as consumer import paths.
+
+## Phase 3: Enforce CommonJS and construct namespaces
 
 Use the runtime assignment, not preferred TypeScript syntax, to choose a module
 declaration form.
@@ -181,6 +254,7 @@ declaration form.
 | `module.exports = { name }` | Named export(s), matching the object keys |
 | `module.exports = factory` | Callable declaration plus `export =` |
 | Factory stored in an exported property | Named function plus companion namespace |
+| Nested type family with no runtime value | Namespace in a type-only support file, surfaced through a type-only alias |
 
 - [ ] Replace incorrect `export default` declarations in CommonJS subpaths.
 - [ ] Test `import x = require("selenium-webdriver/subpath")` for `export =`
@@ -192,26 +266,33 @@ declaration form.
       block from the draft migration.
 - [ ] Do not export internal helpers from the root unless the tagged root
       implementation exports them.
+- [ ] Treat namespace merging as two separate audits: verify the merged value
+      against runtime keys, then verify type-only members against the public
+      declaration contract. A type-only namespace member does not imply that a
+      property exists at runtime.
 
-### Companion namespace convention
+### Factory result contracts
 
-When an exported factory is named like the unexported class instance it creates,
-attach type-only members to the real function export:
+When a module exports a factory whose implementation class is private, expose a
+structural result contract from the companion namespace on the real function.
+Prefer the library's domain name over a universal `Instance` convention:
 
 ```ts
-export function Network(
-    driver: WebDriver,
-    browsingContextIds?: readonly string[] | null,
-): Promise<Network.Instance>;
+import type { Browser as BrowserContract } from './_internal.js';
 
-export namespace Network {
-    interface Instance {
-        close(): Promise<void>;
-    }
+declare function getBrowserInstance(driver: WebDriver): Promise<getBrowserInstance.Browser>;
+
+declare namespace getBrowserInstance {
+    export { BrowserContract as Browser };
 }
+
+export = getBrowserInstance;
 ```
 
-For a module whose entire CommonJS export is the factory:
+The private implementation class may be declared locally and implement
+`BrowserContract` when needed to describe or check constructor behavior, but it
+must not be exported just to make the factory result nameable. If the package
+has no meaningful domain name for the result, use `Instance`:
 
 ```ts
 declare function BrowsingContext(
@@ -234,8 +315,13 @@ export = BrowsingContext;
 
 Rules for companion members:
 
-- [ ] Use `Instance` for the resolved private class contract.
-- [ ] Give other exported types descriptive names such as `Options`, `Event`,
+- [ ] Use a source-aligned domain name such as `Browser`, `BrowsingContext`, or
+      `Network` for a private factory result when that name is unambiguous; use
+      `Instance` only when there is no clearer stable public name.
+- [ ] Make the exported factory signature explicitly return the companion's
+      public contract instead of leaking an unexported class name only through
+      inference.
+- [ ] Give supporting types descriptive names such as `Options`, `Event`,
       `Listener`, or `Result`.
 - [ ] Export only types needed to express public arguments, results, callbacks,
       or objects consumers retain.
@@ -243,6 +329,81 @@ Rules for companion members:
       helpers unless consumers can access them at runtime.
 - [ ] Do not duplicate a directly exported runtime class under `Instance`; its
       class declaration already supplies the instance type.
+
+### Namespace aliases and type families
+
+Use a namespace alias when a plain type alias would discard nested names. The
+`protocolType.d.ts` pattern preserves `ProtocolType.Primitive.String`, enum
+interfaces, and the rest of the hierarchy from the canonical internal
+namespace:
+
+```ts
+import { Protocol } from './_internal.js';
+
+export import ProtocolType = Protocol.Type;
+```
+
+The same technique can attach internal namespace families to a factory's
+companion namespace, as in `browsingContext.d.ts`:
+
+```ts
+declare namespace getBrowsingContextInstance {
+    export import Locator = BidiBrowsingContext.Locator;
+    export import Readiness = BidiBrowsingContext.Readiness;
+    export import Type = BidiBrowsingContext.Type;
+}
+```
+
+- [ ] Use `export import Alias = Namespace.Member` for a true namespace alias;
+      do not replace it with `type Alias = ...` when consumers need nested
+      members below the alias.
+- [ ] Keep literal unions, their nested literal names, and the corresponding
+      runtime constant interfaces under one canonical namespace hierarchy.
+- [ ] Declare runtime constants separately from their type namespace aliases
+      and verify their keys against the JavaScript export.
+- [ ] Avoid restating aliases as parallel top-level types unless the runtime or
+      existing supported API already exposes both names.
+
+### Aggregate CommonJS namespaces
+
+For an entry point such as `bidi/index.js` whose CommonJS export is a class,
+merge a companion namespace into that real class and populate it with type-only
+imports from the leaf declarations:
+
+```ts
+import type Browser = require('./browser.js');
+import type * as ProtocolType from './protocolType.js';
+
+declare class Bidi implements IBidi {
+    // Runtime instance contract.
+}
+
+declare namespace Bidi {
+    export { Browser, ProtocolType };
+}
+
+export = Bidi;
+```
+
+Nested groups such as `Bidi.External` may be constructed the same way when they
+organize package declarations. This is a type navigation surface, not evidence
+that `Bidi.Browser`, `Bidi.ProtocolType`, or `Bidi.External` exists as a runtime
+property.
+
+- [ ] Import leaf declaration namespaces with `import type` when they are
+      surfaced only for type navigation.
+- [ ] Use `import type Name = require('./module.js')` when the leaf itself uses
+      `export =`; use `import type * as Name` for modules with named exports.
+- [ ] Attach the aggregate namespace only to the module's real `export =` value;
+      do not introduce a separate `Selenium` or `Bidi` runtime object.
+- [ ] Include as many useful shipped submodule declarations as can be expressed
+      truthfully in type space, while excluding implementation-only helpers and
+      avoiding duplicate names.
+- [ ] Declare any actual static property on the class or factory in value space
+      and verify it independently against runtime keys.
+- [ ] Ensure no leaf declaration imports the aggregate namespace merely to
+      reach a sibling type; import the sibling directly or use the internal
+      contract layer.
 
 ## Phase 4: Migrate declarations by subsystem
 
@@ -288,13 +449,35 @@ all been reviewed—not merely that it compiles.
 
 ### BiDi
 
+- [ ] Establish the canonical `Bidi`, `Browser`, browsing-context, protocol,
+      and other cross-module contracts in `bidi/_internal.d.ts` before wiring
+      concrete modules or aggregate namespaces to them.
+- [ ] Type `WebDriver._bidiConnection` and `getBidi()` from the shared internal
+      `Bidi` contract; have the concrete class in `bidi/index.d.ts` implement
+      that contract without making `lib/webdriver.d.ts` import the aggregate.
 - [ ] Reconcile the BiDi connection module and its WebSocket event signatures.
+- [ ] Construct the `Bidi` companion namespace on the actual CommonJS class and
+      surface the useful leaf declaration namespaces, including the nested
+      `External` group, through type-only imports.
+- [ ] Reconcile `browser.d.ts` as a CommonJS factory: keep the implementation
+      class private, make it implement the internal `Browser` contract, and
+      expose that contract as `getBrowserInstance.Browser`.
+- [ ] Classify `WindowState` in the browser companion namespace separately: a
+      type-only alias is safe, but its runtime constant may be declared as a
+      factory property only if the 4.46.0 module actually attaches that value.
+- [ ] Preserve the nested protocol type families with namespace aliases in
+      `protocolType.d.ts` and `protocolValue.d.ts`; do not flatten them into
+      aliases that lose names such as `ProtocolType.Primitive.String`.
+- [ ] Apply the internal-namespace alias pattern to browsing-context `Locator`,
+      `Readiness`, and `Type`, removing parallel duplicate declarations once
+      consumers can reach the canonical hierarchy.
 - [ ] Complete the seven TODO-marked modules:
       `browsingContext`, `browsingContextInspector`,
       `createContextParameters`, `input`, `interceptPhase`, `networkInspector`,
       and `resultOwnership`.
 - [ ] Convert the copied implementation in `network.d.ts` to signatures and
-      expose the resolved object as `Network.Instance`.
+      expose the resolved object through a nameable companion contract; retain
+      `Network.Instance` if `Network.Network` would be less clear.
 - [ ] Convert copied implementations in `continueResponseParameters.d.ts` and
       `provideResponseParameters.d.ts` to ambient class declarations.
 - [ ] Reconcile browser, storage, script manager, log inspector, network types,
@@ -330,7 +513,20 @@ all been reviewed—not merely that it compiles.
     -g '!**/__temp__/**' -g '*.d.ts'
   ```
 
+  Review `require` matches rather than deleting them mechanically: type-only
+  import-equals declarations are expected when an aggregate namespace refers
+  to an `export =` leaf module.
+
 - [ ] Resolve every relative `.js` import to a corresponding declaration.
+- [ ] Audit every `_internal.js` specifier. It must resolve to a type-only
+      support declaration and be used through `import type`, except for a
+      documented namespace-alias import that TypeScript requires.
+- [ ] Audit the declaration import graph for edges from leaf modules back to
+      `index.d.ts` or `bidi/index.d.ts`; remove those edges through direct leaf
+      imports or canonical internal contracts.
+- [ ] Search for duplicated structural contracts that also exist in
+      `_internal.d.ts`, especially factory results and nested literal
+      namespaces, and consolidate them before finalizing aliases.
 - [ ] Search all uses of `any`, `unknown`, `CallableFunction`, `Function`,
       `Object`, and `never`; document why each retained occurrence is the most
       accurate public contract.
@@ -346,7 +542,9 @@ subsystem files over a single monolithic test.
 ### Module shape
 
 - [ ] Test the root CommonJS and supported named-import forms.
-- [ ] Test every browser, BiDi, transport, and internal subpath added or renamed.
+- [ ] Test every browser, BiDi, transport, and runtime-internal subpath added or
+      renamed. Do not add consumer import tests for type-only `_internal`
+      support files.
 - [ ] Test `export =` modules with `import = require` while interop flags remain
       disabled.
 - [ ] Verify no test can import a synthetic `Selenium` export.
@@ -354,9 +552,18 @@ subsystem files over a single monolithic test.
 
 ### Type behavior
 
-- [ ] Assert `Network(...)` returns `Promise<Network.Instance>`.
-- [ ] Assert each other asynchronous factory exposes and returns its companion
-      `Instance` type.
+- [ ] Assert each asynchronous factory returns its documented companion result
+      contract, including `getBrowserInstance.Browser` and any factory that uses
+      the `Instance` fallback.
+- [ ] Assert namespace aliases retain nested access such as
+      `ProtocolType.Primitive.String`, `ProtocolValue.ResultOwnership.Root`, and
+      the browsing-context `Locator`, `Readiness`, and `Type` families.
+- [ ] Assert the `Bidi` aggregate namespace exposes the intended leaf module
+      declarations in type positions, including `Bidi.External`, without making
+      type-only members usable as runtime expressions.
+- [ ] Assert the result of `WebDriver.getBidi()` is compatible with the concrete
+      `Bidi` export and the shared internal contract without importing
+      `_internal` from consumer tests.
 - [ ] Assert BiDi event callbacks receive their specific event payloads.
 - [ ] Assert fluent builders return their concrete `this` type.
 - [ ] Cover WebDriver and WebElement thenables, conditions, script execution,
@@ -378,6 +585,9 @@ It should:
 - [ ] Confirm each declared root runtime value exists.
 - [ ] Confirm factory exports are callable but their private implementation
       classes are not separately exported.
+- [ ] Exclude `_internal.d.ts` support files from the runtime module loop and
+      verify that no aggregate namespace work caused them to be advertised as
+      JavaScript entry points.
 - [ ] Save the command and summarized results in the PR description, not in the
       DefinitelyTyped package.
 
@@ -410,7 +620,8 @@ Keep the work in one PR with reviewable commits:
    inventory-driven scaffolding.
 2. Root, browser, core library, transport, process, remote, and devtools
    declarations with tests.
-3. BiDi declarations, companion namespaces, protocol types, and tests.
+3. BiDi internal contracts, leaf declarations, companion/aggregate namespaces,
+   protocol aliases, and tests, ordered from the type-only foundation outward.
 4. Static cleanup, comment-preservation review, and final validation fixes.
 
 Each commit should compile on its own where practical. Do not hide unrelated
