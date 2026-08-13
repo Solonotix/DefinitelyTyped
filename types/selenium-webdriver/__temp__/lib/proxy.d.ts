@@ -1,31 +1,10 @@
-import type { SuggestedString } from '../_internal.js';
+import { Types } from '../bidi/_internal.js';
 
-export { };
-
-type ProxyTypeAuto = 'autodetect';
-type ProxyTypeDirect = 'direct';
-type ProxyTypeManual = 'manual';
-type ProxyTypePac = 'pac';
-type ProxyTypeSystem = 'system';
-export type ProxyType = SuggestedString<
-    ProxyTypeAuto | ProxyTypeDirect | ProxyTypeManual | ProxyTypePac | ProxyTypeSystem
->;
-
-export interface Config<T extends ProxyType = ProxyType> {
-    proxyType: T;
-}
-
-export interface ManualConfig extends Config<ProxyTypeManual> {
-    ftpProxy?: string;
-    httpProxy?: string;
-    noProxy?: string;
-    sslProxy?: string;
-}
-
-export interface SocksConfig extends Config<ProxyTypeManual> {
-    socksProxy: string;
-    socksVersion?: number;
-}
+export import Config = Types.Session.ProxyConfiguration;
+export import ManualConfig = Config.ManualProxyConfiguration;
+export import ProxyType = Config.Type;
+export import SocksConfig = Config.SocksProxyConfiguration;
+export import PacConfig = Config.PacProxyConfiguration;
 
 export interface IManualProxyArg {
     bypass?: Array<string>;
@@ -34,11 +13,7 @@ export interface IManualProxyArg {
     https?: string;
 }
 
-export interface PacConfig extends Config<ProxyTypePac> {
-    proxyAutoconfigUrl: string;
-}
-
-export function direct(): Config<ProxyTypeDirect>;
+export function direct(): Config.DirectProxyConfiguration;
 
 export function manual(config: IManualProxyArg): ManualConfig;
 
@@ -46,4 +21,4 @@ export function pac(proxyAutoconfigUrl: string): PacConfig;
 
 export function socks(socksProxy: string, socksVersion?: number): SocksConfig;
 
-export function system(): Config<ProxyTypeSystem>;
+export function system(): Config.SystemProxyConfiguration;
