@@ -102,6 +102,9 @@ interface BrowsingContext {
 }
 
 export namespace BrowsingContext {
+    export import Commands = Command.BrowserContext;
+    export import Events = Event.BrowsingContext;
+
     interface Info {
         readonly _children: null | Array<BrowsingContext.Info>;
         readonly _id: string;
@@ -235,16 +238,18 @@ export namespace ClientWindow {
     }
 }
 
-export type Command = SuggestedString<
-    Command.Browser |
-    Command.BrowserContext |
-    Command.Input |
-    Command.Network |
-    Command.Script |
-    Command.Session |
-    Command.Storage>;
+export type Command = Command._;
 
 export namespace Command {
+    type _ = SuggestedString<
+        Command.Browser |
+        Command.BrowserContext |
+        Command.Input |
+        Command.Network |
+        Command.Script |
+        Command.Session |
+        Command.Storage>;
+
     type Browser = SuggestedString<
         Browser.CreateUserContext | 
         Browser.GetClientWindows | 
@@ -252,10 +257,13 @@ export namespace Command {
         Browser.RemoveUserContext>;
 
     namespace Browser {
+        type Close = 'browser.close';
         type CreateUserContext = 'browser.createUserContext';
         type GetClientWindows = 'browser.getClientWindows';
         type GetUserContexts = 'browser.getUserContexts';
         type RemoveUserContext = 'browser.removeUserContext';
+        type SetClientWindowState = 'browser.setClientWindowState';
+        type SetDownloadBehavior = 'browser.setDownloadBehavior';
     }
 
     type BrowserContext = SuggestedString<
@@ -274,17 +282,52 @@ export namespace Command {
 
     namespace BrowserContext {
         type Activate = 'browsingContext.activate';
-        type CaptureScreenshot = 'browsingContext.catpureScreenshot';
+        type CaptureScreenshot = 'browsingContext.captureScreenshot';
         type Close = 'browsingContext.close';
         type Create = 'browsingContext.create';
         type GetTree = 'browsingContext.getTree';
         type HandleUserPrompt = 'browsingContext.handleUserPrompt';
         type LocateNodes = 'browsingContext.locateNodes';
         type Navigate = 'browsingContext.navigate';
-        type Print = 'browsingContext.close';
+        type Print = 'browsingContext.print';
         type Reload = 'browsingContext.reload';
+        type SetBypassCsp = 'browsingContext.setBypassCSP';
         type SetViewport = 'browsingContext.setViewport';
+        type StartScreencast = 'browsingContext.startScreencast';
+        type StopScreencast = 'browsingContext.stopScreencast';
         type TraverseHistory = 'browsingContext.traverseHistory';
+    }
+
+    type Emulation = SuggestedString<
+        Emulation.SetForcedColorsModeThemeOverride |
+        Emulation.SetGeolocationOverride |
+        Emulation.SetLocaleOverride |
+        Emulation.SetNetworkConditions |
+        Emulation.SetScreenOrientationOverride |
+        Emulation.SetScreenSettingsOverride |
+        Emulation.SetScriptingEnabled |
+        Emulation.SetScrollbarTypeOverride |
+        Emulation.SetTimezoneOverride |
+        Emulation.SetTouchOverride |
+        Emulation.SetUserAgentOverride>;
+
+    namespace Emulation {
+        type SetForcedColorsModeThemeOverride = 'emulation.setForcedColorsModeThemeOverride'
+        type SetGeolocationOverride = 'emulation.setGeolocationOverride';
+        type SetLocaleOverride = 'emulation.setLocaleOverride';
+        type SetNetworkConditions = 'emulation.setNetworkConditions';
+        type SetScreenOrientationOverride = 'emulation.setScreenOrientationOverride';
+        type SetScreenSettingsOverride = 'emulation.setScreenSettingsOverride';
+        type SetScriptingEnabled = 'emulation.setScriptingEnabled';
+        type SetScrollbarTypeOverride = 'emulation.setScrollbarTypeOverride';
+        type SetTimezoneOverride = 'emulation.setTimezoneOverride';
+        type SetTouchOverride = 'emulation.setTouchOverride';
+        type SetUserAgentOverride = 'emulation.setUserAgentOverride';
+    }
+
+    interface ICommand<M extends Command, T = unknown> {
+        method: M;
+        params: T;
     }
 
     type Input = SuggestedString<
@@ -309,14 +352,19 @@ export namespace Command {
         Network.SetCacheBehavior>;
 
     namespace Network {
+        type AddDataCollector = 'network.addDataCollector';
         type AddIntercept = 'network.addIntercept';
         type ContinueRequest = 'network.continueRequest';
         type ContinueResponse = 'network.continueResponse';
         type ContinueWithAuth = 'network.continueWithAuth';
+        type DisownData = 'network.disownData';
         type FailRequest = 'network.failRequest';
+        type GetData = 'network.getData';
         type ProvideResponse = 'network.provideResponse';
+        type RemoveDataCollector = 'network.removeDataCollector';
         type RemoveIntercept = 'network.removeIntercept';
         type SetCacheBehavior = 'network.setCacheBehavior';
+        type SetExtraHeaders = 'network.setExtraHeaders';
     }
 
     type Script = SuggestedString<
@@ -343,11 +391,17 @@ export namespace Command {
         type Unsubscribe = 'session.unsubscribe';
     }
 
-    type Storage = SuggestedString<Storage.DeleteCookies | Storage.GetCookies | Storage.SetCookies>;
+    type Storage = SuggestedString<Storage.DeleteCookies | Storage.GetCookies | Storage.SetCookie>;
     namespace Storage {
         type DeleteCookies = 'storage.deleteCookies';
         type GetCookies = 'storage.getCookies';
         type SetCookie = 'storage.setCookie';
+    }
+
+    type WebExtension = SuggestedString<WebExtension.Install | WebExtension.Uninstall>;
+    namespace WebExtension {
+        type Install = 'webExtension.install';
+        type Uninstall = 'webExtension.uninstall';
     }
 }
 
@@ -369,9 +423,8 @@ export namespace CreateContext {
     }
 }
 
-export interface Event<M extends Command, T = unknown> {
-    method: M;
-    params: T;
+export namespace Emulation {
+
 }
 
 export namespace Event {
@@ -415,6 +468,14 @@ export namespace Event {
             readonly navigationId: string | null;
         }
     }
+}
+
+export namespace Input {
+
+}
+
+export namespace Log {
+
 }
 
 export namespace Network {
@@ -624,4 +685,747 @@ export namespace Protocol {
             type Root = 'root';
         }
     }
+}
+
+export namespace Script {
+
+}
+
+export namespace Session {
+    export import Commands = Command.Session;
+}
+
+export namespace Storage {
+
+}
+
+export namespace Types {
+    namespace Browser {
+        // https://www.w3.org/TR/webdriver-bidi/#type-browser-ClientWindow
+        type ClientWindow = string;
+        
+        namespace ClientWindow {
+            // https://www.w3.org/TR/webdriver-bidi/#type-browser-ClientWindowInfo
+            interface Info {
+                active: boolean;
+                clientWindow: ClientWindow;
+                height: number;
+                state: State;
+                width: number;
+                x: number;
+                y: number;
+            }
+            
+            type State = SuggestedString<State.Fullscreen | State.Maximized | State.Minimized | State.Normal>;
+            namespace State {
+                type Fullscreen = 'fullscreen';
+                type Maximized = 'maximized';
+                type Minimized = 'minimized';
+                type Normal = 'normal';
+            }
+        }
+        
+        export import ClientWindowInfo = ClientWindow.Info;
+
+        // https://www.w3.org/TR/webdriver-bidi/#cddl-type-browserusercontext
+        type UserContext = string;
+        namespace UserContext {
+            // https://www.w3.org/TR/webdriver-bidi/#type-browser-UserContextInfo
+            interface Info {
+                userContext: UserContext;
+            }
+        }
+
+        export import UserContextInfo = UserContext.Info;
+    }
+
+    namespace BrowsingContext {
+        // https://www.w3.org/TR/webdriver-bidi/#cddl-type-browsingcontextaccessibilitylocator
+        interface AccessibilityLocator extends Locator<Locator.Type.Accessibility, Locator.AccessibilityValue> {}
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-browsingContext-NavigationInfo
+        interface BaseNavigationInfo {
+            context: BrowsingContext;
+            navigation: Navigation | null;
+            timestamp: number;
+            url: string;
+            userContext?: Browser.UserContext;
+        }
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-browsingContext-Browsingcontext
+        type BrowsingContext = string;
+
+        // https://www.w3.org/TR/webdriver-bidi/#cddl-type-browsingcontextcontextlocator
+        interface ContextLocator extends Locator<Locator.Type.Context, Locator.ContextValue> {}
+
+        // https://www.w3.org/TR/webdriver-bidi/#cddl-type-browsingcontextcsslocator
+        interface CssLocator extends Locator<Locator.Type.Css, string> {}
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-browsingContext-Download
+        type Download = string;
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-browsingContext-Info
+        interface Info {
+            children: InfoList | null;
+            clientWindow: Browser.ClientWindow;
+            context: BrowsingContext;
+            originalOpener: BrowsingContext | null;
+            parent?: BrowsingContext | null;
+            url: string;
+            userContext: Browser.UserContext;
+        }
+
+        type InfoList = Array<Info>;
+
+        // https://www.w3.org/TR/webdriver-bidi/#cddl-type-browsingcontextinnertextlocator
+        interface InnerTextLocator extends Locator<Locator.Type.InnerText, string> {
+            ignoreCase?: boolean;
+            matchType?: Locator.MatchType;
+            maxDepth?: number;
+        }
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-browsingContext-Locator
+        interface Locator<T extends Locator.Type, V> {
+            type: T;
+            value: V;
+        }
+
+        namespace Locator {
+            interface AccessibilityValue {
+                name?: string;
+                role?: string;
+            }
+
+            interface ContextValue {
+                context: BrowsingContext;
+            }
+
+            type MatchType = SuggestedString<MatchType.Full | MatchType.Partial>;
+            namespace MatchType {
+                type Full = 'full';
+                type Partial = 'partial';
+            }
+
+            type Type = SuggestedString<Type.Accessibility | Type.Context | Type.Css | Type.InnerText | Type.Xpath>;
+            namespace Type {
+                type Accessibility = 'accessibility';
+                type Context = 'context';
+                type Css = 'css';
+                type InnerText = 'innerText';
+                type Xpath = 'xpath';
+            }
+        }
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-browsingContext-Navigation
+        type Navigation = string;
+        namespace Navigation {
+            // https://www.w3.org/TR/webdriver-bidi/#type-browsingContext-NavigationInfo
+            interface Info extends BaseNavigationInfo {}
+        }
+
+        export import NavigationInfo = Navigation.Info;
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-browsingContext-ReadinessState
+        type ReadinessState = SuggestedString<ReadinessState.Complete | ReadinessState.Interactive | ReadinessState.None>;
+        namespace ReadinessState {
+            type Complete = 'complete';
+            type Interactive = 'interactive';
+            type None = 'none';
+        }
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-browsingContext-UserPromptType
+        type UserPromptType = SuggestedString<UserPromptType.Alert | UserPromptType.BeforeUnload | UserPromptType.Confirm | UserPromptType.Prompt>;
+        namespace UserPromptType {
+            type Alert = 'alert';
+            type BeforeUnload = 'beforeunload';
+            type Confirm = 'confirm';
+            type Prompt = 'prompt';
+        }
+
+        // https://www.w3.org/TR/webdriver-bidi/#cddl-type-browsingcontextxpathlocator
+        interface XPathLocator extends Locator<Locator.Type.Xpath, string> {}
+    }
+
+    namespace Input {
+        // https://www.w3.org/TR/webdriver-bidi/#type-input-origin
+        interface ElementOrigin {
+
+        }
+    }
+
+    namespace Log {
+        // https://www.w3.org/TR/webdriver-bidi/#types-log-logentry
+        interface LogEntry {
+
+        }
+    }
+
+    namespace Network {
+        // https://www.w3.org/TR/webdriver-bidi/#type-network-AuthChallenge
+        interface AuthChallenge {
+            schema: string;
+            realm: string;
+        }
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-network-AuthCredentials
+        interface AuthCredentials {
+            password: string;
+            type: 'password';
+            username: string;
+        }
+
+        // https://www.w3.org/TR/webdriver-bidi/#cddl-type-networkbase64value
+        interface Base64Value extends BytesValue<BytesValue.Type.Base64> {}
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-network-BaseParameters
+        interface BaseParameters {
+            context: BrowsingContext.BrowsingContext | null;
+            intercepts?: Array<Intercept>;
+            isBlocked: boolean;
+            navigation: BrowsingContext.Navigation | null;
+            redirectCount: number;
+            request: RequestData;
+            timestamp: number;
+            userContext?: Browser.UserContext | null;
+        }
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-network-BytesValue
+        interface BytesValue<T extends BytesValue.Type = BytesValue.Type, V = string> {
+            type: T;
+            value: V;
+        }
+
+        namespace BytesValue {
+            type Type = SuggestedString<Type.Base64 | Type.String>;
+            namespace Type {
+                type Base64 = 'base64';
+                type String = 'string';
+            }
+        }
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-network-Collector
+        type Collector = string;
+
+        namespace Collector {
+            // https://www.w3.org/TR/webdriver-bidi/#type-network-CollectorType
+            type Type = SuggestedString<Type.Blob | Type.Stream>;
+            namespace Type {
+                type Blob = 'blob';
+                /** @deprecated Future state uncertain */
+                type Stream = 'stream';
+            }
+        }
+
+        export import CollectorType = Collector.Type;
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-network-Cookie
+        interface Cookie {
+            domain: string;
+            expiry?: number;
+            httpOnly: boolean;
+            name: string;
+            path: string;
+            sameSite: Cookie.SameSite;
+            secure: boolean;
+            size: number;
+            value: BytesValue;
+        }
+
+        namespace Cookie {
+            type SameSite = SuggestedString<SameSite.Default | SameSite.Lax | SameSite.None | SameSite.Strict>;
+            namespace SameSite {
+                type Default = 'default';
+                type Lax = 'lax';
+                type None = 'none';
+                type Strict = 'strict';
+            }
+        }
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-network-CookieHeader
+        interface CookieHeader {
+            name: string;
+            value: BytesValue;
+        }
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-network-DataType
+        type DataType = SuggestedString<DataType.Request | DataType.Response>;
+        namespace DataType {
+            type Request = 'request';
+            type Response = 'response';
+        }
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-network-FetchTimingInfo
+        interface FetchTimingInfo {
+            connectEnd: number;
+            connectStart: number;
+            dnsEnd: number;
+            dnsStart: number;
+            fetchStart: number;
+            redirectEnd: number;
+            redirectStart: number;
+            requestStart: number;
+            requestTime: number;
+            responseEnd: number;
+            responseStart: number;
+            timeOrigin: number;
+            tlsStart: number;
+        }
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-network-Header
+        interface Header {
+            name: string;
+            value: BytesValue;
+        }
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-network-Initiator
+        interface Initiator {
+            columnNumber?: number;
+            lineNumber?: number;
+            request?: Request;
+            stackTrace?: Script.StackTrace;
+            type?: Initiator.Type;
+        }
+
+        namespace Initiator {
+            type Type = SuggestedString<Type.Parser | Type.Preflight | Type.Script | Type.Other>;
+            namespace Type {
+                type Parser = 'parser';
+                type Preflight = 'preflight';
+                type Script = 'script';
+                type Other = 'other';
+            }
+        }
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-network-Intercept
+        type Intercept = string;
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-network-Request
+        type Request = string;
+        namespace Request {
+            // https://www.w3.org/TR/webdriver-bidi/#type-network-RequestData
+            interface Data {
+                bodySize: number | null;
+                cookies: Array<Cookie>;
+                destination: string;
+                headers: Array<Header>;
+                headersSize: number | null;
+                initiatorType: string | null;
+                request: Request;
+                timings: FetchTimingInfo;
+                url: string;
+            }
+        }
+
+        export import RequestData = Request.Data;
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-network-ResponseContent
+        interface ResponseContent {
+            size: number;
+        }
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-network-ResponseData
+        interface ResponseData {
+            authChallenge?: Array<AuthChallenge>;
+            bodySize: number | null;
+            bytesReceived: number;
+            content: ResponseContent;
+            fromCache: boolean;
+            headers: Array<Header>;
+            headersSize: number | null;
+            mimeType: string;
+            protocol: string;
+            status: number;
+            statusText: string;
+            url: string;
+        }
+
+        export import SameSite = Cookie.SameSite;
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-network-SetCookieHeader
+        interface SetCookieHeader {
+            domain?: string;
+            expiry?: string;
+            httpOnly?: boolean;
+            maxAge?: number;
+            name: string;
+            path?: string;
+            sameSite?: SameSite;
+            secure?: boolean;
+            value: BytesValue;
+        }
+
+        // https://www.w3.org/TR/webdriver-bidi/#cddl-type-networkstringvalue
+        interface StringValue extends BytesValue<BytesValue.Type.String> {}
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-network-UrlPattern
+        interface UrlPattern<T extends UrlPattern.Type = UrlPattern.Type> {
+            type: T;
+        }
+
+        namespace UrlPattern {
+            // https://www.w3.org/TR/webdriver-bidi/#cddl-type-networkurlpatternpattern
+            interface Pattern extends UrlPattern<UrlPattern.Type.Pattern> {
+                hostname?: string;
+                pathname?: string;
+                port?: string;
+                protocol?: string;
+                search?: string;
+            }
+
+            // https://www.w3.org/TR/webdriver-bidi/#cddl-type-networkurlpatternstring
+            interface String extends UrlPattern<UrlPattern.Type.String> {
+                pattern: string;
+            }
+
+            type Type = SuggestedString<Type.Pattern | Type.String>;
+            namespace Type {
+                type Pattern = 'pattern';
+                type String = 'string';
+            }
+        }
+
+        export import UrlPatternPattern = UrlPattern.Pattern;
+        export import UrlPatternString = UrlPattern.String;
+    }
+
+    namespace Script {
+        export import Channel = Script.Channel;
+        export import ChannelValue = Script.Channel.Value;
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-script-EvaluateResult
+        interface EvaluateResult<T extends EvaluateResult.Type = EvaluateResult.Type> {
+            realm: string;
+            type: T;
+        }
+
+        namespace EvaluateResult {
+            interface Exception {
+                exceptionDetails: ExceptionDetails;
+            }
+
+            interface Success {
+                result: RemoteValue;
+            }
+
+            type Type = SuggestedString<Type.Exception | Type.Success>;
+            namespace Type {
+                type Exception = 'exception';
+                type Success = 'success';
+            }
+        }
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-script-ExceptionDetails
+        interface ExceptionDetails {
+            columnNumber: number;
+            exception: RemoteValue;
+            lineNumber: number;
+            stackTrace: StackTrace;
+            text: string;
+        }
+        
+        // https://www.w3.org/TR/webdriver-bidi/#type-script-Handle
+        type Handle = string;
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-script-InternalId
+        type InternalId = string;
+
+        interface Value<T extends Value.Type = Value.Type, V = unknown> {
+            type: T;
+            value: V;
+        }
+
+        interface ArrayLocal<T extends LocalValue> extends Value<Type.Array, ListLocal<T>> {}
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-script-Channel
+        type Channel = string;
+        namespace Channel {
+            // https://www.w3.org/TR/webdriver-bidi/#cddl-type-scriptchannelproperties
+            interface Properties {
+                channel: Channel;
+                ownership?: ResultOwnership;
+                serializationOptions?: SerializationOptions;
+            }
+            
+            // https://www.w3.org/TR/webdriver-bidi/#type-script-ChannelValue
+            interface Value {
+                type: Type.Channel;
+                value: Properties;
+            }
+        }            
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-script-LocalValue
+        interface LocalValue<T extends LocalValue.Type = LocalValue.Type, V = unknown> extends Value<T, V> {}
+
+        namespace LocalValue {
+            interface DateLocal extends Value<Type.Date, string> {}
+            type ListLocal<T extends LocalValue> = Array<T>;
+
+            interface MapLocal<K extends LocalValue | string, V extends LocalValue> extends Value<Type.Map, MappingLocal<K, V>> {}
+            type MappingLocal<K extends LocalValue | string, V extends LocalValue> = Array<[K, V]>;
+
+            // https://www.w3.org/TR/webdriver-bidi/#cddl-type-scriptobjectlocalvalue
+            interface ObjectLocal {
+
+            }
+
+            // https://www.w3.org/TR/webdriver-bidi/#cddl-type-scriptregexplocalvalue
+            interface RegExpLocal {
+
+            }
+
+            interface SetLocal<T extends LocalValue> extends Value<Type.Set, ListLocal<T>> {}
+            
+            type Type = SuggestedString<>;
+            namespace Type {
+                type Array = 'array';
+                type Channel = 'channel';
+                type Date = 'date';
+                type Map = 'map';
+                type Null = 'null';
+                type Number = 'number';
+                type Object = 'object';
+                type RegExp = 'regexp';
+                type Set = 'set';
+                type String = 'string';
+                type Symbol = 'symbol';
+                type Undefined = 'undefined';
+            }
+        }
+
+        
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-script-PrimitiveProtocolValue
+        interface PrimitiveProtocol<
+            T extends PrimitiveProtocol.Type = PrimitiveProtocol.Type, 
+            V extends PrimitiveProtocol.Values = PrimitiveProtocol.Values> extends Value<T, V> {}
+
+        namespace PrimitiveProtocol {
+            interface BigIntPrimitive extends PrimitiveProtocol<Type.BigInt, string> {}
+            interface BooleanPrimitive extends PrimitiveProtocol<Type.Boolean, boolean> {}
+            interface NullPrimitive extends PrimitiveProtocol<Type.Null, never> {}    
+            interface NumberPrimitive extends PrimitiveProtocol<Type.Number, number | SpecialNumber> {}
+            interface StringPrimitive extends PrimitiveProtocol<Type.String, string> {}
+            
+            type SpecialNumber = 'NaN' | '-0' | 'Infinity' | '-Infinity';
+            type Type = SuggestedString<Type.BigInt | Type.Boolean | Type.Null | Type.Number | Type.String | Type.Undefined>;
+            namespace Type {
+                type BigInt = 'bigint';
+                type Boolean = 'boolean';
+                type Null = 'null';
+                type Number = 'number';
+                type String = 'string';
+                type Undefined = 'undefined';
+            }
+
+            interface UndefinedPrimitive extends PrimitiveProtocol<Type.Undefined, never> {}
+            type Values = boolean | number | string;
+        }
+        
+        // https://www.w3.org/TR/webdriver-bidi/#cddl-type-scriptremoteobjectreference
+        interface RemoteObjectReference extends RemoteReference {
+            handle: Handle;
+        }
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-script-RemoteReference
+        interface RemoteReference {
+            handle?: Handle;
+            sharedId?: SharedId;
+        }
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-script-RemoteValue
+        interface Remote {
+
+        }
+
+        // https://www.w3.org/TR/webdriver-bidi/#cddl-type-scriptsharedreference
+        interface SharedReference extends RemoteReference {
+            sharedId: SharedId;
+        }
+
+        type Type = string;
+        namespace Type {
+            type Array = 'array';
+            type Channel = 'channel';
+            type Date = 'date';
+            type Map = 'map';
+            type Null = 'null';
+            type Number = 'number';
+            type Object = 'object';
+            type RegExp = 'regexp';
+            type Set = 'set';
+            type String = 'string';
+            type Symbol = 'symbol';
+            type Undefined = 'undefined';
+        }
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-script-PreloadScript
+        interface PreloadScript {
+
+        }
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-script-Realm
+        interface Realm {
+
+        }
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-script-RealmInfo
+        interface RealmInfo {
+
+        }
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-script-RealmType
+        interface RealmType {
+
+        }
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-script-ResultOwnership
+        interface ResultOwnership {
+
+        }
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-script-SerializationOptions
+        interface SerializationOptions {
+
+        }
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-script-SharedId
+        interface SharedId {
+
+        }
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-script-StackFrame
+        interface StackFrame {
+
+        }
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-script-StackTrace
+        interface StackTrace {
+
+        }
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-script-Source
+        interface Source {
+
+        }
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-script-Target
+        interface Target {
+
+        }
+    }
+
+    namespace Session {
+        // https://www.w3.org/TR/webdriver-bidi/#type-session-CapabilitiesRequest
+        interface CapabilitiesRequest {
+            alwaysMatch?: CapabilityRequest;
+            // TODO review ? firstMatch: [*session.CapabilityRequest]
+            firstMatch?: Array<CapabilityRequest>;
+        }
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-session-CapabilityRequest
+        interface CapabilityRequest {
+            acceptInsecureCerts?: boolean;
+            browserName?: string;
+            browserVersion?: string;
+            platformName?: string;
+            proxy?: ProxyConfiguration;
+            // TODO review ? unhandledPromptBehavior: session.UserPromptHandler,
+            unhandledPromptBehavior?: UserPromptHandler;
+        }
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-session-ProxyConfiguration
+        interface ProxyConfiguration<T extends ProxyConfiguration.Type = ProxyConfiguration.Type> {
+            proxyType: T;
+        }
+
+        namespace ProxyConfiguration {
+            interface AutodetectProxyConfiguration extends ProxyConfiguration<Type.Auto> {}
+            interface DirectProxyConfiguration extends ProxyConfiguration<Type.Direct> {}
+            
+            interface ManualProxyConfiguration extends ProxyConfiguration<Type.Manual> {
+                httpProxy?: string;
+                noProxy?: Array<string>;
+                socksProxy?: string;
+                socksVersion?: number;
+                sslProxy?: string;
+            }
+
+            interface PacProxyConfiguration extends ProxyConfiguration<Type.Pac> {
+                proxyAutoconfigUrl: string;
+            }
+            
+            interface SocksProxyConfiguration extends ManualProxyConfiguration {
+                socksProxy: string;
+            }
+
+            interface SystemProxyConfiguration extends ProxyConfiguration<Type.System> {}
+
+            type Type = SuggestedString<Type.Auto | Type.Direct | Type.Manual | Type.Pac | Type.System>;
+            namespace Type {
+                type Auto = 'autodetect';
+                type Direct = 'direct';
+                type Manual = 'manual';
+                type Pac = 'pac';
+                type System = 'system';
+            }
+        }
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-session-Subscription
+        type Subscription = string;
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-session-SubscriptionParameters
+        interface SubscribeParameters {
+            contexts?: Array<BrowsingContext.BrowsingContext>;
+            events: Array<string>;
+            userContexts?: Array<Browser.UserContext>;
+        }
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-session-UnsubscribeByIDRequest
+        interface UnsubscribeByIDRequest {
+            subscriptions: Array<Subscription>;
+        }
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-session-UnsubscribeByAttributesRequest
+        interface UnsubscribeByAttributesRequest {
+            events: Array<string>;
+        }
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-session-UserPromptHandler
+        interface UserPromptHandler {
+            alert?: UserPromptHandler.Type;
+            beforeUnload?: UserPromptHandler.Type;
+            confirm?: UserPromptHandler.Type;
+            default?: UserPromptHandler.Type;
+            file?: UserPromptHandler.Type;
+            prompt?: UserPromptHandler.Type;
+        }
+
+        namespace UserPromptHandler {
+            // https://www.w3.org/TR/webdriver-bidi/#type-session-UserPromptHandlerType
+            type Type = SuggestedString<Type.Accept | Type.Dismiss | Type.Ignore>;
+            namespace Type {
+                type Accept = 'accept';
+                type Dismiss = 'dismiss';
+                type Ignore = 'ignore';
+            }
+        }
+    }
+
+    namespace Storage {
+        // https://www.w3.org/TR/webdriver-bidi/#type-storage-PartitionKey
+        interface PartitionKey {
+
+        }
+    }
+
+    namespace WebExtension {
+        // https://www.w3.org/TR/webdriver-bidi/#type-webExtension-Extension
+        interface Extension {
+
+        }
+    }
+}
+
+export namespace WebExtension {
+
 }
