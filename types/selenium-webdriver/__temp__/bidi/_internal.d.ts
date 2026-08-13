@@ -65,7 +65,7 @@ export namespace Browser {
     export import Commands = Command.Browser;
 }
 
-interface BrowsingContext {
+export interface BrowsingContext {
     readonly id: string;
 
     create(type: Type, createParameters?: CreateContext.Parameters): Promise<unknown>;
@@ -448,7 +448,7 @@ export namespace Event {
             context: string,
             originalOpener: string | null,
             url: string,
-            userContext: browser.UserContext,
+            userContext: Types.Browser.UserContext,
             parent?: string | null,
         }
 
@@ -854,9 +854,47 @@ export namespace Types {
     }
 
     namespace Log {
-        // https://www.w3.org/TR/webdriver-bidi/#types-log-logentry
-        interface LogEntry {
+        export import BaseLogEntry = Entry.Base;
+        export import ConsoleLogEntry = Entry.Console;
+        export import GenericLogEntry = Entry.Generic;
+        export import JavascriptLogEntry = Entry.Javascript;
 
+        // https://www.w3.org/TR/webdriver-bidi/#types-log-logentry
+        type Entry = ConsoleLogEntry | GenericLogEntry | JavascriptLogEntry;
+        namespace Entry {
+            interface Base {
+                level: Level;
+                source: Script.Source;
+                stackTrace?: Script.StackTrace;
+                text: string | null;
+                timestamp: number;
+            }
+
+            interface Console extends Generic<Type.Console> {
+                args: Array<Script.RemoteValue>;
+                method: string;
+            }
+
+            interface Generic<T extends Type = Type> extends Base {
+                type: T;
+            }
+
+            interface Javascript extends Generic<Type.Javascript> {}
+
+
+            type Type = SuggestedString<Type.Console | Type.Javascript>;
+            namespace Type {
+                type Console = 'console';
+                type Javascript = 'javascript';
+            }
+        }
+
+        type Level = SuggestedString<Level.Debug | Level.Error | Level.Info | Level.Warn>;
+        namespace Level {
+            type Debug = 'debug';
+            type Error = 'error';
+            type Info = 'info';
+            type Warn = 'warn';
         }
     }
 
@@ -1089,21 +1127,47 @@ export namespace Types {
     }
 
     namespace Script {
-        export import Channel = Script.Channel;
-        export import ChannelValue = Script.Channel.Value;
+        export import ArrayBufferRemoteValue = RemoteValue.ArrayBufferRemoteValue;
+        export import ArrayLocalValue = LocalValue.ArrayLocal;
+        export import ArrayRemoteValue = RemoteValue.ArrayRemoteValue;
+        export import AudioWorkletRealmInfo = RealmInfo.AudioWorklet;
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-script-Channel
+        type Channel = string;
+        namespace Channel {
+            // https://www.w3.org/TR/webdriver-bidi/#cddl-type-scriptchannelproperties
+            interface Properties {
+                channel: Channel;
+                ownership?: ResultOwnership;
+                serializationOptions?: SerializationOptions;
+            }
+
+            type Type = 'channel';
+            
+            // https://www.w3.org/TR/webdriver-bidi/#type-script-ChannelValue
+            interface Value extends Script.Value<Channel.Type, Properties> {}
+        }
+
+        export import ChannelProperties = Channel.Properties;
+        export import ChannelValue = Channel.Value;
+        // https://w3c.github.io/webdriver-bidi/#cddl-type-scriptcontexttarget
+        export import ContextTarget = Target.Context;
+        export import DateLocalValue = LocalValue.DateLocal;
+        export import DateRemoteValue = RemoteValue.DateRemoteValue;
+        export import DedicatedWorkerRealmInfo = RealmInfo.DedicatedWorker;
+        export import ErrorRemoteValue = RemoteValue.ErrorRemoteValue;
 
         // https://www.w3.org/TR/webdriver-bidi/#type-script-EvaluateResult
-        interface EvaluateResult<T extends EvaluateResult.Type = EvaluateResult.Type> {
+        interface EvaluateResult<T extends EvaluateResult.Type = EvaluateResult.Type> extends Value<T, never> {
             realm: string;
-            type: T;
         }
 
         namespace EvaluateResult {
-            interface Exception {
+            interface Exception extends EvaluateResult<Type.Exception> {
                 exceptionDetails: ExceptionDetails;
             }
 
-            interface Success {
+            interface Success extends EvaluateResult<Type.Success> {
                 result: RemoteValue;
             }
 
@@ -1123,88 +1187,116 @@ export namespace Types {
             text: string;
         }
         
+        export import FunctionRemoteValue = RemoteValue.FunctionRemoteValue;
+        export import GeneratorRemoteValue = RemoteValue.GeneratorRemoteValue;
+        
         // https://www.w3.org/TR/webdriver-bidi/#type-script-Handle
         type Handle = string;
+
+        export import HTMLCollectionRemoteValue = RemoteValue.HTMLCollectionRemoteValue;
 
         // https://www.w3.org/TR/webdriver-bidi/#type-script-InternalId
         type InternalId = string;
 
-        interface Value<T extends Value.Type = Value.Type, V = unknown> {
-            type: T;
-            value: V;
-        }
-
-        interface ArrayLocal<T extends LocalValue> extends Value<Type.Array, ListLocal<T>> {}
-
-        // https://www.w3.org/TR/webdriver-bidi/#type-script-Channel
-        type Channel = string;
-        namespace Channel {
-            // https://www.w3.org/TR/webdriver-bidi/#cddl-type-scriptchannelproperties
-            interface Properties {
-                channel: Channel;
-                ownership?: ResultOwnership;
-                serializationOptions?: SerializationOptions;
-            }
-            
-            // https://www.w3.org/TR/webdriver-bidi/#type-script-ChannelValue
-            interface Value {
-                type: Type.Channel;
-                value: Properties;
-            }
-        }            
-
+        export import ListLocalValue = LocalValue.ListLocal;
+        export import ListRemoteValue = RemoteValue.ListRemoteValue;
         // https://www.w3.org/TR/webdriver-bidi/#type-script-LocalValue
-        interface LocalValue<T extends LocalValue.Type = LocalValue.Type, V = unknown> extends Value<T, V> {}
+        export import LocalValue = LocalValue.Value;
 
         namespace LocalValue {
-            interface DateLocal extends Value<Type.Date, string> {}
-            type ListLocal<T extends LocalValue> = Array<T>;
-
-            interface MapLocal<K extends LocalValue | string, V extends LocalValue> extends Value<Type.Map, MappingLocal<K, V>> {}
-            type MappingLocal<K extends LocalValue | string, V extends LocalValue> = Array<[K, V]>;
-
+            // https://w3c.github.io/webdriver-bidi/#cddl-type-scriptarraylocalvalue
+            interface ArrayLocal<T extends Value = Value> extends Script.Value<Type.Array, ListLocal<T>> {}
+            // https://w3c.github.io/webdriver-bidi/#cddl-type-scriptdatelocalvalue
+            interface DateLocal extends Script.Value<Type.Date, string> {}
+            // https://w3c.github.io/webdriver-bidi/#cddl-type-scriptlistlocalvalue
+            type ListLocal<T extends Value> = Array<T>;
+            // https://w3c.github.io/webdriver-bidi/#cddl-type-scriptmaplocalvalue
+            interface MapLocal<K extends Value | string = Value | string, V extends Value = Value> extends Script.Value<Type.Map, MappingLocal<K, V>> {}
+            // https://w3c.github.io/webdriver-bidi/#cddl-type-scriptmappinglocalvalue
+            type MappingLocal<K extends Value | string, V extends Value> = Array<[K, V]>;
             // https://www.w3.org/TR/webdriver-bidi/#cddl-type-scriptobjectlocalvalue
-            interface ObjectLocal {
+            interface ObjectLocal<K extends Value | string = Value | string, V extends Value = Value> extends Script.Value<Type.Object, MappingLocal<K, V>> {}
 
-            }
 
             // https://www.w3.org/TR/webdriver-bidi/#cddl-type-scriptregexplocalvalue
-            interface RegExpLocal {
-
+            interface RegExpLocal extends Script.Value<Type.RegExp, RegExpLocal.Value> {}
+            namespace RegExpLocal {
+                // https://w3c.github.io/webdriver-bidi/#cddl-type-scriptregexpvalue
+                interface Value {
+                    flags?: string;
+                    pattern: string;
+                }
             }
 
-            interface SetLocal<T extends LocalValue> extends Value<Type.Set, ListLocal<T>> {}
+            // https://w3c.github.io/webdriver-bidi/#cddl-type-scriptsetlocalvalue
+            interface SetLocal<T extends Value = Value> extends Script.Value<Type.Set, ListLocal<T>> {}
             
-            type Type = SuggestedString<>;
+            type Type = SuggestedString<
+                PrimitiveProtocolValue.Type |
+                Channel.Type |
+                Type.Array |
+                Type.Date |
+                Type.Map |
+                Type.Object |
+                Type.RegExp |
+                Type.Set |
+                Type.Symbol>;
+
             namespace Type {
                 type Array = 'array';
-                type Channel = 'channel';
+                export import BigInt = PrimitiveProtocolValue.Type.BigInt;
+                export import Boolean = PrimitiveProtocolValue.Type.Boolean;
+                export import Channel = Script.Channel.Type;
                 type Date = 'date';
                 type Map = 'map';
-                type Null = 'null';
-                type Number = 'number';
+                export import Null = PrimitiveProtocolValue.Type.Null;
+                export import Number = PrimitiveProtocolValue.Type.Number;
                 type Object = 'object';
                 type RegExp = 'regexp';
                 type Set = 'set';
-                type String = 'string';
+                export import String = PrimitiveProtocolValue.Type.String;
                 type Symbol = 'symbol';
-                type Undefined = 'undefined';
+                export import Undefined = PrimitiveProtocolValue.Type.Undefined;
             }
+
+            type Value<T extends LocalValue = never, U extends LocalValue = never> = ArrayLocal<T>
+                | ChannelValue
+                | DateLocal
+                | MapLocal<T, U>
+                | ObjectLocal<T, U>
+                | PrimitiveProtocolValue
+                | RegExpLocal
+                | RemoteReference
+                | SetLocal<T>;
         }
 
-        
+        export import MapLocalValue = LocalValue.MapLocal;
+        export import MapRemoteValue = RemoteValue.MapRemoteValue;
+        export import MappingLocalValue = LocalValue.MappingLocal;
+        export import MappingRemoteValue = RemoteValue.MappingRemoteValue;
+        export import NodeProperties = RemoteValue.NodeProperties;
+        export import NodeRemoteValue = RemoteValue.NodeRemoteValue;
+        export import NodeListRemoteValue = RemoteValue.NodeListRemoteValue;
+        export import ObjectLocalValue = LocalValue.ObjectLocal;
+        export import ObjectRemoteValue = RemoteValue.ObjectRemoteValue;
+        export import PaintWorkletRealmInfo = RealmInfo.PaintWorklet;
 
         // https://www.w3.org/TR/webdriver-bidi/#type-script-PrimitiveProtocolValue
-        interface PrimitiveProtocol<
-            T extends PrimitiveProtocol.Type = PrimitiveProtocol.Type, 
-            V extends PrimitiveProtocol.Values = PrimitiveProtocol.Values> extends Value<T, V> {}
+        interface PrimitiveProtocolValue<
+            T extends PrimitiveProtocolValue.Type = PrimitiveProtocolValue.Type, 
+            V extends PrimitiveProtocolValue.Values = PrimitiveProtocolValue.Values> extends Value<T, V> {}
 
-        namespace PrimitiveProtocol {
-            interface BigIntPrimitive extends PrimitiveProtocol<Type.BigInt, string> {}
-            interface BooleanPrimitive extends PrimitiveProtocol<Type.Boolean, boolean> {}
-            interface NullPrimitive extends PrimitiveProtocol<Type.Null, never> {}    
-            interface NumberPrimitive extends PrimitiveProtocol<Type.Number, number | SpecialNumber> {}
-            interface StringPrimitive extends PrimitiveProtocol<Type.String, string> {}
+        namespace PrimitiveProtocolValue {
+            // https://w3c.github.io/webdriver-bidi/#cddl-type-scriptbigintvalue
+            interface BigIntPrimitive extends PrimitiveProtocolValue<Type.BigInt, string> {}
+            // https://w3c.github.io/webdriver-bidi/#cddl-type-scriptbooleanvalue
+            interface BooleanPrimitive extends PrimitiveProtocolValue<Type.Boolean, boolean> {}
+            // https://w3c.github.io/webdriver-bidi/#cddl-type-scriptnullvalue
+            interface NullPrimitive extends PrimitiveProtocolValue<Type.Null, never> {}
+            // https://w3c.github.io/webdriver-bidi/#cddl-type-scriptnumbervalue
+            interface NumberPrimitive extends PrimitiveProtocolValue<Type.Number, number | SpecialNumber> {}
+            // https://w3c.github.io/webdriver-bidi/#cddl-type-scriptstringvalue
+            interface StringPrimitive extends PrimitiveProtocolValue<Type.String, string> {}
             
             type SpecialNumber = 'NaN' | '-0' | 'Infinity' | '-Infinity';
             type Type = SuggestedString<Type.BigInt | Type.Boolean | Type.Null | Type.Number | Type.String | Type.Undefined>;
@@ -1217,9 +1309,73 @@ export namespace Types {
                 type Undefined = 'undefined';
             }
 
-            interface UndefinedPrimitive extends PrimitiveProtocol<Type.Undefined, never> {}
+            interface UndefinedPrimitive extends PrimitiveProtocolValue<Type.Undefined, never> {}
             type Values = boolean | number | string;
         }
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-script-PreloadScript
+        type PreloadScript = string;
+
+        export import PromiseRemoteValue = RemoteValue.PromiseRemoteValue;
+        export import ProxyRemoteValue = RemoteValue.ProxyRemoteValue;
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-script-Realm
+        type Realm = string;
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-script-RealmInfo
+        interface RealmInfo<T extends RealmInfo.Type = RealmInfo.Type> {
+            origin: string;
+            realm: Realm;
+            type: T;
+        }
+
+        namespace RealmInfo {
+            interface AudioWorklet extends RealmInfo<Type.AudioWorklet> {}
+            
+            interface DedicatedWorker extends RealmInfo<Type.DedicatedWorker> {
+                owners: Array<Realm>;
+            }
+            
+            interface PaintWorklet extends RealmInfo<Type.PaintWorklet> {}
+            interface ServiceWorker extends RealmInfo<Type.ServiceWorker> {}
+            interface SharedWorker extends RealmInfo<Type.SharedWorker> {}
+            
+            interface Window extends RealmInfo<Type.Window> {
+                context: BrowsingContext.BrowsingContext;
+                sandbox?: string;
+                userContext?: Browser.UserContext;
+            }
+
+            interface Worker extends RealmInfo<Type.Worker> {}
+            interface Worklet extends RealmInfo<Type.Worklet> {}
+
+            // https://www.w3.org/TR/webdriver-bidi/#type-script-RealmType
+            type Type = SuggestedString<
+                Type.AudioWorklet | 
+                Type.DedicatedWorker | 
+                Type.PaintWorklet | 
+                Type.ServiceWorker | 
+                Type.SharedWorker | 
+                Type.Window | 
+                Type.Worker | 
+                Type.Worklet>;
+
+            namespace Type {
+                type AudioWorklet = 'audio-worklet';
+                type DedicatedWorker = 'dedicated-worker';
+                type PaintWorklet = 'paint-worklet';
+                type ServiceWorker = 'service-worker';
+                type SharedWorker = 'shared-worker';
+                type Window = 'window';
+                type Worker = 'worker';
+                type Worklet = 'worklet';
+            }
+        }
+
+        // https://w3c.github.io/webdriver-bidi/#cddl-type-scriptrealmtarget
+        export import RealmTarget = Target.Realm;
+        export import RegExpLocalValue = LocalValue.RegExpLocal;
+        export import RegExpRemoteValue = RemoteValue.RegExpRemoteValue;
         
         // https://www.w3.org/TR/webdriver-bidi/#cddl-type-scriptremoteobjectreference
         interface RemoteObjectReference extends RemoteReference {
@@ -1233,85 +1389,239 @@ export namespace Types {
         }
 
         // https://www.w3.org/TR/webdriver-bidi/#type-script-RemoteValue
-        interface Remote {
+        export import RemoteValue = RemoteValue.Value;
 
+        namespace RemoteValue {
+            interface _<T extends Type = Type> {
+                handle?: Handle;
+                internalId?: InternalId;
+                type: T;
+            }
+
+            // https://w3c.github.io/webdriver-bidi/#cddl-type-scriptarrayremotevalue
+            interface ArrayRemoteValue<T extends Value = Value> extends _<Type.Array> {
+                value?: ListRemoteValue<T>;
+            }
+
+            // https://w3c.github.io/webdriver-bidi/#cddl-type-scriptarraybufferremotevalue
+            interface ArrayBufferRemoteValue extends _<Type.ArrayBuffer> {}
+            // https://w3c.github.io/webdriver-bidi/#cddl-type-scriptdateremotevalue
+            interface DateRemoteValue extends _<Type.Date>, Script.DateLocalValue {}
+            // https://w3c.github.io/webdriver-bidi/#cddl-type-scripterrorremotevalue
+            interface ErrorRemoteValue extends _<Type.Error> {}
+            // https://w3c.github.io/webdriver-bidi/#cddl-type-scriptfunctionremotevalue
+            interface FunctionRemoteValue extends _<Type.Function> {}
+            // https://w3c.github.io/webdriver-bidi/#cddl-type-scriptgeneratorremotevalue
+            interface GeneratorRemoteValue extends _<Type.Generator> {}
+            // https://w3c.github.io/webdriver-bidi/#cddl-type-scripthtmlcollectionremotevalue
+            interface HTMLCollectionRemoteValue extends _<Type.HtmlCollection> {}
+            // https://w3c.github.io/webdriver-bidi/#cddl-type-scriptlistremotevalue
+            type ListRemoteValue<T extends Value = Value> = Array<T>;
+            // https://w3c.github.io/webdriver-bidi/#cddl-type-scriptmapremotevalue
+            interface MapRemoteValue<K extends Value | string = Value | string, V extends Value = Value> extends _<Type.Map> {}
+            // https://w3c.github.io/webdriver-bidi/#cddl-type-scriptmappingremotevalue
+            type MappingRemoteValue<K extends Value | string = Value | string, V extends Value = Value> = Array<[K, V]>;
+
+            // https://w3c.github.io/webdriver-bidi/#cddl-type-scriptnodeproperties
+            interface NodeProperties {
+                attributes?: Record<string, string>;
+                childNodeCount: number;
+                children?: Array<NodeRemoteValue>;
+                mode?: NodeProperties.Mode;
+                namespaceURI?: string;
+                nodeType?: number;
+                nodeValue?: string;
+                shadowRoot?: NodeRemoteValue | null;
+            }
+
+            namespace NodeProperties {
+                type Mode = SuggestedString<Mode.Closed | Mode.Open>;
+                namespace Mode {
+                    type Closed = 'closed';
+                    type Open = 'open';
+                }
+            }
+
+            // https://w3c.github.io/webdriver-bidi/#cddl-type-scriptnoderemotevalue
+            interface NodeRemoteValue extends _<Type.Node>, RemoteReference {
+                value?: NodeProperties;
+            }
+
+            // https://w3c.github.io/webdriver-bidi/#cddl-type-scriptnodelistremotevalue
+            interface NodeListRemoteValue<T extends Value = Value> extends _<Type.NodeList> {
+                value?: ListRemoteValue<T>
+            }
+
+            // https://w3c.github.io/webdriver-bidi/#cddl-type-scriptobjectremotevalue
+            interface ObjectRemoteValue<K extends Value | string = Value | string, V extends Value = Value> extends _<Type.Object> {
+                value?: MappingRemoteValue<K, V>;
+            }
+
+            // https://w3c.github.io/webdriver-bidi/#cddl-type-scriptpromiseremotevalue
+            interface PromiseRemoteValue extends _<Type.Promise> {}
+            // https://w3c.github.io/webdriver-bidi/#cddl-type-scriptproxyremotevalue
+            interface ProxyRemoteValue extends _<Type.Proxy> {}
+            // https://w3c.github.io/webdriver-bidi/#cddl-type-scriptregexpremotevalue
+            interface RegExpRemoteValue extends _<Type.RegExp> {}
+
+            // https://w3c.github.io/webdriver-bidi/#cddl-type-scriptsetremotevalue
+            interface SetRemoteValue<T extends Value = Value> extends _<Type.Set> {
+                value?: ListRemoteValue<T>
+            }
+
+            // https://w3c.github.io/webdriver-bidi/#cddl-type-scriptsymbolremotevalue
+            interface SymbolRemoteValue extends _<Type.Symbol> {}
+
+            type Type = string;
+            namespace Type {
+                type Array = 'array';
+                export import Date = LocalValue.Type.Date;
+                type Symbol = 'symbol';
+                type Object = 'object';
+                type Function = 'function';
+                type Map = 'map';
+                export import RegExp = LocalValue.Type.RegExp;
+                type Set = 'set';
+                type WeakMap = 'weakmap';
+                type WeakSet = 'weakset';
+                type Generator = 'generator';
+                type Error = 'error';
+                type Proxy = 'proxy';
+                type Promise = 'promise';
+                type TypedArray = 'typedarray';
+                type ArrayBuffer = 'arraybuffer';
+                type NodeList = 'nodelist';
+                type HtmlCollection = 'htmlcollection';
+                type Node = 'node';
+                type Window = 'window';
+            }
+
+            // https://w3c.github.io/webdriver-bidi/#cddl-type-scripttypedarrayremotevalue
+            interface TypedArrayRemoteValue extends _<Type.TypedArray> {}
+
+            type Value = ArrayRemoteValue |
+                ArrayBufferRemoteValue |
+                DateRemoteValue |
+                ErrorRemoteValue |
+                FunctionRemoteValue |
+                GeneratorRemoteValue |
+                HTMLCollectionRemoteValue |
+                MapRemoteValue |
+                NodeRemoteValue |
+                NodeListRemoteValue |
+                ObjectRemoteValue |
+                Script.PrimitiveProtocolValue |
+                PromiseRemoteValue |
+                ProxyRemoteValue |
+                RegExpRemoteValue |
+                SetRemoteValue |
+                SymbolRemoteValue |
+                TypedArrayRemoteValue |
+                WeakMapRemoteValue |
+                WeakSetRemoteValue |
+                WindowProxyRemoteValue;
+
+            // https://w3c.github.io/webdriver-bidi/#cddl-type-scriptweakmapremotevalue
+            interface WeakMapRemoteValue extends _<Type.WeakMap> {}
+            // https://w3c.github.io/webdriver-bidi/#cddl-type-scriptweaksetremotevalue
+            interface WeakSetRemoteValue extends _<Type.WeakSet> {}
+
+            // https://w3c.github.io/webdriver-bidi/#cddl-type-scriptwindowproxyproperties
+            interface WindowProxyProperties {
+                context: BrowsingContext.BrowsingContext;
+            }
+
+            // https://w3c.github.io/webdriver-bidi/#cddl-type-scriptwindowproxyremotevalue
+            interface WindowProxyRemoteValue extends _<Type.Window> {
+                value: WindowProxyProperties;
+            }
         }
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-script-ResultOwnership
+        type ResultOwnership = SuggestedString<ResultOwnership.None | ResultOwnership.Root>;
+        namespace ResultOwnership {
+            type None = 'none';
+            type Root = 'root';
+        }
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-script-SerializationOptions
+        interface SerializationOptions {
+            includeShadowTree?: SerializationOptions.IncludeShadowTree;
+            maxDomDepth?: number | null;
+            maxObjectDepth?: number | null;
+        }
+
+        namespace SerializationOptions {
+            type IncludeShadowTree = SuggestedString<IncludeShadowTree.All | IncludeShadowTree.None | IncludeShadowTree.Open>;
+            namespace IncludeShadowTree {
+                type All = 'all';
+                type None = 'none';
+                type Open = 'open';
+            }
+        }
+
+        export import ServiceWorkerRealmInfo = RealmInfo.ServiceWorker;
+
+        export import SetLocalValue = LocalValue.SetLocal;
+        export import SetRemoteValue = RemoteValue.SetRemoteValue;
+
+        // https://www.w3.org/TR/webdriver-bidi/#type-script-SharedId
+        type SharedId = string;
+        export import SharedWorkerRealmInfo = RealmInfo.SharedWorker;
 
         // https://www.w3.org/TR/webdriver-bidi/#cddl-type-scriptsharedreference
         interface SharedReference extends RemoteReference {
             sharedId: SharedId;
         }
 
-        type Type = string;
-        namespace Type {
-            type Array = 'array';
-            type Channel = 'channel';
-            type Date = 'date';
-            type Map = 'map';
-            type Null = 'null';
-            type Number = 'number';
-            type Object = 'object';
-            type RegExp = 'regexp';
-            type Set = 'set';
-            type String = 'string';
-            type Symbol = 'symbol';
-            type Undefined = 'undefined';
-        }
-
-        // https://www.w3.org/TR/webdriver-bidi/#type-script-PreloadScript
-        interface PreloadScript {
-
-        }
-
-        // https://www.w3.org/TR/webdriver-bidi/#type-script-Realm
-        interface Realm {
-
-        }
-
-        // https://www.w3.org/TR/webdriver-bidi/#type-script-RealmInfo
-        interface RealmInfo {
-
-        }
-
-        // https://www.w3.org/TR/webdriver-bidi/#type-script-RealmType
-        interface RealmType {
-
-        }
-
-        // https://www.w3.org/TR/webdriver-bidi/#type-script-ResultOwnership
-        interface ResultOwnership {
-
-        }
-
-        // https://www.w3.org/TR/webdriver-bidi/#type-script-SerializationOptions
-        interface SerializationOptions {
-
-        }
-
-        // https://www.w3.org/TR/webdriver-bidi/#type-script-SharedId
-        interface SharedId {
-
-        }
-
         // https://www.w3.org/TR/webdriver-bidi/#type-script-StackFrame
         interface StackFrame {
-
+            columnNumber: number;
+            functionName: string;
+            lineNumber: number;
+            url: string;
         }
 
         // https://www.w3.org/TR/webdriver-bidi/#type-script-StackTrace
         interface StackTrace {
-
+            callFrames: Array<StackFrame>;
         }
 
         // https://www.w3.org/TR/webdriver-bidi/#type-script-Source
         interface Source {
-
+            context?: BrowsingContext.BrowsingContext;
+            realm: Realm;
+            userContext?: Browser.UserContext;
         }
 
         // https://www.w3.org/TR/webdriver-bidi/#type-script-Target
-        interface Target {
+        type Target = Target.Context | Target.Realm;
+        namespace Target {
+            interface Context {
+                context: BrowsingContext.BrowsingContext;
+                sandbox?: string;
+            }
 
+            interface Realm {
+                realm: Script.Realm;
+            }
         }
+
+        type Type = SuggestedString<PrimitiveProtocolValue.Type | LocalValue.Type | RemoteValue.Type>;
+        export import TypedArrayRemoteValue = RemoteValue.TypedArrayRemoteValue;
+
+        interface Value<T extends Type = Type, V = unknown> {
+            type: T;
+            value: V;
+        }
+
+        export import WeakMapRemoteValue = RemoteValue.WeakMapRemoteValue;
+        export import WeakSetRemoteValue = RemoteValue.WeakSetRemoteValue;
+        export import WindowProxyProperties = RemoteValue.WindowProxyProperties;
+        export import WindowProxyRemoteValue = RemoteValue.WindowProxyRemoteValue;
+        export import WindowRealmInfo = RealmInfo.Window;
+        export import WorkerRealmInfo = RealmInfo.Worker;
+        export import WorkletRealmInfo = RealmInfo.Worklet;
     }
 
     namespace Session {
@@ -1414,15 +1724,14 @@ export namespace Types {
     namespace Storage {
         // https://www.w3.org/TR/webdriver-bidi/#type-storage-PartitionKey
         interface PartitionKey {
-
+            sourceOrigin?: string;
+            userContext?: string;
         }
     }
 
     namespace WebExtension {
         // https://www.w3.org/TR/webdriver-bidi/#type-webExtension-Extension
-        interface Extension {
-
-        }
+        type Extension = string;
     }
 }
 
