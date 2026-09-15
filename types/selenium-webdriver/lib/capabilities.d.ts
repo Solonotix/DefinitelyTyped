@@ -1,157 +1,69 @@
-import type { SuggestedString } from '../_internal.js';
-import type * as logging from './logging.js';
-import type { Config as ProxyConfig } from './proxy.js';
+import type { MapOf, SuggestedString } from '../_internal.js';
+import * as logging from './logging.js';
+import * as proxy from './proxy.js';
 import * as Symbols from './symbols.js';
-
-export type Browser = SuggestedString<'chrome' | 'firefox' | 'internet explorer' | 'MicrosoftEdge' | 'safari'>;
-export type Platform = SuggestedString<'linux' | 'mac' | 'windows'>;
-export type PageLoadStrategy = SuggestedString<'eager' | 'none' | 'normal'>;
-export type UserPromptHandler = SuggestedString<
-    'accept' | 'accept and notify' | 'dismiss' | 'dismiss and notify' | 'ignore'
->;
-export type Capability = SuggestedString<
-    | 'acceptInsecureCerts'
-    | 'browserName'
-    | 'browserVersion'
-    | 'goog:loggingPrefs'
-    | 'pageLoadStrategy'
-    | 'platformName'
-    | 'proxy'
-    | 'se:downloadsEnabled'
-    | 'setWindowRect'
-    | 'strictFileInteractability'
-    | 'timeouts'
-    | 'unhandledPromptBehavior'
->;
 
 /**
  * Recognized browser names.
  */
-export interface IBrowser {
-    CHROME: Extract<Browser, 'chrome'>;
-    EDGE: Extract<Browser, 'MicrosoftEdge'>;
-    FIREFOX: Extract<Browser, 'firefox'>;
-    INTERNET_EXPLORER: Extract<Browser, 'internet explorer'>;
-    SAFARI: Extract<Browser, 'safari'>;
+export const Browser: Browser.Enum;
+export type Browser = SuggestedString<Browser._>;
+export namespace Browser {
+  export interface Enum {
+    readonly CHROME: Chrome;
+    readonly EDGE: MicrosoftEdge;
+    readonly FIREFOX: Firefox;
+    readonly IE: InternetExplorer;
+    readonly SAFARI: Safari;
+  }
+
+  export type _ = Chrome | Firefox | InternetExplorer | MicrosoftEdge | Safari;
+  export type Chrome = 'chrome';
+  export type Firefox = 'firefox';
+  export type InternetExplorer = 'internet explorer';
+  export type MicrosoftEdge = 'MicrosoftEdge';
+  export type Safari = 'safari';
 }
-
-/**
- * Instace of
- */
-export const Browser: IBrowser;
-
-/**
- * Common platform names. These platforms are not explicitly defined by the
- * WebDriver spec, however, their use is encouraged for interoperability.
- *
- * @see <https://w3c.github.io/webdriver/webdriver-spec.html>
- */
-export interface IPlatform {
-    LINUX: Extract<Platform, 'linux'>;
-    MAC: Extract<Platform, 'mac'>;
-    WINDOWS: Extract<Platform, 'windows'>;
-}
-
-export const Platform: IPlatform;
-
-/**
- * Strategies for waiting for [document readiness] after a navigation event.
- *
- * [document readiness]: https://html.spec.whatwg.org/#current-document-readiness
- */
-export interface IPageLoadStrategy {
-    /**
-     * Indicates WebDriver should not wait on the document readiness state after a
-     * navigation event.
-     */
-    NONE: Extract<PageLoadStrategy, 'none'>;
-
-    /**
-     * Indicates WebDriver should wait for the document readiness state to
-     * become 'interactive' after navigation.
-     */
-    EAGER: Extract<PageLoadStrategy, 'eager'>;
-
-    /**
-     * Indicates WebDriver should wait for the document readiness state to
-     * be 'complete' after navigation. This is the default page loading strategy.
-     */
-    NORMAL: Extract<PageLoadStrategy, 'normal'>;
-}
-
-export const PageLoadStrategy: IPageLoadStrategy;
-
-/**
- * The possible default actions a WebDriver session can take to respond to
- * unhandled user prompts (`window.alert()`, `window.confirm()`, and
- * `window.prompt()`).
- */
-export interface IUserPromptHandler {
-    /** All prompts should be silently accepted. */
-    ACCEPT: Extract<UserPromptHandler, 'accept'>;
-    /** All prompts should be silently dismissed. */
-    DISMISS: Extract<UserPromptHandler, 'dismiss'>;
-    /**
-     * All prompts should be automatically accepted, but an error should be
-     * returned to the next (or currently executing) WebDriver command.
-     */
-    ACCEPT_AND_NOTIFY: Extract<UserPromptHandler, 'accept and notify'>;
-    /**
-     * All prompts should be automatically dismissed, but an error should be
-     * returned to the next (or currently executing) WebDriver command.
-     */
-    DISMISS_AND_NOTIFY: Extract<UserPromptHandler, 'dismiss and notify'>;
-    /** All prompts should be left unhandled. */
-    IGNORE: Extract<UserPromptHandler, 'ignore'>;
-}
-
-export const UserPromptHandler: IUserPromptHandler;
 
 /**
  * Common webdriver capability keys.
  */
-export interface ICapability {
+export const Capability: Capability.Enum;
+export type Capability = SuggestedString<Capability._>;
+export namespace Capability {
+  export interface Enum {
     /**
      * Indicates whether a WebDriver session implicitly trusts otherwise untrusted
      * and self-signed TLS certificates during navigation.
      */
-    ACCEPT_INSECURE_TLS_CERTS: Extract<Capability, 'acceptInsecureCerts'>;
-
+    readonly ACCEPT_INSECURE_TLS_CERTS: AcceptInsecureCerts;
     /**
      * The browser name. Common browser names are defined in the
      * {@link ./capabilities.Browser Browser} enum.
      */
-    BROWSER_NAME: Extract<Capability, 'browserName'>;
-
+    readonly BROWSER_NAME: BrowserName;
     /** Identifies the browser version. */
-    BROWSER_VERSION: Extract<Capability, 'browserVersion'>;
-
-    /** Enables managed downloads for the session. */
-    ENABLE_DOWNLOADS: Extract<Capability, 'se:downloadsEnabled'>;
-
+    readonly BROWSER_VERSION: BrowserVersion;
+    readonly ENABLE_DOWNLOADS: EnableDownloads;
     /**
      * Key for the logging driver logging preferences.
      */
-    LOGGING_PREFS: Extract<Capability, 'goog:loggingPrefs'>;
-
+    readonly LOGGING_PREFS: LoggingPrefs;
     /**
      * Defines the session's
      * {@linkplain ./capabilities.PageLoadStrategy page loading strategy}.
      */
-    PAGE_LOAD_STRATEGY: Extract<Capability, 'pageLoadStrategy'>;
-
+    readonly PAGE_LOAD_STRATEGY: PageLoadStrategy;
     /**
      * Identifies the operating system of the endpoint node. Common values
      * recognized by the most WebDriver server implementations are predefined in
      * the {@link ./capabilities.Platform Platform} enum.
      */
-    PLATFORM_NAME: Extract<Capability, 'platformName'>;
-
+    readonly PLATFORM_NAME: PlatformName;
     /**
      * Describes the proxy configuration to use for a new WebDriver session.
      */
-    PROXY: Extract<Capability, 'proxy'>;
-
+    readonly PROXY: Proxy;
     /**
      * Indicates whether the remote end supports all of the window resizing and
      * positioning commands:
@@ -162,273 +74,352 @@ export interface ICapability {
      * -  {@linkplain ./webdriver.Window#minimize Window.minimize()}
      * -  {@linkplain ./webdriver.Window#fullscreen Window.fullscreen()}
      */
-    SET_WINDOW_RECT: Extract<Capability, 'setWindowRect'>;
-
-    /** Controls strict file interactability checks. */
-    STRICT_FILE_INTERACTABILITY: Extract<Capability, 'strictFileInteractability'>;
-
+    readonly SET_WINDOW_RECT: SetWindowRect;
+    /**
+     * Defines the current session’s strict file interactability.
+     * Used to upload a file when strict file interactability is on
+     */
+    readonly STRICT_FILE_INTERACTABILITY: StrictFileInteractability;
     /**
      * Describes the {@linkplain ./capabilities.Timeouts timeouts} imposed on
      * certain session operations.
      */
-    TIMEOUTS: Extract<Capability, 'timeouts'>;
-
+    readonly TIMEOUTS: Timeouts;
     /**
      * Defines how a WebDriver session should
      * {@linkplain ./capabilities.UserPromptHandler respond} to unhandled user
      * prompts.
      */
-    UNHANDLED_PROMPT_BEHAVIOR: Extract<Capability, 'unhandledPromptBehavior'>;
-}
+    readonly UNHANDLED_PROMPT_BEHAVIOR: UnhandledPromptBehavior;
+  }
 
-/**
- * The standard WebDriver capability keys.
- */
-export const Capability: ICapability;
+  export type _ =
+    | AcceptInsecureCerts
+    | BrowserName
+    | BrowserVersion
+    | EnableDownloads
+    | LoggingPrefs
+    | PageLoadStrategy
+    | PlatformName
+    | Proxy
+    | SetWindowRect
+    | StrictFileInteractability
+    | Timeouts
+    | UnhandledPromptBehavior;
+  export type AcceptInsecureCerts = 'acceptInsecureCerts';
+  export type BrowserName = 'browserName';
+  export type BrowserVersion = 'browserVersion';
+  export type EnableDownloads = 'se:downloadsEnabled';
+  export type LoggingPrefs = 'goog:loggingPrefs';
+  export type PageLoadStrategy = 'pageLoadStrategy';
+  export type PlatformName = 'platformName';
+  export type Proxy = 'proxy';
+  export type SetWindowRect = 'setWindowRect';
+  export type StrictFileInteractability = 'strictFileInteractability';
+  export type Timeouts = 'timeouts';
+  export type UnhandledPromptBehavior = 'unhandledPromptBehavior';
+}
 
 /**
  * Describes a set of capabilities for a WebDriver session.
  */
-export class Capabilities {
-    // region Constructors
+export class Capabilities<T extends Record<Capability, unknown> = Record<Capability, unknown>> {
+  readonly map_: MapOf<T>;
 
-    /**
-     * @param {(Capabilities|Map<string, ?>|Object)=} other Another set of
-     *     capabilities to initialize this instance from.
-     */
-    constructor(other?: Capabilities | Map<string, unknown> | Record<string, unknown>);
+  /**
+   * @param other Another set of capabilities to initialize this instance from.
+   */
+  constructor(other?: Capabilities<T> | MapOf<T> | T);
 
-    /** The number of capabilities set. */
-    get size(): number;
+  /**
+   * @return The JSON representation of this instance. Note, the returned object may contain nested promised values.
+   * @suppress {checkTypes} Suppress [] access on a struct (state inherited from Map).
+   */
+  [Symbols.serialize](): Record<Capability, unknown>;
 
-    // endregion
+  /**
+   * @return A basic set of capabilities for Chrome.
+   */
+  static chrome<T extends Record<Capability, unknown> = Record<Capability, unknown>>(): Capabilities<T>;
 
-    // region Static Methods
+  /**
+   * Deletes an entry from this set of capabilities.
+   *
+   * @param key the capability key to delete.
+   */
+  delete(key: string): void;
 
-    /**
-     * @return {!Capabilities} A basic set of capabilities for Chrome.
-     */
-    static chrome(): Capabilities;
+  /**
+   * @return A basic set of capabilities for Microsoft Edge.
+   */
+  static edge<T extends Record<Capability, unknown> = Record<Capability, unknown>>(): Capabilities<T>;
 
-    /**
-     * @return {!Capabilities} A basic set of capabilities for Microsoft Edge.
-     */
-    static edge(): Capabilities;
+  enableDownloads(): this;
 
-    /**
-     * @return {!Capabilities} A basic set of capabilities for Firefox.
-     */
-    static firefox(): Capabilities;
+  /**
+   * @return A basic set of capabilities for Firefox.
+   */
+  static firefox<T extends Record<Capability, unknown> = Record<Capability, unknown>>(): Capabilities<T>;
 
-    /**
-     * @return {!Capabilities} A basic set of capabilities for
-     *     Internet Explorer.
-     */
-    static ie(): Capabilities;
+  /**
+   * @param key the parameter key to get.
+   * @return the stored parameter value.
+   */
+  get<K extends string>(key: K): T[K];
 
-    /**
-     * @return {!Capabilities} A basic set of capabilities for Safari.
-     */
-    static safari(): Capabilities;
+  /**
+   * @return whether the session is configured to accept insecure TLS certificates.
+   */
+  getAcceptInsecureCerts(): boolean | undefined;
 
-    // endregion
+  /**
+   * @return the behavior pattern for responding to unhandled user prompts, or undefined if not set.
+   */
+  getAlertBehavior(): UserPromptHandler | undefined;
 
-    // region Methods
+  /**
+   * @return the configured browser name, or undefined if not set.
+   */
+  getBrowserName(): Browser | undefined;
 
-    /**
-     * @return {!Object<string, ?>} The JSON representation of this instance.
-     *     Note, the returned object may contain nested promised values.
-     * @suppress {checkTypes} Suppress [] access on a struct (state inherited from
-     *     Map).
-     */
-    [Symbols.serialize](): Record<string, unknown>;
+  /**
+   * @return the configured browser version, or undefined if not set.
+   */
+  getBrowserVersion(): string | undefined;
 
-    /**
-     * @param {string} key The capability to return.
-     * @return {*} The capability with the given key, or {@code null} if it has
-     *     not been set.
-     */
-    get<T = unknown>(key: string): T | undefined;
+  getLoggingPrefs(): Record<string, number | string | logging.Level> | undefined;
 
-    /**
-     * @param {string} key The capability to check.
-     * @return {boolean} Whether the specified capability is set.
-     */
-    has(key: string): boolean;
+  /**
+   * Returns the configured page load strategy.
+   *
+   * @return the page load strategy.
+   */
+  getPageLoadStrategy(): PageLoadStrategy | undefined;
 
-    /**
-     * @return {!Iterator<string>} an iterator of the keys set.
-     */
-    keys(): IterableIterator<string>;
+  /**
+   * @return the configured platform or undefined if not set.
+   */
+  getPlatform(): Platform | undefined;
 
-    /**
-     * Merges another set of capabilities into this instance.
-     * @param {!(Capabilities|Map<String, ?>|Object<string, ?>)} other The other
-     *     set of capabilities to merge.
-     * @return {!Capabilities} A self reference.
-     */
-    merge(other: Capabilities | Map<string, unknown> | Record<string, unknown>): this;
+  /**
+   * @return the configured proxy settings, or undefined if not set.
+   */
+  getProxy(): proxy.Config | undefined;
 
-    /**
-     * Deletes an entry from this set of capabilities.
-     *
-     * @param {string} key the capability key to delete.
-     */
-    delete(key: string): void;
+  getTimeouts(): ITimeouts | undefined;
 
-    /**
-     * @param {string} key The capability key.
-     * @param {*} value The capability value.
-     * @return {!Capabilities} A self reference.
-     * @throws {TypeError} If the `key` is not a string.
-     */
-    set(key: string, value: unknown): this;
+  /**
+   * @param key the key to test.
+   * @return whether this capability set has the specified key.
+   */
+  has(key: string): boolean;
 
-    /**
-     * Sets whether a WebDriver session should implicitly accept self-signed, or
-     * other untrusted TLS certificates on navigation.
-     *
-     * @param {boolean} accept whether to accept insecure certs.
-     * @return {!Capabilities} a self reference.
-     */
-    setAcceptInsecureCerts(accept: boolean): this;
+  /**
+   * @return A basic set of capabilities for Internet Explorer.
+   */
+  static ie<T extends Record<Capability, unknown> = Record<Capability, unknown>>(): Capabilities<T>;
 
-    /**
-     * @return {boolean} whether the session is configured to accept insecure
-     *     TLS certificates.
-     */
-    getAcceptInsecureCerts(): boolean | undefined;
+  /**
+   * @return an iterator of the keys set.
+   */
+  keys(): Iterator<string>;
 
-    /**
-     * Sets the name of the target browser.
-     *
-     * @param {(Browser|string)} name the browser name.
-     * @return {!Capabilities} a self reference.
-     */
-    setBrowserName(name: Browser): this;
+  /**
+   * Merges another set of capabilities into this instance.
+   * @param other The other set of capabilities to merge.
+   * @return A self reference.
+   */
+  merge<U extends T>(other: Capabilities<U> | MapOf<U> | U): this;
 
-    /**
-     * @return {(string|undefined)} the configured browser name, or undefined if
-     *     not set.
-     */
-    getBrowserName(): Browser | undefined;
+  /**
+   * @return A basic set of capabilities for Safari.
+   */
+  static safari<T extends Record<Capability, unknown> = Record<Capability, unknown>>(): Capabilities<T>;
 
-    /**
-     * Sets the desired version of the target browser.
-     *
-     * @param {string} version the desired version.
-     * @return {!Capabilities} a self reference.
-     */
-    setBrowserVersion(version: string): this;
+  /**
+   * @param key The capability key.
+   * @param value The capability value.
+   * @return A self reference.
+   * @throws {TypeError} If the `key` is not a string.
+   */
+  set<K extends Capability>(key: K, value: T[K]): this;
+  set<K extends string>(key: K, value: unknown): this;
 
-    /**
-     * @return {(string|undefined)} the configured browser version, or undefined
-     *     if not set.
-     */
-    getBrowserVersion(): string | undefined;
+  /**
+   * Sets whether a WebDriver session should implicitly accept self-signed, or
+   * other untrusted TLS certificates on navigation.
+   *
+   * @param accept whether to accept insecure certs.
+   * @return a self reference.
+   */
+  setAcceptInsecureCerts(accept: boolean): this;
 
-    /**
-     * Sets the desired page loading strategy for a new WebDriver session.
-     *
-     * @param {PageLoadStrategy} strategy the desired strategy.
-     * @return {!Capabilities} a self reference.
-     */
-    setPageLoadStrategy(strategy: PageLoadStrategy): this;
+  /**
+   * Sets the default action to take with an unexpected alert before returning
+   * an error. If unspecified, WebDriver will default to
+   * {@link UserPromptHandler.DISMISS_AND_NOTIFY}.
+   *
+   * @param behavior The way WebDriver should respond to unhandled user prompts.
+   * @return A self reference.
+   */
+  setAlertBehavior(behavior: UserPromptHandler): this;
 
-    /**
-     * Returns the configured page load strategy.
-     *
-     * @return {(string|undefined)} the page load strategy.
-     */
-    getPageLoadStrategy(): PageLoadStrategy | undefined;
+  /**
+   * Sets the name of the target browser.
+   *
+   * @param name the browser name.
+   * @return a self reference.
+   */
+  setBrowserName(name: Browser): this;
 
-    /**
-     * Sets the target platform.
-     *
-     * @param {(Platform|string)} platform the target platform.
-     * @return {!Capabilities} a self reference.
-     */
-    setPlatform(platform: Platform): this;
+  /**
+   * Sets the desired version of the target browser.
+   *
+   * @param version the desired version.
+   * @return a self reference.
+   */
+  setBrowserVersion(version: string): this;
 
-    /**
-     * @return {(string|undefined)} the configured platform or undefined if not
-     *     set.
-     */
-    getPlatform(): Platform | undefined;
+  /**
+   * Sets the logging preferences. Preferences may be specified as a
+   * {@link ./logging.Preferences} instance, or as a map of log-type to
+   * log-level.
+   * @param prefs The logging preferences.
+   * @return A self reference.
+   */
+  setLoggingPrefs(prefs: logging.Preferences | Record<string, number | string | logging.Level>): this;
 
-    /**
-     * Sets the logging preferences. Preferences may be specified as a
-     * {@link ./logging.Preferences} instance, or as a map of log-type to
-     * log-level.
-     * @param {!(./logging.Preferences|Object<string>)} prefs The logging
-     *     preferences.
-     * @return {!Capabilities} A self reference.
-     */
-    setLoggingPrefs(prefs: logging.Preferences | Record<string, logging.Level | number | string>): this;
+  /**
+   * Sets the desired page loading strategy for a new WebDriver session.
+   *
+   * @param strategy the desired strategy.
+   * @return a self reference.
+   */
+  setPageLoadStrategy(strategy: PageLoadStrategy): this;
 
-    /**
-     * Sets the proxy configuration for this instance.
-     * @param {proxy.Config} proxy The desired proxy configuration.
-     * @return {!Capabilities} A self reference.
-     */
-    setProxy(proxy: ProxyConfig): this;
+  /**
+   * Sets the target platform.
+   *
+   * @param platform the target platform.
+   * @return a self reference.
+   */
+  setPlatform(platform: Platform): this;
 
-    /**
-     * @return {(proxy.Config|undefined)} the configured proxy settings, or
-     *     undefined if not set.
-     */
-    getProxy(): ProxyConfig | undefined;
+  /**
+   * Sets the proxy configuration for this instance.
+   * @param proxy The desired proxy configuration.
+   * @return A self reference.
+   */
+  setProxy(proxy: proxy.Config): this;
 
-    /**
-     * Sets the default action to take with an unexpected alert before returning
-     * an error. If unspecified, WebDriver will default to
-     * {@link UserPromptHandler.DISMISS_AND_NOTIFY}.
-     *
-     * @param {?UserPromptHandler} behavior The way WebDriver should respond to
-     *     unhandled user prompts.
-     * @return {!Capabilities} A self reference.
-     */
-    setAlertBehavior(behavior: UserPromptHandler | null): this;
+  /**
+   * Sets the boolean flag configuration for this instance.
+   */
+  setStrictFileInteractability(strictFileInteractability: boolean): this;
 
-    /**
-     * @return {(UserPromptHandler|undefined)} the behavior pattern for responding
-     *     to unhandled user prompts, or undefined if not set.
-     */
-    getAlertBehavior(): UserPromptHandler | undefined;
+  /** @return {number} The number of capabilities set. */
+  get size(): number;
+}
 
-    /** Sets whether strict file interactability checks are enabled. */
-    setStrictFileInteractability(strictFileInteractability: boolean): this;
+/**
+ * Strategies for waiting for [document readiness] after a navigation event.
+ *
+ * [document readiness]: https://html.spec.whatwg.org/#current-document-readiness
+ */
+export const PageLoadStrategy: PageLoadStrategy.Enum;
+export type PageLoadStrategy = SuggestedString<PageLoadStrategy._>;
+export namespace PageLoadStrategy {
+  export interface Enum {
+    EAGER: Eager;
+    NONE: None;
+    NORMAL: Normal;
+  }
 
-    /** Enables managed downloads for the session. */
-    enableDownloads(): this;
+  export type _ = Eager | None | Normal;
+  export type Eager = 'eager';
+  export type None = 'none';
+  export type Normal = 'normal';
+}
 
-    // endregion
+/**
+ * Common platform names. These platforms are not explicitly defined by the
+ * WebDriver spec, however, their use is encouraged for interoperability.
+ *
+ * @see <https://w3c.github.io/webdriver/webdriver-spec.html>
+ */
+export const Platform: Platform.Enum;
+export type Platform = SuggestedString<Platform._>;
+export namespace Platform {
+  export interface Enum {
+    LINUX: Linux;
+    MAC: Mac;
+    WINDOWS: Windows;
+  }
+
+  export type _ = Linux | Mac | Windows;
+  export type Linux = 'linux';
+  export type Mac = 'mac';
+  export type Windows = 'windows';
 }
 
 export interface ITimeouts {
-    /**
-     * Defines when, in milliseconds, to interrupt a script that is being
-     * {@linkplain ./webdriver.IWebDriver#executeScript evaluated}.
-     */
-    script?: number | undefined;
-
-    /**
-     * The timeout, in milliseconds, to apply to navigation events along with the
-     * {@link PageLoadStrategy}.
-     */
-    pageLoad?: number | undefined;
-
-    /**
-     * The maximum amount of time, in milliseconds, to spend attempting to
-     * {@linkplain ./webdriver.IWebDriver#findElement locate} an element on the
-     * current page.
-     */
-    implicit?: number | undefined;
+  /**
+   * The maximum amount of time, in milliseconds, to spend attempting to
+   * {@linkplain ./webdriver.IWebDriver#findElement locate} an element on the
+   * current page.
+   */
+  implicit?: number;
+  /**
+   * The timeout, in milliseconds, to apply to navigation events along with the
+   * {@link PageLoadStrategy}.
+   */
+  pageLoad?: number;
+  /**
+   * Defines when, in milliseconds, to interrupt a script that is being
+   * {@linkplain ./webdriver.IWebDriver#executeScript evaluated}.
+   */
+  script?: number;
 }
 
-/** Runtime-exported timeout record constructor. */
 export class Timeouts implements ITimeouts {
-    script?: number | undefined;
-    pageLoad?: number | undefined;
-    implicit?: number | undefined;
+  implicit?: number;
+  pageLoad?: number;
+  script?: number;
+
+  constructor();
+}
+
+/**
+ * The possible default actions a WebDriver session can take to respond to
+ * unhandled user prompts (`window.alert()`, `window.confirm()`, and
+ * `window.prompt()`).
+ */
+export const UserPromptHandler: UserPromptHandler.Enum;
+export type UserPromptHandler = SuggestedString<UserPromptHandler._>;
+export namespace UserPromptHandler {
+  export interface Enum {
+    /** All prompts should be silently accepted. */
+    ACCEPT: Accept;
+    /**
+     * All prompts should be automatically accepted, but an error should be
+     * returned to the next (or currently executing) WebDriver command.
+     */
+    ACCEPT_AND_NOTIFY: AcceptAndNotify;
+    /** All prompts should be silently dismissed. */
+    DISMISS: Dismiss;
+    /**
+     * All prompts should be automatically dismissed, but an error should be
+     * returned to the next (or currently executing) WebDriver command.
+     */
+    DISMISS_AND_NOTIFY: DismissAndNotify;
+    /** All prompts should be left unhandled. */
+    IGNORE: Ignore;
+  }
+
+  export type _ = Accept | AcceptAndNotify | Dismiss | DismissAndNotify | Ignore;
+  export type Accept = 'accept';
+  export type AcceptAndNotify = 'accept and notify';
+  export type Dismiss = 'dismiss';
+  export type DismissAndNotify = 'dismiss and notify';
+  export type Ignore = 'ignore';
 }

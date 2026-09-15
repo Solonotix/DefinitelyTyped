@@ -744,7 +744,8 @@ export class WebDriver implements IWebDriver {
      *    up any resources associated with the session.
      * @return {!WebDriver} The driver for the newly created session.
      */
-    static createSession(...args: any[]): WebDriver;
+    // static createSession(executor: Executor, capabilities: Capabilities, onQuit?: CallableFunction): WebDriver;
+    static createSession(...args: Array<unknown>): WebDriver;
 
     /** @override */
     execute<T, C extends Command>(command: C): Promise<T>;

@@ -1,11 +1,15 @@
 export type EntryOf<T, K extends keyof T = keyof T, V extends T[K] = T[K]> = [K, V];
 export type EntriesOf<T> = Array<{ [K in keyof T]: EntryOf<T, K> }[keyof T]>;
-export type MapOf<T> = Map<keyof T & string, { [K in keyof T & string]: T[K] }[keyof T & string]>;
+export interface MapOf<T> extends Map<keyof T, T[keyof T]> {
+  [Symbol.iterator](): MapIterator<EntryOf<T>>;
+  get<K extends keyof T>(key: K): T[K] | undefined;
+  set<K extends keyof T>(key: K, value: T[K]): this;
+}
 export type ObjectLike<T> = { [K in keyof T]?: T[K] | undefined };
 
+// See GitHub issue for why this pattern is used https://github.com/microsoft/TypeScript/issues/29729
 /** Preserves literal suggestions while allowing arbitrary numeric values. */
 export type SuggestedNumber<T extends number> = T | (number & {});
-
 /** Preserves literal suggestions while allowing arbitrary string values. */
 export type SuggestedString<T extends string> = T | (string & {});
 
@@ -17,15 +21,15 @@ export type EventListener<A extends ReadonlyArray<unknown> = []> = TypedFunction
 export type EventListenerSimple<T> = EventListener<[T]>;
 
 export namespace Internal {
-    export { 
-        EntriesOf, 
+    export {
+        EntriesOf,
         EntryOf,
         ErrorFirstCallback,
-        EventListener, 
-        MapOf, 
-        ObjectLike, 
-        SuggestedNumber, 
-        SuggestedString, 
-        TypedFunction 
+        EventListener,
+        MapOf,
+        ObjectLike,
+        SuggestedNumber,
+        SuggestedString,
+        TypedFunction
     };
 }
